@@ -13,11 +13,17 @@
 # - Added joystick support (configure by changing JS_* constants)
 # - Added a high-score list. Depends on wx for querying the user's name
 
+# Modified by Andy Sommerville, 11 October 2007:
+# - Mom's eyes aren't what they used to be, so I'm switching 16x16 tiles to 24x24
+#   Added constants TILE_WIDTH,TILE_HEIGHT to make this easier to change later.
+
 import pygame, sys, os, random
 from pygame.locals import *
 
 # WIN???
 SCRIPT_PATH=sys.path[0]
+
+TILE_WIDTH=TILE_HEIGHT=24
 
 # NO_GIF_TILES -- tile numbers which do not correspond to a GIF file
 # currently only "23" for the high-score list
@@ -25,17 +31,37 @@ NO_GIF_TILES=[23]
 
 NO_WX=0 # if set, the high-score code will not attempt to ask the user his name
 USER_NAME="User" # USER_NAME=os.getlogin() # the default user name if wx fails to load or NO_WX
+                 # Oops! os.getlogin() only works if you launch from a terminal
+# constants for the high-score display
+HS_FONT_SIZE=14
+HS_LINE_HEIGHT=16
+HS_WIDTH=408
+HS_HEIGHT=120
+HS_XOFFSET=48
+HS_YOFFSET=384
+HS_ALPHA=200
+
+# new constants for the score's position
+SCORE_XOFFSET=50 # pixels from left edge
+SCORE_YOFFSET=34 # pixels from bottom edge (to top of score)
+SCORE_COLWIDTH=13 # width of each character
 
 # Joystick defaults - maybe add a Preferences dialog in the future?
 JS_DEVNUM=0 # device 0 (pygame joysticks always start at 0). if JS_DEVNUM is not a valid device, will use 0
 JS_XAXIS=0 # axis 0 for left/right (default for most joysticks)
 JS_YAXIS=1 # axis 1 for up/down (default for most joysticks)
-JS_STARTBUTTON=0 # button number to start the game. this is a matter of personal preference, and will vary from device to device
+JS_STARTBUTTON=9 # button number to start the game. this is a matter of personal preference, and will vary from device to device
+
+# See GetCrossRef() -- where these colors occur in a GIF, they are replaced according to the level file
+IMG_EDGE_LIGHT_COLOR = (0xff,0xce,0xff,0xff)
+IMG_FILL_COLOR = (0x84,0x00,0x84,0xff)
+IMG_EDGE_SHADOW_COLOR = (0xff,0x00,0xff,0xff)
+IMG_PELLET_COLOR = (0x80,0x00,0x80,0xff)
 
 # Must come before pygame.init()
 pygame.mixer.pre_init(22050,16,2,512)
-JS_STARTBUTTON=0 # button number to start the game. this is a matter of personal preference, and will vary from device to device
 pygame.mixer.init()
+
 
 clock = pygame.time.Clock()
 pygame.init()
@@ -132,15 +158,15 @@ class game ():
     def makehiscorelist(self):
             "Read the High-Score file and convert it to a useable Surface."
             # My apologies for all the hard-coded constants.... -Andy
-            f=pygame.font.Font(os.path.join(SCRIPT_PATH,"res","VeraMoBd.ttf"),10)
-            scoresurf=pygame.Surface((276,86),pygame.SRCALPHA)
-            scoresurf.set_alpha(200)
+            f=pygame.font.Font(os.path.join(SCRIPT_PATH,"res","VeraMoBd.ttf"),HS_FONT_SIZE)
+            scoresurf=pygame.Surface((HS_WIDTH,HS_HEIGHT),pygame.SRCALPHA)
+            scoresurf.set_alpha(HS_ALPHA)
             linesurf=f.render(" "*18+"HIGH SCORES",1,(255,255,0))
             scoresurf.blit(linesurf,(0,0))
             hs=self.gethiscores()
             vpos=0
             for line in hs:
-              vpos+=12
+              vpos+=HS_LINE_HEIGHT
               linesurf=f.render(line[1].rjust(22)+str(line[0]).rjust(9),1,(255,255,255))
               scoresurf.blit(linesurf,(0,vpos))
             return scoresurf
@@ -177,7 +203,7 @@ class game ():
         self.screenPixelOffset = (0, 0) # offset in pixels of the screen from its nearest-tile position
 
         self.screenTileSize = (23, 21)
-        self.screenSize = (self.screenTileSize[1] * 16, self.screenTileSize[0] * 16)
+        self.screenSize = (self.screenTileSize[1] * TILE_WIDTH, self.screenTileSize[0] * TILE_HEIGHT)
 
         # numerical display digits
         self.digit = {}
@@ -210,19 +236,19 @@ class game ():
 
 
     def DrawScore (self):
-        self.DrawNumber (self.score, (24 + 16, self.screenSize[1] - 24) )
+        self.DrawNumber (self.score, (SCORE_XOFFSET, self.screenSize[1] - SCORE_YOFFSET) )
 
         for i in range(0, self.lives, 1):
-            screen.blit (self.imLife, (24 + i * 10 + 16, self.screenSize[1] - 12) )
+            screen.blit (self.imLife, (34 + i * 10 + 16, self.screenSize[1] - 18) )
 
-        screen.blit (thisFruit.imFruit[ thisFruit.fruitType ], (4 + 16, self.screenSize[1] - 20) )
+        screen.blit (thisFruit.imFruit[ thisFruit.fruitType ], (4 + 16, self.screenSize[1] - 28) )
 
         if self.mode == 3:
-            screen.blit (self.imGameOver, (self.screenSize[0] / 2 - 32, self.screenSize[1] / 2 - 10) )
+            screen.blit (self.imGameOver, (self.screenSize[0] / 2 - (self.imGameOver.get_width()/2), self.screenSize[1] / 2 - (self.imGameOver.get_height()/2)) )
         elif self.mode == 4:
             screen.blit (self.imReady, (self.screenSize[0] / 2 - 20, self.screenSize[1] / 2 + 12) )
 
-        self.DrawNumber (self.levelNum, (0, self.screenSize[1] - 12) )
+        self.DrawNumber (self.levelNum, (0, self.screenSize[1] - 20) )
 
     def DrawNumber (self, number, position):
         (x, y) = position
@@ -230,30 +256,30 @@ class game ():
 
         for i in range(0, len(strNumber), 1):
             iDigit = int(strNumber[i])
-            screen.blit (self.digit[ iDigit ], (x + i * 9, y) )
+            screen.blit (self.digit[ iDigit ], (x + i * SCORE_COLWIDTH, y) )
 
     def SmartMoveScreen (self):
 
-        possibleScreenX = player.x - self.screenTileSize[1] / 2 * 16
-        possibleScreenY = player.y - self.screenTileSize[0] / 2 * 16
+        possibleScreenX = player.x - self.screenTileSize[1] / 2 * TILE_WIDTH
+        possibleScreenY = player.y - self.screenTileSize[0] / 2 * TILE_HEIGHT
 
         if possibleScreenX < 0:
             possibleScreenX = 0
-        elif possibleScreenX > thisLevel.lvlWidth * 16 - self.screenSize[0]:
-            possibleScreenX = thisLevel.lvlWidth * 16 - self.screenSize[0]
+        elif possibleScreenX > thisLevel.lvlWidth * TILE_WIDTH - self.screenSize[0]:
+            possibleScreenX = thisLevel.lvlWidth * TILE_HEIGHT - self.screenSize[0]
 
         if possibleScreenY < 0:
             possibleScreenY = 0
-        elif possibleScreenY > thisLevel.lvlHeight * 16 - self.screenSize[1]:
-            possibleScreenY = thisLevel.lvlHeight * 16 - self.screenSize[1]
+        elif possibleScreenY > thisLevel.lvlHeight * TILE_WIDTH - self.screenSize[1]:
+            possibleScreenY = thisLevel.lvlHeight * TILE_HEIGHT - self.screenSize[1]
 
         thisGame.MoveScreen( (possibleScreenX, possibleScreenY) )
 
     def MoveScreen (self, newPosition ):
         (newX, newY) = newPosition
         self.screenPixelPos = newPosition
-        self.screenNearestTilePos = (int(newY / 16), int(newX / 16)) # nearest-tile position of the screen from the UL corner
-        self.screenPixelOffset = (newX - self.screenNearestTilePos[1]*16, newY - self.screenNearestTilePos[0]*16)
+        self.screenNearestTilePos = (int(newY / TILE_HEIGHT), int(newX / TILE_WIDTH)) # nearest-tile position of the screen from the UL corner
+        self.screenPixelOffset = (newX - self.screenNearestTilePos[1]*TILE_WIDTH, newY - self.screenNearestTilePos[0]*TILE_HEIGHT)
 
     def GetScreenPos (self):
         return self.screenPixelPos
@@ -515,7 +541,7 @@ class path_finder ():
             for col in range(0, self.size[1], 1):
 
                 thisTile = self.GetType((row, col))
-                screen.blit (tileIDImage[ thisTile ], (col * 32, row * 32))
+                screen.blit (tileIDImage[ thisTile ], (col * (TILE_WIDTH*2), row * (TILE_WIDTH*2)))
 
 class ghost ():
     def __init__ (self, ghostID):
@@ -546,8 +572,8 @@ class ghost ():
             self.anim[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","sprite","ghost " + str(i) + ".gif")).convert()
 
             # change the ghost color in this frame
-            for y in range(0, 16, 1):
-                for x in range(0, 16, 1):
+            for y in range(0, TILE_HEIGHT, 1):
+                for x in range(0, TILE_WIDTH, 1):
 
                     if self.anim[i].get_at( (x, y) ) == (255, 0, 0, 255):
                         # default, red ghost body color
@@ -563,30 +589,30 @@ class ghost ():
 
 
         # ghost eyes --
-        for y in range(4, 8, 1):
-            for x in range(3, 7, 1):
-                self.anim[ self.animFrame ].set_at( (x, y), (255, 255, 255, 255) )
-                self.anim[ self.animFrame ].set_at( (x+6, y), (255, 255, 255, 255) )
+        for y in range(6,12,1):
+            for x in [5,6,8,9]:
+                self.anim[ self.animFrame ].set_at( (x, y), (0xf8,0xf8,0xf8,255) )
+                self.anim[ self.animFrame ].set_at( (x+9, y), (0xf8,0xf8,0xf8,255) )
 
-                if player.x > self.x and player.y > self.y:
-                    #player is to lower-right
-                    pupilSet = (5, 6)
-                elif player.x < self.x and player.y > self.y:
-                    #player is to lower-left
-                    pupilSet = (3, 6)
-                elif player.x > self.x and player.y < self.y:
-                    #player is to upper-right
-                    pupilSet = (5, 4)
-                elif player.x < self.x and player.y < self.y:
-                    #player is to upper-left
-                    pupilSet = (3, 4)
-                else:
-                    pupilSet = (4, 6)
+        if player.x > self.x and player.y > self.y:
+            #player is to lower-right
+            pupilSet = (8,9)
+        elif player.x < self.x and player.y > self.y:
+            #player is to lower-left
+            pupilSet = (5,9)
+        elif player.x > self.x and player.y < self.y:
+            #player is to upper-right
+            pupilSet = (8,6)
+        elif player.x < self.x and player.y < self.y:
+            #player is to upper-left
+            pupilSet = (5,6)
+        else:
+            pupilSet = (5,9)
 
-        for y in range(pupilSet[1], pupilSet[1] + 2, 1):
+        for y in range(pupilSet[1], pupilSet[1] + 3, 1):
             for x in range(pupilSet[0], pupilSet[0] + 2, 1):
                 self.anim[ self.animFrame ].set_at( (x, y), (0, 0, 255, 255) )
-                self.anim[ self.animFrame ].set_at( (x+6, y), (0, 0, 255, 255) )
+                self.anim[ self.animFrame ].set_at( (x+9, y), (0, 0, 255, 255) )
         # -- end ghost eyes
 
         if self.state == 1:
@@ -631,20 +657,20 @@ class ghost ():
         self.x += self.velX
         self.y += self.velY
 
-        self.nearestRow = int(((self.y + 8) / 16))
-        self.nearestCol = int(((self.x + 8) / 16))
+        self.nearestRow = int(((self.y + (TILE_HEIGHT/2)) / TILE_HEIGHT))
+        self.nearestCol = int(((self.x + (TILE_HEIGHT/2)) / TILE_WIDTH))
 
-        if (self.x % 16) == 0 and (self.y % 16) == 0:
+        if (self.x % TILE_WIDTH) == 0 and (self.y % TILE_HEIGHT) == 0:
             # if the ghost is lined up with the grid again
             # meaning, it's time to go to the next path item
 
-            if (self.currentPath):
+            if len(self.currentPath) > 0:
                 self.currentPath = self.currentPath[1:]
                 self.FollowNextPathWay()
 
             else:
-                self.x = self.nearestCol * 16
-                self.y = self.nearestRow * 16
+                self.x = self.nearestCol * TILE_WIDTH
+                self.y = self.nearestRow * TILE_HEIGHT
 
                 # chase pac-man
                 self.currentPath = path.FindPath( (self.nearestRow, self.nearestCol), (player.nearestRow, player.nearestCol) )
@@ -694,11 +720,11 @@ class fruit ():
     def __init__ (self):
         # when fruit is not in use, it's in the (-1, -1) position off-screen.
         self.slowTimer = 0
-        self.x = -16
-        self.y = -16
+        self.x = -TILE_WIDTH
+        self.y = -TILE_HEIGHT
         self.velX = 0
         self.velY = 0
-        self.speed = 1
+        self.speed = 2
         self.active = False
 
         self.bouncei = 0
@@ -766,10 +792,10 @@ class fruit ():
             self.x += self.velX
             self.y += self.velY
 
-            self.nearestRow = int(((self.y + 8) / 16))
-            self.nearestCol = int(((self.x + 8) / 16))
+            self.nearestRow = int(((self.y + (TILE_WIDTH/2)) / TILE_WIDTH))
+            self.nearestCol = int(((self.x + (TILE_HEIGHT/2)) / TILE_HEIGHT))
 
-            if (self.x % 16) == 0 and (self.y % 16) == 0:
+            if (self.x % TILE_WIDTH) == 0 and (self.y % TILE_HEIGHT) == 0:
                 # if the fruit is lined up with the grid again
                 # meaning, it's time to go to the next path item
 
@@ -778,8 +804,8 @@ class fruit ():
                     self.FollowNextPathWay()
 
                 else:
-                    self.x = self.nearestCol * 16
-                    self.y = self.nearestRow * 16
+                    self.x = self.nearestCol * TILE_WIDTH
+                    self.y = self.nearestRow * TILE_HEIGHT
 
                     self.active = False
                     thisGame.fruitTimer = 0
@@ -807,7 +833,7 @@ class pacman ():
         self.y = 0
         self.velX = 0
         self.velY = 0
-        self.speed = 2
+        self.speed = 3
 
         self.nearestRow = 0
         self.nearestCol = 0
@@ -833,8 +859,8 @@ class pacman ():
 
     def Move (self):
 
-        self.nearestRow = int(((self.y + 8) / 16))
-        self.nearestCol = int(((self.x + 8) / 16))
+        self.nearestRow = int(((self.y + (TILE_WIDTH/2)) / TILE_WIDTH))
+        self.nearestCol = int(((self.x + (TILE_HEIGHT/2)) / TILE_HEIGHT))
 
         # make sure the current velocity will not cause a collision before moving
         if not thisLevel.CheckIfHitWall((self.x + self.velX, self.y + self.velY), (self.nearestRow, self.nearestCol)):
@@ -847,7 +873,7 @@ class pacman ():
 
             # check for collisions with the ghosts
             for i in range(0, 4, 1):
-                if thisLevel.CheckIfHit( (self.x, self.y), (ghosts[i].x, ghosts[i].y), 8):
+                if thisLevel.CheckIfHit( (self.x, self.y), (ghosts[i].x, ghosts[i].y), TILE_WIDTH/2):
                     # hit a ghost
 
                     if ghosts[i].state == 1:
@@ -865,8 +891,8 @@ class pacman ():
                         ghosts[i].state = 3
                         ghosts[i].speed = ghosts[i].speed * 4
                         # and send them to the ghost box
-                        ghosts[i].x = ghosts[i].nearestCol * 16
-                        ghosts[i].y = ghosts[i].nearestRow * 16
+                        ghosts[i].x = ghosts[i].nearestCol * TILE_WIDTH
+                        ghosts[i].y = ghosts[i].nearestRow * TILE_HEIGHT
                         ghosts[i].currentPath = path.FindPath( (ghosts[i].nearestRow, ghosts[i].nearestCol), (thisLevel.GetGhostBoxPos()[0]+1, thisLevel.GetGhostBoxPos()[1]) )
                         ghosts[i].FollowNextPathWay()
 
@@ -875,7 +901,7 @@ class pacman ():
 
             # check for collisions with the fruit
             if thisFruit.active == True:
-                if thisLevel.CheckIfHit( (self.x, self.y), (thisFruit.x, thisFruit.y), 8):
+                if thisLevel.CheckIfHit( (self.x, self.y), (thisFruit.x, thisFruit.y), TILE_WIDTH/2):
                     thisGame.AddToScore(2500)
                     thisFruit.active = False
                     thisGame.fruitTimer = 0
@@ -912,8 +938,8 @@ class pacman ():
                 thisFruit.nearestRow = pathwayEntrance[0]
                 thisFruit.nearestCol = pathwayEntrance[1]
 
-                thisFruit.x = thisFruit.nearestCol * 16
-                thisFruit.y = thisFruit.nearestRow * 16
+                thisFruit.x = thisFruit.nearestCol * TILE_WIDTH
+                thisFruit.y = thisFruit.nearestRow * TILE_HEIGHT
 
                 thisFruit.currentPath = path.FindPath( (thisFruit.nearestRow, thisFruit.nearestCol), pathwayExit )
                 thisFruit.FollowNextPathWay()
@@ -1003,7 +1029,7 @@ class level ():
         for iRow in range(row - 1, row + 2, 1):
             for iCol in range(col - 1, col + 2, 1):
 
-                if  (possiblePlayerX - (iCol * 16) < 16) and (possiblePlayerX - (iCol * 16) > -16) and (possiblePlayerY - (iRow * 16) < 16) and (possiblePlayerY - (iRow * 16) > -16):
+                if  (possiblePlayerX - (iCol * TILE_WIDTH) < TILE_WIDTH) and (possiblePlayerX - (iCol * TILE_WIDTH) > -TILE_WIDTH) and (possiblePlayerY - (iRow * TILE_HEIGHT) < TILE_HEIGHT) and (possiblePlayerY - (iRow * TILE_HEIGHT) > -TILE_HEIGHT):
 
                     if self.IsWall((iRow, iCol)):
                         numCollisions += 1
@@ -1031,7 +1057,7 @@ class level ():
         for iRow in range(row - 1, row + 2, 1):
             for iCol in range(col - 1, col + 2, 1):
 
-                if  (playerX - (iCol * 16) < 16) and (playerX - (iCol * 16) > -16) and (playerY - (iRow * 16) < 16) and (playerY - (iRow * 16) > -16):
+                if  (playerX - (iCol * TILE_WIDTH) < TILE_WIDTH) and (playerX - (iCol * TILE_WIDTH) > -TILE_WIDTH) and (playerY - (iRow * TILE_HEIGHT) < TILE_HEIGHT) and (playerY - (iRow * TILE_HEIGHT) > -TILE_HEIGHT):
                     # check the offending tile ID
                     result = thisLevel.GetMapTile((iRow, iCol))
 
@@ -1054,6 +1080,7 @@ class level ():
                     elif result == tileID[ 'pellet-power' ]:
                         # got a power pellet
                         thisLevel.SetMapTile((iRow, iCol), 0)
+                        pygame.mixer.stop()
                         snd_powerpellet.play()
 
                         thisGame.AddToScore(100)
@@ -1064,29 +1091,45 @@ class level ():
                             if ghosts[i].state == 1:
                                 ghosts[i].state = 2
 
+                                """
+                                # Must line up with grid before invoking a new path (for now)
+                                ghosts[i].x = ghosts[i].nearestCol * TILE_HEIGHT
+                                ghosts[i].y = ghosts[i].nearestRow * TILE_WIDTH
+
+                                # give each ghost a path to a random spot (containing a pellet)
+                                (randRow, randCol) = (0, 0)
+
+                                while not self.GetMapTile((randRow, randCol)) == tileID[ 'pellet' ] or (randRow, randCol) == (0, 0):
+                                    randRow = random.randint(1, self.lvlHeight - 2)
+                                    randCol = random.randint(1, self.lvlWidth - 2)
+                                ghosts[i].currentPath = path.FindPath( (ghosts[i].nearestRow, ghosts[i].nearestCol), (randRow, randCol) )
+
+                                ghosts[i].FollowNextPathWay()
+                                """
+
                     elif result == tileID[ 'door-h' ]:
                         # ran into a horizontal door
                         for i in range(0, thisLevel.lvlWidth, 1):
                             if not i == iCol:
                                 if thisLevel.GetMapTile((iRow, i)) == tileID[ 'door-h' ]:
-                                    player.x = i * 16
+                                    player.x = i * TILE_WIDTH
 
                                     if player.velX > 0:
-                                        player.x += 16
+                                        player.x += TILE_WIDTH
                                     else:
-                                        player.x -= 16
+                                        player.x -= TILE_WIDTH
 
                     elif result == tileID[ 'door-v' ]:
                         # ran into a vertical door
                         for i in range(0, thisLevel.lvlHeight, 1):
                             if not i == iRow:
                                 if thisLevel.GetMapTile((i, iCol)) == tileID[ 'door-v' ]:
-                                    player.y = i * 16
+                                    player.y = i * TILE_HEIGHT
 
                                     if player.velY > 0:
-                                        player.y += 16
+                                        player.y += TILE_HEIGHT
                                     else:
-                                        player.y -= 16
+                                        player.y -= TILE_HEIGHT
 
     def GetGhostBoxPos (self):
 
@@ -1162,16 +1205,16 @@ class level ():
 
                     if useTile == tileID['pellet-power']:
                         if self.powerPelletBlinkTimer < 30:
-                            screen.blit (tileIDImage[ useTile ], (col * 16 - thisGame.screenPixelOffset[0], row * 16 - thisGame.screenPixelOffset[1]) )
+                            screen.blit (tileIDImage[ useTile ], (col * TILE_WIDTH - thisGame.screenPixelOffset[0], row * TILE_HEIGHT - thisGame.screenPixelOffset[1]) )
 
                     elif useTile == tileID['showlogo']:
-                        screen.blit (thisGame.imLogo, (col * 16 - thisGame.screenPixelOffset[0], row * 16 - thisGame.screenPixelOffset[1]) )
+                        screen.blit (thisGame.imLogo, (col * TILE_WIDTH - thisGame.screenPixelOffset[0], row * TILE_HEIGHT - thisGame.screenPixelOffset[1]) )
 
                     elif useTile == tileID['hiscores']:
-                            screen.blit(thisGame.imHiscores,(col*16-thisGame.screenPixelOffset[0],row*16-thisGame.screenPixelOffset[1]))
+                            screen.blit(thisGame.imHiscores,(col*TILE_WIDTH-thisGame.screenPixelOffset[0],row*TILE_HEIGHT-thisGame.screenPixelOffset[1]))
 
                     else:
-                        screen.blit (tileIDImage[ useTile ], (col * 16 - thisGame.screenPixelOffset[0], row * 16 - thisGame.screenPixelOffset[1]) )
+                        screen.blit (tileIDImage[ useTile ], (col * TILE_WIDTH - thisGame.screenPixelOffset[0], row * TILE_HEIGHT - thisGame.screenPixelOffset[1]) )
 
     def LoadLevel (self, levelNum):
 
@@ -1180,9 +1223,6 @@ class level ():
         self.pellets = 0
 
         f = open(os.path.join(SCRIPT_PATH,"res","levels",str(levelNum) + ".txt"), 'r')
-        # ANDY -- edit this
-        #fileOutput = f.read()
-        #str_splitByLine = fileOutput.split('\n')
         lineNum=-1
         rowNum = 0
         useLine = False
@@ -1280,15 +1320,15 @@ class level ():
                         if thisID == 4:
                             # starting position for pac-man
 
-                            player.homeX = k * 16
-                            player.homeY = rowNum * 16
+                            player.homeX = k * TILE_WIDTH
+                            player.homeY = rowNum * TILE_HEIGHT
                             self.SetMapTile((rowNum, k), 0 )
 
                         elif thisID >= 10 and thisID <= 13:
                             # one of the ghosts
 
-                            ghosts[thisID - 10].homeX = k * 16
-                            ghosts[thisID - 10].homeY = rowNum * 16
+                            ghosts[thisID - 10].homeX = k * TILE_WIDTH
+                            ghosts[thisID - 10].homeY = rowNum * TILE_HEIGHT
                             self.SetMapTile((rowNum, k), 0 )
 
                         elif thisID == 2:
@@ -1396,9 +1436,6 @@ def CheckInputs():
 def GetCrossRef ():
 
     f = open(os.path.join(SCRIPT_PATH,"res","crossref.txt"), 'r')
-    # ANDY -- edit
-    #fileOutput = f.read()
-    #str_splitByLine = fileOutput.split('\n')
 
     lineNum = 0
     useLine = False
@@ -1427,25 +1464,25 @@ def GetCrossRef ():
             if not thisID in NO_GIF_TILES:
                 tileIDImage[ thisID ] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","tiles",str_splitBySpace[1] + ".gif")).convert()
             else:
-                    tileIDImage[ thisID ] = pygame.Surface((16,16))
+                    tileIDImage[ thisID ] = pygame.Surface((TILE_WIDTH,TILE_HEIGHT))
 
             # change colors in tileIDImage to match maze colors
-            for y in range(0, 16, 1):
-                for x in range(0, 16, 1):
+            for y in range(0, TILE_WIDTH, 1):
+                for x in range(0, TILE_HEIGHT, 1):
 
-                    if tileIDImage[ thisID ].get_at( (x, y) ) == (255, 206, 255, 255):
+                    if tileIDImage[ thisID ].get_at( (x, y) ) == IMG_EDGE_LIGHT_COLOR:
                         # wall edge
                         tileIDImage[ thisID ].set_at( (x, y), thisLevel.edgeLightColor )
 
-                    elif tileIDImage[ thisID ].get_at( (x, y) ) == (132, 0, 132, 255):
+                    elif tileIDImage[ thisID ].get_at( (x, y) ) == IMG_FILL_COLOR:
                         # wall fill
                         tileIDImage[ thisID ].set_at( (x, y), thisLevel.fillColor )
 
-                    elif tileIDImage[ thisID ].get_at( (x, y) ) == (255, 0, 255, 255):
+                    elif tileIDImage[ thisID ].get_at( (x, y) ) == IMG_EDGE_SHADOW_COLOR:
                         # pellet color
                         tileIDImage[ thisID ].set_at( (x, y), thisLevel.edgeShadowColor )
 
-                    elif tileIDImage[ thisID ].get_at( (x, y) ) == (128, 0, 128, 255):
+                    elif tileIDImage[ thisID ].get_at( (x, y) ) == IMG_PELLET_COLOR:
                         # pellet color
                         tileIDImage[ thisID ].set_at( (x, y), thisLevel.pelletColor )
 
@@ -1593,7 +1630,7 @@ while True:
         player.Draw()
 
         if thisGame.mode == 3:
-            screen.blit(thisGame.imHiscores,(32,256))
+                screen.blit(thisGame.imHiscores,(HS_XOFFSET,HS_YOFFSET))
 
     if thisGame.mode == 5:
         thisGame.DrawNumber (thisGame.ghostValue / 2, (player.x - thisGame.screenPixelPos[0] - 4, player.y - thisGame.screenPixelPos[1] + 6))

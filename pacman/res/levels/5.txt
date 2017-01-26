@@ -2,7 +2,7 @@
 # lvlheight 65
 # bgcolor 0 0 0
 # edgelightcolor 255 0 128
-# edgeshadowcolor 0 0 0
+# edgeshadowcolor 100 0 50
 # fillcolor 0 0 0
 # pelletcolor 0 0 255
 # fruittype 4
