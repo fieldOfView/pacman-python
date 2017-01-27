@@ -95,7 +95,9 @@ ghostcolor[5] = (255, 255, 255, 255) # white, flashing ghost
 
 class Game():
 
-    def __init__(self):
+    def __init__(self, pacman):
+        self.pacman = pacman
+
         self.levelNum = 0
         self.score = 0
         self.lives = 3
@@ -157,7 +159,7 @@ class Game():
               while len(hs)<6: hs.append((0,""))
               return hs
             except IOError:
-              return self.defaulthiscorelist()
+              return self.defaultHiScorelist()
 
     def writeHiScores(self,hs):
             """Given a new list, write it to the default file."""
@@ -213,7 +215,7 @@ class Game():
 
     def drawMidGameHiScores(self):
             """Redraw the high-score list image after pacman dies."""
-            self.imHiscores=self.makehiscorelist()
+            self.imHiscores=self.makeHiScoreList()
 
     def startNewGame(self):
         self.levelNum = 1
@@ -221,7 +223,7 @@ class Game():
         self.lives = 3
 
         self.setMode( 4 )
-        thisLevel.loadLevel( thisGame.getLevelNum() )
+        self.pacman.level.loadLevel( self.pacman.game.getLevelNum() )
 
     def addToScore(self, amount):
 
@@ -230,7 +232,7 @@ class Game():
         for specialScore in extraLifeSet:
             if self.score < specialScore and self.score + amount >= specialScore:
                 snd_extralife.play()
-                thisGame.lives += 1
+                self.pacman.game.lives += 1
 
         self.score += amount
 
@@ -241,7 +243,7 @@ class Game():
         for i in range(0, self.lives, 1):
             screen.blit (self.imLife, (34 + i * 10 + 16, self.screenSize[1] - 18) )
 
-        screen.blit (thisFruit.imFruit[ thisFruit.fruitType ], (4 + 16, self.screenSize[1] - 28) )
+        screen.blit (self.pacman.fruit.imFruit[ self.pacman.fruit.fruitType ], (4 + 16, self.screenSize[1] - 28) )
 
         if self.mode == 3:
             screen.blit (self.imGameOver, (self.screenSize[0] / 2 - (self.imGameOver.get_width()/2), self.screenSize[1] / 2 - (self.imGameOver.get_height()/2)) )
@@ -260,20 +262,20 @@ class Game():
 
     def smartMoveScreen(self):
 
-        possibleScreenX = player.x - self.screenTileSize[1] / 2 * TILE_WIDTH
-        possibleScreenY = player.y - self.screenTileSize[0] / 2 * TILE_HEIGHT
+        possibleScreenX = self.pacman.player.x - self.screenTileSize[1] / 2 * TILE_WIDTH
+        possibleScreenY = self.pacman.player.y - self.screenTileSize[0] / 2 * TILE_HEIGHT
 
         if possibleScreenX < 0:
             possibleScreenX = 0
-        elif possibleScreenX > thisLevel.lvlWidth * TILE_WIDTH - self.screenSize[0]:
-            possibleScreenX = thisLevel.lvlWidth * TILE_HEIGHT - self.screenSize[0]
+        elif possibleScreenX > self.pacman.level.lvlWidth * TILE_WIDTH - self.screenSize[0]:
+            possibleScreenX = self.pacman.level.lvlWidth * TILE_HEIGHT - self.screenSize[0]
 
         if possibleScreenY < 0:
             possibleScreenY = 0
-        elif possibleScreenY > thisLevel.lvlHeight * TILE_WIDTH - self.screenSize[1]:
-            possibleScreenY = thisLevel.lvlHeight * TILE_HEIGHT - self.screenSize[1]
+        elif possibleScreenY > self.pacman.level.lvlHeight * TILE_WIDTH - self.screenSize[1]:
+            possibleScreenY = self.pacman.level.lvlHeight * TILE_HEIGHT - self.screenSize[1]
 
-        thisGame.moveScreen( (possibleScreenX, possibleScreenY) )
+        self.pacman.game.moveScreen( (possibleScreenX, possibleScreenY) )
 
     def moveScreen(self, newPosition ):
         (newX, newY) = newPosition
@@ -291,11 +293,11 @@ class Game():
         self.levelNum += 1
 
         self.setMode( 4 )
-        thisLevel.loadLevel( thisGame.getLevelNum() )
+        self.pacman.level.loadLevel( self.pacman.game.getLevelNum() )
 
-        player.velX = 0
-        player.velY = 0
-        player.anim_pacmanCurrent = player.anim_pacmanS
+        self.pacman.player.velX = 0
+        self.pacman.player.velY = 0
+        self.pacman.player.anim_pacmanCurrent = self.pacman.player.anim_pacmanS
 
 
     def setMode(self, newMode):
@@ -305,7 +307,8 @@ class Game():
 
 class Node():
 
-    def __init__(self):
+    def __init__(self, pacman):
+        self.pacman = pacman
         self.g = -1 # movement cost to move from previous node to this one (usually +10)
         self.h = -1 # estimated movement cost to move from this node to the ending node (remaining horizontal and vertical steps * 10)
         self.f = -1 # total movement cost of this node (= g + h)
@@ -316,7 +319,8 @@ class Node():
 
 class PathFinder():
 
-    def __init__(self):
+    def __init__(self, pacman):
+        self.pacman = pacman
         # map is a 1-DIMENSIONAL array.
         # use the Unfold( (row, col) ) function to convert a 2D coordinate pair
         # into a 1D index to use with this array.
@@ -348,7 +352,7 @@ class PathFinder():
         # initialize path_finder map to a 2D array of empty nodes
         for row in range(0, self.size[0], 1):
             for col in range(0, self.size[1], 1):
-                self.set( (row, col), Node() )
+                self.set( (row, col), Node(self.pacman) )
                 self.setType( (row, col), 0 )
 
     def cleanUpTemp(self):
@@ -541,11 +545,12 @@ class PathFinder():
             for col in range(0, self.size[1], 1):
 
                 thisTile = self.getType((row, col))
-                screen.blit (tileIDImage[ thisTile ], (col * (TILE_WIDTH*2), row * (TILE_WIDTH*2)))
+                screen.blit (self.pacman.tileIDImage[ thisTile ], (col * (TILE_WIDTH*2), row * (TILE_WIDTH*2)))
 
 class Ghost():
 
-    def __init__(self, ghostID):
+    def __init__(self, pacman, ghostID):
+        self.pacman = pacman
         self.x = 0
         self.y = 0
         self.velX = 0
@@ -585,7 +590,7 @@ class Ghost():
 
     def draw(self):
 
-        if thisGame.mode == 3:
+        if self.pacman.game.mode == 3:
             return False
 
 
@@ -595,16 +600,16 @@ class Ghost():
                 self.anim[ self.animFrame ].set_at( (x, y), (0xf8,0xf8,0xf8,255) )
                 self.anim[ self.animFrame ].set_at( (x+9, y), (0xf8,0xf8,0xf8,255) )
 
-        if player.x > self.x and player.y > self.y:
+        if self.pacman.player.x > self.x and self.pacman.player.y > self.y:
             #player is to lower-right
             pupilSet = (8,9)
-        elif player.x < self.x and player.y > self.y:
+        elif self.pacman.player.x < self.x and self.pacman.player.y > self.y:
             #player is to lower-left
             pupilSet = (5,9)
-        elif player.x > self.x and player.y < self.y:
+        elif self.pacman.player.x > self.x and self.pacman.player.y < self.y:
             #player is to upper-right
             pupilSet = (8,6)
-        elif player.x < self.x and player.y < self.y:
+        elif self.pacman.player.x < self.x and self.pacman.player.y < self.y:
             #player is to upper-left
             pupilSet = (5,6)
         else:
@@ -618,26 +623,26 @@ class Ghost():
 
         if self.state == 1:
             # draw regular ghost (this one)
-            screen.blit (self.anim[ self.animFrame ], (self.x - thisGame.screenPixelPos[0], self.y - thisGame.screenPixelPos[1]))
+            screen.blit (self.anim[ self.animFrame ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1]))
         elif self.state == 2:
             # draw vulnerable ghost
 
-            if thisGame.ghostTimer > 100:
+            if self.pacman.game.ghostTimer > 100:
                 # blue
-                screen.blit (ghosts[4].anim[ self.animFrame ], (self.x - thisGame.screenPixelPos[0], self.y - thisGame.screenPixelPos[1]))
+                screen.blit (self.pacman.ghosts[4].anim[ self.animFrame ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1]))
             else:
                 # blue/white flashing
-                tempTimerI = int(thisGame.ghostTimer / 10)
+                tempTimerI = int(self.pacman.game.ghostTimer / 10)
                 if tempTimerI == 1 or tempTimerI == 3 or tempTimerI == 5 or tempTimerI == 7 or tempTimerI == 9:
-                    screen.blit (ghosts[5].anim[ self.animFrame ], (self.x - thisGame.screenPixelPos[0], self.y - thisGame.screenPixelPos[1]))
+                    screen.blit (self.pacman.ghosts[5].anim[ self.animFrame ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1]))
                 else:
-                    screen.blit (ghosts[4].anim[ self.animFrame ], (self.x - thisGame.screenPixelPos[0], self.y - thisGame.screenPixelPos[1]))
+                    screen.blit (self.pacman.ghosts[4].anim[ self.animFrame ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1]))
 
         elif self.state == 3:
             # draw glasses
-            screen.blit (tileIDImage[ tileID[ 'glasses' ] ], (self.x - thisGame.screenPixelPos[0], self.y - thisGame.screenPixelPos[1]))
+            screen.blit (self.pacman.tileIDImage[ self.pacman.tileID[ 'glasses' ] ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1]))
 
-        if thisGame.mode == 6 or thisGame.mode == 7:
+        if self.pacman.game.mode == 6 or self.pacman.game.mode == 7:
             # don't animate ghost if the level is complete
             return False
 
@@ -673,7 +678,7 @@ class Ghost():
                 self.y = self.nearestRow * TILE_HEIGHT
 
                 # chase pac-man
-                self.currentPath = path.findPath( (self.nearestRow, self.nearestCol), (player.nearestRow, player.nearestCol) )
+                self.currentPath = self.pacman.path.findPath( (self.nearestRow, self.nearestCol), (self.pacman.player.nearestRow, self.pacman.player.nearestCol) )
                 self.followNextPathWay()
 
     def followNextPathWay(self):
@@ -698,7 +703,7 @@ class Ghost():
 
                 if not self.state == 3:
                     # chase pac-man
-                    self.currentPath = path.findPath( (self.nearestRow, self.nearestCol), (player.nearestRow, player.nearestCol) )
+                    self.currentPath = self.pacman.path.findPath( (self.nearestRow, self.nearestCol), (self.pacman.player.nearestRow, self.pacman.player.nearestCol) )
                     self.followNextPathWay()
 
                 else:
@@ -709,16 +714,17 @@ class Ghost():
                     # give ghost a path to a random spot (containing a pellet)
                     (randRow, randCol) = (0, 0)
 
-                    while not thisLevel.getMapTile((randRow, randCol)) == tileID[ 'pellet' ] or (randRow, randCol) == (0, 0):
-                        randRow = random.randint(1, thisLevel.lvlHeight - 2)
-                        randCol = random.randint(1, thisLevel.lvlWidth - 2)
+                    while not self.pacman.level.getMapTile((randRow, randCol)) == self.pacman.tileID[ 'pellet' ] or (randRow, randCol) == (0, 0):
+                        randRow = random.randint(1, self.pacman.level.lvlHeight - 2)
+                        randCol = random.randint(1, self.pacman.level.lvlWidth - 2)
 
-                    self.currentPath = path.findPath( (self.nearestRow, self.nearestCol), (randRow, randCol) )
+                    self.currentPath = self.pacman.path.findPath( (self.nearestRow, self.nearestCol), (randRow, randCol) )
                     self.followNextPathWay()
 
 class Fruit():
 
-    def __init__(self):
+    def __init__(self, pacman):
+        self.pacman = pacman
         # when fruit is not in use, it's in the (-1, -1) position off-screen.
         self.slowTimer = 0
         self.x = -TILE_WIDTH
@@ -743,10 +749,10 @@ class Fruit():
 
     def draw(self):
 
-        if thisGame.mode == 3 or self.active == False:
+        if self.pacman.game.mode == 3 or self.active == False:
             return False
 
-        screen.blit (self.imFruit[ self.fruitType ], (self.x - thisGame.screenPixelPos[0], self.y - thisGame.screenPixelPos[1] - self.bounceY))
+        screen.blit (self.imFruit[ self.fruitType ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1] - self.bounceY))
 
 
     def move(self):
@@ -809,7 +815,7 @@ class Fruit():
                     self.y = self.nearestRow * TILE_HEIGHT
 
                     self.active = False
-                    thisGame.fruitTimer = 0
+                    self.pacman.game.fruitTimer = 0
 
     def followNextPathWay(self):
 
@@ -828,7 +834,8 @@ class Fruit():
 
 class Player():
 
-    def __init__(self):
+    def __init__(self, pacman):
+        self.pacman = pacman
         self.x = 0
         self.y = 0
         self.velX = 0
@@ -863,49 +870,49 @@ class Player():
         self.nearestCol = int(((self.x + (TILE_HEIGHT/2)) / TILE_HEIGHT))
 
         # make sure the current velocity will not cause a collision before moving
-        if not thisLevel.checkIfHitWall((self.x + self.velX, self.y + self.velY), (self.nearestRow, self.nearestCol)):
+        if not self.pacman.level.checkIfHitWall((self.x + self.velX, self.y + self.velY), (self.nearestRow, self.nearestCol)):
             # it's ok to Move
             self.x += self.velX
             self.y += self.velY
 
             # check for collisions with other tiles (pellets, etc)
-            thisLevel.checkIfHitSomething((self.x, self.y), (self.nearestRow, self.nearestCol))
+            self.pacman.level.checkIfHitSomething((self.x, self.y), (self.nearestRow, self.nearestCol))
 
             # check for collisions with the ghosts
             for i in range(0, 4, 1):
-                if thisLevel.checkIfHit( (self.x, self.y), (ghosts[i].x, ghosts[i].y), TILE_WIDTH/2):
+                if self.pacman.level.checkIfHit( (self.x, self.y), (self.pacman.ghosts[i].x, self.pacman.ghosts[i].y), TILE_WIDTH/2):
                     # hit a ghost
 
-                    if ghosts[i].state == 1:
+                    if self.pacman.ghosts[i].state == 1:
                         # ghost is normal
-                        thisGame.setMode( 2 )
+                        self.pacman.game.setMode( 2 )
 
-                    elif ghosts[i].state == 2:
+                    elif self.pacman.ghosts[i].state == 2:
                         # ghost is vulnerable
                         # give them glasses
                         # make them run
-                        thisGame.addToScore(thisGame.ghostValue)
-                        thisGame.ghostValue = thisGame.ghostValue * 2
+                        self.pacman.game.addToScore(self.pacman.game.ghostValue)
+                        self.pacman.game.ghostValue = self.pacman.game.ghostValue * 2
                         snd_eatgh.play()
 
-                        ghosts[i].state = 3
-                        ghosts[i].speed = ghosts[i].speed * 4
+                        self.pacman.ghosts[i].state = 3
+                        self.pacman.ghosts[i].speed = self.pacman.ghosts[i].speed * 4
                         # and send them to the ghost box
-                        ghosts[i].x = ghosts[i].nearestCol * TILE_WIDTH
-                        ghosts[i].y = ghosts[i].nearestRow * TILE_HEIGHT
-                        ghosts[i].currentPath = path.findPath( (ghosts[i].nearestRow, ghosts[i].nearestCol), (thisLevel.getGhostBoxPos()[0]+1, thisLevel.getGhostBoxPos()[1]) )
-                        ghosts[i].followNextPathWay()
+                        self.pacman.ghosts[i].x = self.pacman.ghosts[i].nearestCol * TILE_WIDTH
+                        self.pacman.ghosts[i].y = self.pacman.ghosts[i].nearestRow * TILE_HEIGHT
+                        self.pacman.ghosts[i].currentPath = self.pacman.path.findPath( (self.pacman.ghosts[i].nearestRow, self.pacman.ghosts[i].nearestCol), (self.pacman.level.getGhostBoxPos()[0]+1, self.pacman.level.getGhostBoxPos()[1]) )
+                        self.pacman.ghosts[i].followNextPathWay()
 
                         # set game mode to brief pause after eating
-                        thisGame.setMode( 5 )
+                        self.pacman.game.setMode( 5 )
 
             # check for collisions with the fruit
-            if thisFruit.active == True:
-                if thisLevel.checkIfHit( (self.x, self.y), (thisFruit.x, thisFruit.y), TILE_WIDTH/2):
-                    thisGame.addToScore(2500)
-                    thisFruit.active = False
-                    thisGame.fruitTimer = 0
-                    thisGame.fruitScoreTimer = 120
+            if self.pacman.fruit.active == True:
+                if self.pacman.level.checkIfHit( (self.x, self.y), (self.pacman.fruit.x, self.pacman.fruit.y), TILE_WIDTH/2):
+                    self.pacman.game.addToScore(2500)
+                    self.pacman.fruit.active = False
+                    self.pacman.game.fruitTimer = 0
+                    self.pacman.game.fruitScoreTimer = 120
                     snd_eatfruit.play()
 
         else:
@@ -914,43 +921,43 @@ class Player():
             self.velY = 0
 
         # deal with power-pellet ghost timer
-        if thisGame.ghostTimer > 0:
-            thisGame.ghostTimer -= 1
+        if self.pacman.game.ghostTimer > 0:
+            self.pacman.game.ghostTimer -= 1
 
-            if thisGame.ghostTimer == 0:
+            if self.pacman.game.ghostTimer == 0:
                 for i in range(0, 4, 1):
-                    if ghosts[i].state == 2:
-                        ghosts[i].state = 1
+                    if self.pacman.ghosts[i].state == 2:
+                        self.pacman.ghosts[i].state = 1
                 self.ghostValue = 0
 
         # deal with fruit timer
-        thisGame.fruitTimer += 1
-        if thisGame.fruitTimer == 500:
-            pathwayPair = thisLevel.getPathwayPairPos()
+        self.pacman.game.fruitTimer += 1
+        if self.pacman.game.fruitTimer == 500:
+            pathwayPair = self.pacman.level.getPathwayPairPos()
 
             if not pathwayPair == False:
 
                 pathwayEntrance = pathwayPair[0]
                 pathwayExit = pathwayPair[1]
 
-                thisFruit.active = True
+                self.pacman.fruit.active = True
 
-                thisFruit.nearestRow = pathwayEntrance[0]
-                thisFruit.nearestCol = pathwayEntrance[1]
+                self.pacman.fruit.nearestRow = pathwayEntrance[0]
+                self.pacman.fruit.nearestCol = pathwayEntrance[1]
 
-                thisFruit.x = thisFruit.nearestCol * TILE_WIDTH
-                thisFruit.y = thisFruit.nearestRow * TILE_HEIGHT
+                self.pacman.fruit.x = self.pacman.fruit.nearestCol * TILE_WIDTH
+                self.pacman.fruit.y = self.pacman.fruit.nearestRow * TILE_HEIGHT
 
-                thisFruit.currentPath = path.findPath( (thisFruit.nearestRow, thisFruit.nearestCol), pathwayExit )
-                thisFruit.followNextPathWay()
+                self.pacman.fruit.currentPath = self.pacman.path.findPath( (self.pacman.fruit.nearestRow, self.pacman.fruit.nearestCol), pathwayExit )
+                self.pacman.fruit.followNextPathWay()
 
-        if thisGame.fruitScoreTimer > 0:
-            thisGame.fruitScoreTimer -= 1
+        if self.pacman.game.fruitScoreTimer > 0:
+            self.pacman.game.fruitScoreTimer -= 1
 
 
     def draw(self):
 
-        if thisGame.mode == 3:
+        if self.pacman.game.mode == 3:
             return False
 
         # set the current frame array to match the direction pacman is facing
@@ -963,9 +970,9 @@ class Player():
         elif self.velY < 0:
             self.anim_pacmanCurrent = self.anim_pacmanU
 
-        screen.blit (self.anim_pacmanCurrent[ self.animFrame ], (self.x - thisGame.screenPixelPos[0], self.y - thisGame.screenPixelPos[1]))
+        screen.blit (self.anim_pacmanCurrent[ self.animFrame ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1]))
 
-        if thisGame.mode == 1:
+        if self.pacman.game.mode == 1:
             if not self.velX == 0 or not self.velY == 0:
                 # only Move mouth when pacman is moving
                 self.animFrame += 1
@@ -976,7 +983,8 @@ class Player():
 
 class Level():
 
-    def __init__(self):
+    def __init__(self, pacman):
+        self.pacman = pacman
         self.lvlWidth = 0
         self.lvlHeight = 0
         self.edgeLightColor = (255, 255, 0, 255)
@@ -1003,14 +1011,14 @@ class Level():
     def isWall(self, position):
 
         (row, col) = position
-        if row > thisLevel.lvlHeight - 1 or row < 0:
+        if row > self.pacman.level.lvlHeight - 1 or row < 0:
             return True
 
-        if col > thisLevel.lvlWidth - 1 or col < 0:
+        if col > self.pacman.level.lvlWidth - 1 or col < 0:
             return True
 
         # check the offending tile ID
-        result = thisLevel.getMapTile((row, col))
+        result = self.pacman.level.getMapTile((row, col))
 
         # if the tile was a wall
         if result >= 100 and result <= 199:
@@ -1059,83 +1067,83 @@ class Level():
 
                 if  (playerX - (iCol * TILE_WIDTH) < TILE_WIDTH) and (playerX - (iCol * TILE_WIDTH) > -TILE_WIDTH) and (playerY - (iRow * TILE_HEIGHT) < TILE_HEIGHT) and (playerY - (iRow * TILE_HEIGHT) > -TILE_HEIGHT):
                     # check the offending tile ID
-                    result = thisLevel.getMapTile((iRow, iCol))
+                    result = self.pacman.level.getMapTile((iRow, iCol))
 
-                    if result == tileID[ 'pellet' ]:
+                    if result == self.pacman.tileID[ 'pellet' ]:
                         # got a pellet
-                        thisLevel.setMapTile((iRow, iCol), 0)
-                        snd_pellet[player.pelletSndNum].play()
-                        player.pelletSndNum = 1 - player.pelletSndNum
+                        self.pacman.level.setMapTile((iRow, iCol), 0)
+                        snd_pellet[self.pacman.player.pelletSndNum].play()
+                        self.pacman.player.pelletSndNum = 1 - self.pacman.player.pelletSndNum
 
-                        thisLevel.pellets -= 1
+                        self.pacman.level.pellets -= 1
 
-                        thisGame.addToScore(10)
+                        self.pacman.game.addToScore(10)
 
-                        if thisLevel.pellets == 0:
+                        if self.pacman.level.pellets == 0:
                             # no more pellets left!
                             # WON THE LEVEL
-                            thisGame.setMode( 6 )
+                            self.pacman.game.setMode( 6 )
 
 
-                    elif result == tileID[ 'pellet-power' ]:
+                    elif result == self.pacman.tileID[ 'pellet-power' ]:
                         # got a power pellet
-                        thisLevel.setMapTile((iRow, iCol), 0)
+                        self.pacman.level.setMapTile((iRow, iCol), 0)
                         pygame.mixer.stop()
                         snd_powerpellet.play()
 
-                        thisGame.addToScore(100)
-                        thisGame.ghostValue = 200
+                        self.pacman.game.addToScore(100)
+                        self.pacman.game.ghostValue = 200
 
-                        thisGame.ghostTimer = 360
+                        self.pacman.game.ghostTimer = 360
                         for i in range(0, 4, 1):
-                            if ghosts[i].state == 1:
-                                ghosts[i].state = 2
+                            if self.pacman.ghosts[i].state == 1:
+                                self.pacman.ghosts[i].state = 2
 
                                 """
                                 # Must line up with grid before invoking a new path (for now)
-                                ghosts[i].x = ghosts[i].nearestCol * TILE_HEIGHT
-                                ghosts[i].y = ghosts[i].nearestRow * TILE_WIDTH
+                                self.pacman.ghosts[i].x = self.pacman.ghosts[i].nearestCol * TILE_HEIGHT
+                                self.pacman.ghosts[i].y = self.pacman.ghosts[i].nearestRow * TILE_WIDTH
 
                                 # give each ghost a path to a random spot (containing a pellet)
                                 (randRow, randCol) = (0, 0)
 
-                                while not self.getMapTile((randRow, randCol)) == tileID[ 'pellet' ] or (randRow, randCol) == (0, 0):
+                                while not self.getMapTile((randRow, randCol)) == self.pacman.tileID[ 'pellet' ] or (randRow, randCol) == (0, 0):
                                     randRow = random.randint(1, self.lvlHeight - 2)
                                     randCol = random.randint(1, self.lvlWidth - 2)
-                                ghosts[i].currentPath = path.findPath( (ghosts[i].nearestRow, ghosts[i].nearestCol), (randRow, randCol) )
+                                self.pacman.ghosts[i].currentPath = path.findPath( (self.pacman.ghosts[i].nearestRow, self.pacman.ghosts[i].nearestCol), (randRow, randCol) )
 
-                                ghosts[i].followNextPathWay()
+                                self.pacman.ghosts[i].followNextPathWay()
                                 """
 
-                    elif result == tileID[ 'door-h' ]:
+                    elif result == self.pacman.tileID[ 'door-h' ]:
                         # ran into a horizontal door
-                        for i in range(0, thisLevel.lvlWidth, 1):
+                        for i in range(0, self.pacman.level.lvlWidth, 1):
                             if not i == iCol:
-                                if thisLevel.getMapTile((iRow, i)) == tileID[ 'door-h' ]:
-                                    player.x = i * TILE_WIDTH
+                                if self.pacman.level.getMapTile((iRow, i)) == self.pacman.tileID[ 'door-h' ]:
+                                    self.pacman.player.x = i * TILE_WIDTH
 
-                                    if player.velX > 0:
-                                        player.x += TILE_WIDTH
+                                    if self.pacman.player.velX > 0:
+                                        self.pacman.player.x += TILE_WIDTH
                                     else:
-                                        player.x -= TILE_WIDTH
+                                        self.pacman.player.x -= TILE_WIDTH
 
-                    elif result == tileID[ 'door-v' ]:
+                    elif result == self.pacman.tileID[ 'door-v' ]:
                         # ran into a vertical door
-                        for i in range(0, thisLevel.lvlHeight, 1):
+                        for i in range(0, self.pacman.level.lvlHeight, 1):
                             if not i == iRow:
-                                if thisLevel.getMapTile((i, iCol)) == tileID[ 'door-v' ]:
-                                    player.y = i * TILE_HEIGHT
+                                if self.pacman.level.getMapTile((i, iCol)) == self.pacman.tileID[ 'door-v' ]:
+                                    self.pacman.player.y = i * TILE_HEIGHT
 
-                                    if player.velY > 0:
-                                        player.y += TILE_HEIGHT
+                                    if self.pacman.player.velY > 0:
+                                        self.pacman.player.y += TILE_HEIGHT
                                     else:
-                                        player.y -= TILE_HEIGHT
+                                        self.pacman.player.y -= TILE_HEIGHT
 
     def getGhostBoxPos(self):
 
         for row in range(0, self.lvlHeight, 1):
             for col in range(0, self.lvlWidth, 1):
-                if self.getMapTile((row, col)) == tileID[ 'ghost-door' ]:
+                if self.getMapTile((row, col)) == self.pacman.tileID[ 'ghost-door' ]:
                     return (row, col)
 
         return False
@@ -1146,10 +1154,10 @@ class Level():
 
         for row in range(0, self.lvlHeight, 1):
             for col in range(0, self.lvlWidth, 1):
-                if self.getMapTile((row, col)) == tileID[ 'door-h' ]:
+                if self.getMapTile((row, col)) == self.pacman.tileID[ 'door-h' ]:
                     # found a horizontal door
                     doorArray.append( (row, col) )
-                elif self.getMapTile((row, col)) == tileID[ 'door-v' ]:
+                elif self.getMapTile((row, col)) == self.pacman.tileID[ 'door-v' ]:
                     # found a vertical door
                     doorArray.append( (row, col) )
 
@@ -1158,19 +1166,19 @@ class Level():
 
         chosenDoor = random.randint(0, len(doorArray) - 1)
 
-        if self.getMapTile( doorArray[chosenDoor] ) == tileID[ 'door-h' ]:
+        if self.getMapTile( doorArray[chosenDoor] ) == self.pacman.tileID[ 'door-h' ]:
             # horizontal door was chosen
             # look for the opposite one
-            for i in range(0, thisLevel.lvlWidth, 1):
+            for i in range(0, self.pacman.level.lvlWidth, 1):
                 if not i == doorArray[chosenDoor][1]:
-                    if thisLevel.getMapTile((doorArray[chosenDoor][0], i)) == tileID[ 'door-h' ]:
+                    if self.pacman.level.getMapTile((doorArray[chosenDoor][0], i)) == self.pacman.tileID[ 'door-h' ]:
                         return doorArray[chosenDoor], (doorArray[chosenDoor][0], i)
         else:
             # vertical door was chosen
             # look for the opposite one
-            for i in range(0, thisLevel.lvlHeight, 1):
+            for i in range(0, self.pacman.level.lvlHeight, 1):
                 if not i == doorArray[chosenDoor][0]:
-                    if thisLevel.getMapTile((i, doorArray[chosenDoor][1])) == tileID[ 'door-v' ]:
+                    if self.pacman.level.getMapTile((i, doorArray[chosenDoor][1])) == self.pacman.tileID[ 'door-v' ]:
                         return doorArray[chosenDoor], (i, doorArray[chosenDoor][1])
 
         return False
@@ -1191,30 +1199,30 @@ class Level():
         if self.powerPelletBlinkTimer == 60:
             self.powerPelletBlinkTimer = 0
 
-        for row in range(-1, thisGame.screenTileSize[0] +1, 1):
+        for row in range(-1, self.pacman.game.screenTileSize[0] +1, 1):
             outputLine = ""
-            for col in range(-1, thisGame.screenTileSize[1] +1, 1):
+            for col in range(-1, self.pacman.game.screenTileSize[1] +1, 1):
 
                 # row containing tile that actually goes here
-                actualRow = thisGame.screenNearestTilePos[0] + row
-                actualCol = thisGame.screenNearestTilePos[1] + col
+                actualRow = self.pacman.game.screenNearestTilePos[0] + row
+                actualCol = self.pacman.game.screenNearestTilePos[1] + col
 
                 useTile = self.getMapTile((actualRow, actualCol))
-                if not useTile == 0 and not useTile == tileID['door-h'] and not useTile == tileID['door-v']:
+                if not useTile == 0 and not useTile == self.pacman.tileID['door-h'] and not useTile == self.pacman.tileID['door-v']:
                     # if this isn't a blank tile
 
-                    if useTile == tileID['pellet-power']:
+                    if useTile == self.pacman.tileID['pellet-power']:
                         if self.powerPelletBlinkTimer < 30:
-                            screen.blit (tileIDImage[ useTile ], (col * TILE_WIDTH - thisGame.screenPixelOffset[0], row * TILE_HEIGHT - thisGame.screenPixelOffset[1]) )
+                            screen.blit (self.pacman.tileIDImage[ useTile ], (col * TILE_WIDTH - self.pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self.pacman.game.screenPixelOffset[1]) )
 
-                    elif useTile == tileID['showlogo']:
-                        screen.blit (thisGame.imLogo, (col * TILE_WIDTH - thisGame.screenPixelOffset[0], row * TILE_HEIGHT - thisGame.screenPixelOffset[1]) )
+                    elif useTile == self.pacman.tileID['showlogo']:
+                        screen.blit (self.pacman.game.imLogo, (col * TILE_WIDTH - self.pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self.pacman.game.screenPixelOffset[1]) )
 
-                    elif useTile == tileID['hiscores']:
-                            screen.blit(thisGame.imHiscores,(col*TILE_WIDTH-thisGame.screenPixelOffset[0],row*TILE_HEIGHT-thisGame.screenPixelOffset[1]))
+                    elif useTile == self.pacman.tileID['hiscores']:
+                            screen.blit(self.pacman.game.imHiscores,(col*TILE_WIDTH-self.pacman.game.screenPixelOffset[0],row*TILE_HEIGHT-self.pacman.game.screenPixelOffset[1]))
 
                     else:
-                        screen.blit (tileIDImage[ useTile ], (col * TILE_WIDTH - thisGame.screenPixelOffset[0], row * TILE_HEIGHT - thisGame.screenPixelOffset[1]) )
+                        screen.blit (self.pacman.tileIDImage[ useTile ], (col * TILE_WIDTH - self.pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self.pacman.game.screenPixelOffset[1]) )
 
     def loadLevel(self, levelNum):
 
@@ -1291,7 +1299,7 @@ class Level():
                     self.pelletColor = (red, green, blue, 255)
 
                 elif firstWord == "fruittype":
-                    thisFruit.fruitType = int( str_splitBySpace[2] )
+                    self.pacman.fruit.fruitType = int( str_splitBySpace[2] )
 
                 elif firstWord == "startleveldata":
                     isReadingLevelData = True
@@ -1320,15 +1328,15 @@ class Level():
                         if thisID == 4:
                             # starting position for pac-man
 
-                            player.homeX = k * TILE_WIDTH
-                            player.homeY = rowNum * TILE_HEIGHT
+                            self.pacman.player.homeX = k * TILE_WIDTH
+                            self.pacman.player.homeY = rowNum * TILE_HEIGHT
                             self.setMapTile((rowNum, k), 0 )
 
                         elif thisID >= 10 and thisID <= 13:
                             # one of the ghosts
 
-                            ghosts[thisID - 10].homeX = k * TILE_WIDTH
-                            ghosts[thisID - 10].homeY = rowNum * TILE_HEIGHT
+                            self.pacman.ghosts[thisID - 10].homeX = k * TILE_WIDTH
+                            self.pacman.ghosts[thisID - 10].homeY = rowNum * TILE_HEIGHT
                             self.setMapTile((rowNum, k), 0 )
 
                         elif thisID == 2:
@@ -1340,17 +1348,17 @@ class Level():
 
 
         # reload all tiles and set appropriate colors
-        getCrossRef()
+        self.pacman.getCrossRef()
 
         # load map into the pathfinder object
-        path.resizeMap( (self.lvlHeight, self.lvlWidth) )
+        self.pacman.path.resizeMap( (self.lvlHeight, self.lvlWidth) )
 
-        for row in range(0, path.size[0], 1):
-            for col in range(0, path.size[1], 1):
+        for row in range(0, self.pacman.path.size[0], 1):
+            for col in range(0, self.pacman.path.size[1], 1):
                 if self.isWall( (row, col) ):
-                    path.setType( (row, col), 1 )
+                    self.pacman.path.setType( (row, col), 1 )
                 else:
-                    path.setType( (row, col), 0 )
+                    self.pacman.path.setType( (row, col), 0 )
 
         # do all the level-starting stuff
         self.restart()
@@ -1360,285 +1368,293 @@ class Level():
         for i in range(0, 4, 1):
             # move ghosts back to home
 
-            ghosts[i].x = ghosts[i].homeX
-            ghosts[i].y = ghosts[i].homeY
-            ghosts[i].velX = 0
-            ghosts[i].velY = 0
-            ghosts[i].state = 1
-            ghosts[i].speed = 1
-            ghosts[i].move()
+            self.pacman.ghosts[i].x = self.pacman.ghosts[i].homeX
+            self.pacman.ghosts[i].y = self.pacman.ghosts[i].homeY
+            self.pacman.ghosts[i].velX = 0
+            self.pacman.ghosts[i].velY = 0
+            self.pacman.ghosts[i].state = 1
+            self.pacman.ghosts[i].speed = 1
+            self.pacman.ghosts[i].move()
 
             # give each ghost a path to a random spot (containing a pellet)
             (randRow, randCol) = (0, 0)
 
-            while not self.getMapTile((randRow, randCol)) == tileID[ 'pellet' ] or (randRow, randCol) == (0, 0):
+            while not self.getMapTile((randRow, randCol)) == self.pacman.tileID[ 'pellet' ] or (randRow, randCol) == (0, 0):
                 randRow = random.randint(1, self.lvlHeight - 2)
                 randCol = random.randint(1, self.lvlWidth - 2)
 
             # print "Ghost " + str(i) + " headed towards " + str((randRow, randCol))
-            ghosts[i].currentPath = path.findPath( (ghosts[i].nearestRow, ghosts[i].nearestCol), (randRow, randCol) )
-            ghosts[i].followNextPathWay()
+            self.pacman.ghosts[i].currentPath = self.pacman.path.findPath( (self.pacman.ghosts[i].nearestRow, self.pacman.ghosts[i].nearestCol), (randRow, randCol) )
+            self.pacman.ghosts[i].followNextPathWay()
 
-        thisFruit.active = False
+        self.pacman.fruit.active = False
 
-        thisGame.fruitTimer = 0
+        self.pacman.game.fruitTimer = 0
 
-        player.x = player.homeX
-        player.y = player.homeY
-        player.velX = 0
-        player.velY = 0
+        self.pacman.player.x = self.pacman.player.homeX
+        self.pacman.player.y = self.pacman.player.homeY
+        self.pacman.player.velX = 0
+        self.pacman.player.velY = 0
 
-        player.anim_pacmanCurrent = player.anim_pacmanS
-        player.animFrame = 3
+        self.pacman.player.anim_pacmanCurrent = self.pacman.player.anim_pacmanS
+        self.pacman.player.animFrame = 3
 
 
-def checkIfCloseButton(events):
-    for event in events:
-        if event.type == QUIT:
+#      __________________
+# ___/  main game class  \_____________________________________________________
+
+class Pacman():
+    def __init__(self):
+        # create the pacman
+        self.player = Player(self)
+
+        # create a path_finder object
+        self.path = PathFinder(self)
+
+        # create ghost objects
+        self.ghosts = {}
+        for i in range(0, 6, 1):
+            # remember, ghost[4] is the blue, vulnerable ghost
+            self.ghosts[i] = Ghost(self, i)
+
+        # create piece of fruit
+        self.fruit = Fruit(self)
+
+        self.tileIDName = {} # gives tile name (when the ID# is known)
+        self.tileID = {} # gives tile ID (when the name is known)
+        self.tileIDImage = {} # gives tile image (when the ID# is known)
+
+        # create game and level objects and load first level
+        self.game = Game(self)
+        self.level = Level(self)
+        self.level.loadLevel( self.game.getLevelNum() )
+
+        self.window = pygame.display.set_mode( self.game.screenSize, pygame.DOUBLEBUF | pygame.HWSURFACE )
+
+        # initialise the joystick
+        if pygame.joystick.get_count() > 0:
+            if JS_DEVNUM < pygame.joystick.get_count():
+                self.js = pygame.joystick.Joystick(JS_DEVNUM)
+            else:
+                self.js = pygame.joystick.Joystick(0)
+            self.js.init()
+        else: self.js = None
+
+    def run(self):
+        while True:
+
+            self.checkIfCloseButton( pygame.event.get() )
+
+            if self.game.mode == 1:
+                # normal gameplay mode
+                self.checkInputs()
+
+                self.game.modeTimer += 1
+                self.player.move()
+                for i in range(0, 4, 1):
+                    self.ghosts[i].move()
+                self.fruit.move()
+
+            elif self.game.mode == 2:
+                # waiting after getting hit by a ghost
+                self.game.modeTimer += 1
+
+                if self.game.modeTimer == 90:
+                    self.level.restart()
+
+                    self.game.lives -= 1
+                    if self.game.lives == -1:
+                        self.game.updateHiScores(self.game.score)
+                        self.game.setMode( 3 )
+                        self.game.drawMidGameHiScores()
+                    else:
+                        self.game.setMode( 4 )
+
+            elif self.game.mode == 3:
+                # game over
+                self.checkInputs()
+
+            elif self.game.mode == 4:
+                # waiting to start
+                self.game.modeTimer += 1
+
+                if self.game.modeTimer == 90:
+                    self.game.setMode( 1 )
+                    self.player.velX = self.player.speed
+
+            elif self.game.mode == 5:
+                # brief pause after munching a vulnerable ghost
+                self.game.modeTimer += 1
+
+                if self.game.modeTimer == 30:
+                    self.game.setMode( 1 )
+
+            elif self.game.mode == 6:
+                # pause after eating all the pellets
+                self.game.modeTimer += 1
+
+                if self.game.modeTimer == 60:
+                    self.game.setMode( 7 )
+                    oldEdgeLightColor = self.level.edgeLightColor
+                    oldEdgeShadowColor = self.level.edgeShadowColor
+                    oldFillColor = self.level.fillColor
+
+            elif self.game.mode == 7:
+                # flashing maze after finishing level
+                self.game.modeTimer += 1
+
+                whiteSet = [10, 30, 50, 70]
+                normalSet = [20, 40, 60, 80]
+
+                if not whiteSet.count(self.game.modeTimer) == 0:
+                    # member of white set
+                    self.level.edgeLightColor = (255, 255, 255, 255)
+                    self.level.edgeShadowColor = (255, 255, 255, 255)
+                    self.level.fillColor = (0, 0, 0, 255)
+                    self.getCrossRef()
+                elif not normalSet.count(self.game.modeTimer) == 0:
+                    # member of normal set
+                    self.level.edgeLightColor = oldEdgeLightColor
+                    self.level.edgeShadowColor = oldEdgeShadowColor
+                    self.level.fillColor = oldFillColor
+                    self.getCrossRef()
+                elif self.game.modeTimer == 150:
+                    self.game.setMode ( 8 )
+
+            elif self.game.mode == 8:
+                # blank screen before changing levels
+                self.game.modeTimer += 1
+                if self.game.modeTimer == 10:
+                    self.game.setNextLevel()
+
+            self.game.smartMoveScreen()
+
+            screen.blit(img_Background, (0, 0))
+
+            if not self.game.mode == 8:
+                self.level.drawMap()
+
+                if self.game.fruitScoreTimer > 0:
+                    if self.game.modeTimer % 2 == 0:
+                        self.game.drawNumber (2500, (self.fruit.x - self.game.screenPixelPos[0] - 16, self.fruit.y - self.game.screenPixelPos[1] + 4))
+
+                for i in range(0, 4, 1):
+                    self.ghosts[i].draw()
+                self.fruit.draw()
+                self.player.draw()
+
+                if self.game.mode == 3:
+                        screen.blit(self.game.imHiscores,(HS_XOFFSET,HS_YOFFSET))
+
+            if self.game.mode == 5:
+                self.game.drawNumber (self.game.ghostValue / 2, (self.player.x - self.game.screenPixelPos[0] - 4, self.player.y - self.game.screenPixelPos[1] + 6))
+
+            self.game.drawScore()
+
+            pygame.display.flip()
+
+            clock.tick (60)
+
+
+    def checkIfCloseButton(self, events):
+        for event in events:
+            if event.type == QUIT:
+                sys.exit(0)
+
+
+    def checkInputs(self):
+        if self.game.mode == 1:
+            if pygame.key.get_pressed()[ pygame.K_RIGHT ] or (self.js != None and self.js.get_axis(JS_XAXIS) > 0):
+                if not self.level.checkIfHitWall((self.player.x + self.player.speed, self.player.y), (self.player.nearestRow, self.player.nearestCol)):
+                    self.player.velX = self.player.speed
+                    self.player.velY = 0
+
+            elif pygame.key.get_pressed()[ pygame.K_LEFT ] or (self.js != None and self.js.get_axis(JS_XAXIS) < 0):
+                if not self.level.checkIfHitWall((self.player.x - self.player.speed, self.player.y), (self.player.nearestRow, self.player.nearestCol)):
+                    self.player.velX = -self.player.speed
+                    self.player.velY = 0
+
+            elif pygame.key.get_pressed()[ pygame.K_DOWN ] or (self.js != None and self.js.get_axis(JS_YAXIS) > 0):
+                if not self.level.checkIfHitWall((self.player.x, self.player.y + self.player.speed), (self.player.nearestRow, self.player.nearestCol)):
+                    self.player.velX = 0
+                    self.player.velY = self.player.speed
+
+            elif pygame.key.get_pressed()[ pygame.K_UP ] or (self.js != None and self.js.get_axis(JS_YAXIS) < 0):
+                if not self.level.checkIfHitWall((self.player.x, self.player.y - self.player.speed), (self.player.nearestRow, self.player.nearestCol)):
+                    self.player.velX = 0
+                    self.player.velY = -self.player.speed
+
+        if pygame.key.get_pressed()[ pygame.K_ESCAPE ]:
             sys.exit(0)
 
-
-def checkInputs():
-
-    if thisGame.mode == 1:
-        if pygame.key.get_pressed()[ pygame.K_RIGHT ] or (js!=None and js.get_axis(JS_XAXIS)>0):
-            if not thisLevel.checkIfHitWall((player.x + player.speed, player.y), (player.nearestRow, player.nearestCol)):
-                player.velX = player.speed
-                player.velY = 0
-
-        elif pygame.key.get_pressed()[ pygame.K_LEFT ] or (js!=None and js.get_axis(JS_XAXIS)<0):
-            if not thisLevel.checkIfHitWall((player.x - player.speed, player.y), (player.nearestRow, player.nearestCol)):
-                player.velX = -player.speed
-                player.velY = 0
-
-        elif pygame.key.get_pressed()[ pygame.K_DOWN ] or (js!=None and js.get_axis(JS_YAXIS)>0):
-            if not thisLevel.checkIfHitWall((player.x, player.y + player.speed), (player.nearestRow, player.nearestCol)):
-                player.velX = 0
-                player.velY = player.speed
-
-        elif pygame.key.get_pressed()[ pygame.K_UP ] or (js!=None and js.get_axis(JS_YAXIS)<0):
-            if not thisLevel.checkIfHitWall((player.x, player.y - player.speed), (player.nearestRow, player.nearestCol)):
-                player.velX = 0
-                player.velY = -player.speed
-
-    if pygame.key.get_pressed()[ pygame.K_ESCAPE ]:
-        sys.exit(0)
-
-    elif thisGame.mode == 3:
-        if pygame.key.get_pressed()[ pygame.K_RETURN ] or (js!=None and js.get_button(JS_STARTBUTTON)):
-            thisGame.startNewGame()
+        elif self.game.mode == 3:
+            if pygame.key.get_pressed()[ pygame.K_RETURN ] or (self.js != None and self.js.get_button(JS_STARTBUTTON)):
+                self.game.startNewGame()
 
 
 
-#      _____________________________________________
-# ___/  function: Get ID-Tilename Cross References  \______________________________________
+    #      _____________________________________________
+    # ___/  function: Get ID-Tilename Cross References  \______________________________________
 
-def getCrossRef():
+    def getCrossRef(self):
 
-    f = open(os.path.join(SCRIPT_PATH,"res","crossref.txt"), 'r')
+        f = open(os.path.join(SCRIPT_PATH,"res","crossref.txt"), 'r')
 
-    lineNum = 0
-    useLine = False
+        lineNum = 0
+        useLine = False
 
-    for i in f.readlines():
-        # print " ========= Line " + str(lineNum) + " ============ "
-        while len(i)>0 and (i[-1]=='\n' or i[-1]=='\r'): i=i[:-1]
-        while len(i)>0 and (i[0]=='\n' or i[0]=='\r'): i=i[1:]
-        str_splitBySpace = i.split(' ')
+        for i in f.readlines():
+            # print " ========= Line " + str(lineNum) + " ============ "
+            while len(i)>0 and (i[-1]=='\n' or i[-1]=='\r'): i=i[:-1]
+            while len(i)>0 and (i[0]=='\n' or i[0]=='\r'): i=i[1:]
+            str_splitBySpace = i.split(' ')
 
-        j = str_splitBySpace[0]
+            j = str_splitBySpace[0]
 
-        if (j == "'" or j == "" or j == "#"):
-            # comment / whitespace line
-            # print " ignoring comment line.. "
-            useLine = False
-        else:
-            # print str(wordNum) + ". " + j
-            useLine = True
-
-        if useLine == True:
-            tileIDName[ int(str_splitBySpace[0]) ] = str_splitBySpace[1]
-            tileID[ str_splitBySpace[1] ] = int(str_splitBySpace[0])
-
-            thisID = int(str_splitBySpace[0])
-            if not thisID in NO_GIF_TILES:
-                tileIDImage[ thisID ] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","tiles",str_splitBySpace[1] + ".gif")).convert()
+            if (j == "'" or j == "" or j == "#"):
+                # comment / whitespace line
+                # print " ignoring comment line.. "
+                useLine = False
             else:
-                    tileIDImage[ thisID ] = pygame.Surface((TILE_WIDTH,TILE_HEIGHT))
+                # print str(wordNum) + ". " + j
+                useLine = True
 
-            # change colors in tileIDImage to match maze colors
-            for y in range(0, TILE_WIDTH, 1):
-                for x in range(0, TILE_HEIGHT, 1):
+            if useLine == True:
+                self.tileIDName[ int(str_splitBySpace[0]) ] = str_splitBySpace[1]
+                self.tileID[ str_splitBySpace[1] ] = int(str_splitBySpace[0])
 
-                    if tileIDImage[ thisID ].get_at( (x, y) ) == IMG_EDGE_LIGHT_COLOR:
-                        # wall edge
-                        tileIDImage[ thisID ].set_at( (x, y), thisLevel.edgeLightColor )
+                thisID = int(str_splitBySpace[0])
+                if not thisID in NO_GIF_TILES:
+                    self.tileIDImage[ thisID ] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","tiles",str_splitBySpace[1] + ".gif")).convert()
+                else:
+                    self.tileIDImage[ thisID ] = pygame.Surface((TILE_WIDTH,TILE_HEIGHT))
 
-                    elif tileIDImage[ thisID ].get_at( (x, y) ) == IMG_FILL_COLOR:
-                        # wall fill
-                        tileIDImage[ thisID ].set_at( (x, y), thisLevel.fillColor )
+                # change colors in self.pacman.tileIDImage to match maze colors
+                for y in range(0, TILE_WIDTH, 1):
+                    for x in range(0, TILE_HEIGHT, 1):
 
-                    elif tileIDImage[ thisID ].get_at( (x, y) ) == IMG_EDGE_SHADOW_COLOR:
-                        # pellet color
-                        tileIDImage[ thisID ].set_at( (x, y), thisLevel.edgeShadowColor )
+                        if self.tileIDImage[ thisID ].get_at( (x, y) ) == IMG_EDGE_LIGHT_COLOR:
+                            # wall edge
+                            self.tileIDImage[ thisID ].set_at( (x, y), self.level.edgeLightColor )
 
-                    elif tileIDImage[ thisID ].get_at( (x, y) ) == IMG_PELLET_COLOR:
-                        # pellet color
-                        tileIDImage[ thisID ].set_at( (x, y), thisLevel.pelletColor )
+                        elif self.tileIDImage[ thisID ].get_at( (x, y) ) == IMG_FILL_COLOR:
+                            # wall fill
+                            self.tileIDImage[ thisID ].set_at( (x, y), self.level.fillColor )
 
-            # print str_splitBySpace[0] + " is married to " + str_splitBySpace[1]
-        lineNum += 1
+                        elif self.tileIDImage[ thisID ].get_at( (x, y) ) == IMG_EDGE_SHADOW_COLOR:
+                            # pellet color
+                            self.tileIDImage[ thisID ].set_at( (x, y), self.level.edgeShadowColor )
 
+                        elif self.tileIDImage[ thisID ].get_at( (x, y) ) == IMG_PELLET_COLOR:
+                            # pellet color
+                            self.tileIDImage[ thisID ].set_at( (x, y), self.level.pelletColor )
+
+                # print str_splitBySpace[0] + " is married to " + str_splitBySpace[1]
+            lineNum += 1
 
 #      __________________
 # ___/  main code block  \_____________________________________________________
 
-# create the pacman
-player = Player()
-
-# create a path_finder object
-path = PathFinder()
-
-# create ghost objects
-ghosts = {}
-for i in range(0, 6, 1):
-    # remember, ghost[4] is the blue, vulnerable ghost
-    ghosts[i] = Ghost(i)
-
-# create piece of fruit
-thisFruit = Fruit()
-
-tileIDName = {} # gives tile name (when the ID# is known)
-tileID = {} # gives tile ID (when the name is known)
-tileIDImage = {} # gives tile image (when the ID# is known)
-
-# create game and level objects and load first level
-thisGame = Game()
-thisLevel = Level()
-thisLevel.loadLevel( thisGame.getLevelNum() )
-
-print(thisGame.screenSize)
-window = pygame.display.set_mode( thisGame.screenSize, pygame.DOUBLEBUF | pygame.HWSURFACE )
-
-# initialise the joystick
-if pygame.joystick.get_count()>0:
-  if JS_DEVNUM<pygame.joystick.get_count(): js=pygame.joystick.Joystick(JS_DEVNUM)
-  else: js=pygame.joystick.Joystick(0)
-  js.init()
-else: js=None
-
-while True:
-
-    checkIfCloseButton( pygame.event.get() )
-
-    if thisGame.mode == 1:
-        # normal gameplay mode
-        checkInputs()
-
-        thisGame.modeTimer += 1
-        player.move()
-        for i in range(0, 4, 1):
-            ghosts[i].move()
-        thisFruit.move()
-
-    elif thisGame.mode == 2:
-        # waiting after getting hit by a ghost
-        thisGame.modeTimer += 1
-
-        if thisGame.modeTimer == 90:
-            thisLevel.restart()
-
-            thisGame.lives -= 1
-            if thisGame.lives == -1:
-                thisGame.updateHiScores(thisGame.score)
-                thisGame.setMode( 3 )
-                thisGame.drawMidGameHiScores()
-            else:
-                thisGame.setMode( 4 )
-
-    elif thisGame.mode == 3:
-        # game over
-        checkInputs()
-
-    elif thisGame.mode == 4:
-        # waiting to start
-        thisGame.modeTimer += 1
-
-        if thisGame.modeTimer == 90:
-            thisGame.setMode( 1 )
-            player.velX = player.speed
-
-    elif thisGame.mode == 5:
-        # brief pause after munching a vulnerable ghost
-        thisGame.modeTimer += 1
-
-        if thisGame.modeTimer == 30:
-            thisGame.setMode( 1 )
-
-    elif thisGame.mode == 6:
-        # pause after eating all the pellets
-        thisGame.modeTimer += 1
-
-        if thisGame.modeTimer == 60:
-            thisGame.setMode( 7 )
-            oldEdgeLightColor = thisLevel.edgeLightColor
-            oldEdgeShadowColor = thisLevel.edgeShadowColor
-            oldFillColor = thisLevel.fillColor
-
-    elif thisGame.mode == 7:
-        # flashing maze after finishing level
-        thisGame.modeTimer += 1
-
-        whiteSet = [10, 30, 50, 70]
-        normalSet = [20, 40, 60, 80]
-
-        if not whiteSet.count(thisGame.modeTimer) == 0:
-            # member of white set
-            thisLevel.edgeLightColor = (255, 255, 255, 255)
-            thisLevel.edgeShadowColor = (255, 255, 255, 255)
-            thisLevel.fillColor = (0, 0, 0, 255)
-            getCrossRef()
-        elif not normalSet.count(thisGame.modeTimer) == 0:
-            # member of normal set
-            thisLevel.edgeLightColor = oldEdgeLightColor
-            thisLevel.edgeShadowColor = oldEdgeShadowColor
-            thisLevel.fillColor = oldFillColor
-            getCrossRef()
-        elif thisGame.modeTimer == 150:
-            thisGame.setMode ( 8 )
-
-    elif thisGame.mode == 8:
-        # blank screen before changing levels
-        thisGame.modeTimer += 1
-        if thisGame.modeTimer == 10:
-            thisGame.setNextLevel()
-
-    thisGame.smartMoveScreen()
-
-    screen.blit(img_Background, (0, 0))
-
-    if not thisGame.mode == 8:
-        thisLevel.drawMap()
-
-        if thisGame.fruitScoreTimer > 0:
-            if thisGame.modeTimer % 2 == 0:
-                thisGame.drawNumber (2500, (thisFruit.x - thisGame.screenPixelPos[0] - 16, thisFruit.y - thisGame.screenPixelPos[1] + 4))
-
-        for i in range(0, 4, 1):
-            ghosts[i].draw()
-        thisFruit.draw()
-        player.draw()
-
-        if thisGame.mode == 3:
-                screen.blit(thisGame.imHiscores,(HS_XOFFSET,HS_YOFFSET))
-
-    if thisGame.mode == 5:
-        thisGame.drawNumber (thisGame.ghostValue / 2, (player.x - thisGame.screenPixelPos[0] - 4, player.y - thisGame.screenPixelPos[1] + 6))
-
-
-
-    thisGame.drawScore()
-
-    pygame.display.flip()
-
-    clock.tick (60)
+if __name__ == '__main__':
+    pacman = Pacman()
+    pacman.run()
