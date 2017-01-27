@@ -43,9 +43,9 @@ class Player():
 
         self.pelletSndNum = 0
 
-        self._snd_eatgh = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","eatgh2.wav"))
-        self._snd_eatfruit = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","eatfruit.wav"))
-        self._snd_death = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","death.wav"))
+        self._pacman.sounds.register("eatghost", "eatgh2.wav")
+        self._pacman.sounds.register("eatfruit", "eatfruit.wav")
+        self._pacman.sounds.register("death", "death.wav")
 
     def stop(self):
         self.velX = 0
@@ -75,12 +75,12 @@ class Player():
                     if self._pacman.ghosts[i].state == Ghost.STATE_NORMAL:
                         # ghost is normal
                         self._pacman.game.setState( Game.STATE_HIT_GHOST )
-                        self._snd_death.play()
+                        self._pacman.sounds.play("death")
 
                     elif self._pacman.ghosts[i].state == Ghost.STATE_VULNERABLE:
                         self._pacman.game.addToScore(self._pacman.game.ghostValue)
                         self._pacman.game.ghostValue = self._pacman.game.ghostValue * 2
-                        self._snd_eatgh.play()
+                        self._pacman.sounds.play("eatghost")
 
                         # ghost is vulnerable
                         # give them glasses
@@ -97,7 +97,7 @@ class Player():
                     self._pacman.fruit.active = False
                     self._pacman.game.fruitTimer = 0
                     self._pacman.game.fruitScoreTimer = 120
-                    self._snd_eatfruit.play()
+                    self._pacman.sounds.play("eatfruit")
 
         else:
             # we're going to hit a wall -- stop moving

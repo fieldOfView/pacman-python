@@ -26,11 +26,9 @@ class Level():
         self._pellets = 0
         self._powerPelletBlinkTimer = 0
 
-        self._snd_pellet = [
-            pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","pellet1.wav")),
-            pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","pellet2.wav"))
-        ]
-        self._snd_powerpellet = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","powerpellet.wav"))
+        self._pacman.sounds.register("pellet0", "pellet1.wav")
+        self._pacman.sounds.register("pellet1", "pellet2.wav")
+        self._pacman.sounds.register("powerpellet", "powerpellet.wav")
 
     def setMapTile(self, position, newValue):
         (row, col) = position
@@ -102,7 +100,7 @@ class Level():
                     if result == self._pacman.tileID[ 'pellet' ]:
                         # got a pellet
                         self.setMapTile((iRow, iCol), 0)
-                        self._snd_pellet[self._pacman.player.pelletSndNum].play()
+                        self._pacman.sounds.play("pellet%d" % self._pacman.player.pelletSndNum)
                         self._pacman.player.pelletSndNum = 1 - self._pacman.player.pelletSndNum
 
                         self._pellets -= 1
@@ -119,7 +117,7 @@ class Level():
                         # got a power pellet
                         self.setMapTile((iRow, iCol), 0)
                         pygame.mixer.stop()
-                        self._snd_powerpellet.play()
+                        self._pacman.sounds.play("powerpellet")
 
                         self._pacman.game.addToScore(100)
                         self._pacman.game.ghostValue = 200

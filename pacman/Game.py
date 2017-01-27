@@ -72,8 +72,8 @@ class Game():
         self.imLogo = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","logo.gif")).convert()
         self.imHiscores = self.makeHiScoreList()
 
-        self._snd_extralife = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","extralife.wav"))
-        self._snd_start = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","start.wav"))
+        self._pacman.sounds.register("extralife", "extralife.wav")
+        self._pacman.sounds.register("start", "start.wav")
 
     def defaultHiScoreList(self):
             return [ (100000,"David") , (80000,"Andy") , (60000,"Count Pacula") , (40000,"Cleopacra") , (20000,"Brett Favre") , (10000,"Sergei Pachmaninoff") ]
@@ -162,14 +162,14 @@ class Game():
 
         self.setState( self.STATE_WAIT_START )
         self._pacman.level.loadLevel( self.getLevelNum() )
-        self._snd_start.play()
+        self._pacman.sounds.play("start")
 
     def addToScore(self, amount):
         extraLifeSet = [25000, 50000, 100000, 150000]
 
         for specialScore in extraLifeSet:
             if self.score < specialScore and self.score + amount >= specialScore:
-                self._snd_extralife.play()
+                self._pacman.sounds,play("extralife")
                 self._pacman.game.lives += 1
 
         self.score += amount

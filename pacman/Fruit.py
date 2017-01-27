@@ -38,8 +38,7 @@ class Fruit():
         self.currentPath = ""
         self.fruitType = 1
 
-        self._snd_fruitbounce = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","fruitbounce.wav"))
-
+        self._pacman.sounds.register("fruitbounce", "fruitbounce.wav")
 
     def draw(self):
         if self._pacman.game.state == Game.STATE_GAME_OVER or self.active == False:
@@ -56,7 +55,7 @@ class Fruit():
         self._bouncei += 1
         if self._bouncei == 16:
             self._bouncei = 0
-            self._snd_fruitbounce.play()
+            self._pacman.sounds.play("fruitbounce")
         self._bounceY = BOUNCE_TABLE[self._bouncei]
 
         self._slowTimer += 1

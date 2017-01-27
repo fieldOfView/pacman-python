@@ -25,6 +25,7 @@ import pygame, sys, os, random
 from pygame.locals import *
 
 from PathFinder import PathFinder
+from Sounds import Sounds
 from Game import Game
 from Level import Level
 from Player import Player
@@ -61,8 +62,7 @@ IMG_PELLET_COLOR = (0x80,0x00,0x80,0xff)
 class Pacman():
     def __init__(self):
         # Must come before pygame.init()
-        pygame.mixer.pre_init(22050,16,2,512)
-        pygame.mixer.init()
+        self.sounds = Sounds()
 
         self._clock = pygame.time.Clock()
         pygame.init()
