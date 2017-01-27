@@ -8,6 +8,8 @@ SCRIPT_PATH = sys.path[0]
 
 TILE_WIDTH = TILE_HEIGHT=24
 
+BOUNCE_TABLE = [0, 2, 4, 5, 5, 6, 6, 6, 6, 6, 5, 5, 4, 3, 2, 1]
+
 class Fruit():
 
     def __init__(self, pacman):
@@ -51,36 +53,10 @@ class Fruit():
             return False
 
         self.bouncei += 1
-        if self.bouncei == 1:
-            self.bounceY = 2
-        elif self.bouncei == 2:
-            self.bounceY = 4
-        elif self.bouncei == 3:
-            self.bounceY = 5
-        elif self.bouncei == 4:
-            self.bounceY = 5
-        elif self.bouncei == 5:
-            self.bounceY = 6
-        elif self.bouncei == 6:
-            self.bounceY = 6
-        elif self.bouncei == 9:
-            self.bounceY = 6
-        elif self.bouncei == 10:
-            self.bounceY = 5
-        elif self.bouncei == 11:
-            self.bounceY = 5
-        elif self.bouncei == 12:
-            self.bounceY = 4
-        elif self.bouncei == 13:
-            self.bounceY = 3
-        elif self.bouncei == 14:
-            self.bounceY = 2
-        elif self.bouncei == 15:
-            self.bounceY = 1
-        elif self.bouncei == 16:
-            self.bounceY = 0
+        if self.bouncei == 16:
             self.bouncei = 0
             self.snd_fruitbounce.play()
+        self.bounceY = BOUNCE_TABLE[self.bouncei]
 
         self.slowTimer += 1
         if self.slowTimer == 2:

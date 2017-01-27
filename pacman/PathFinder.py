@@ -1,8 +1,6 @@
 #      _____________________
 # ___/  path finding class  \_______________________________________________
 
-from Node import Node
-
 class PathFinder():
 
     def __init__(self, pacman):
@@ -38,7 +36,7 @@ class PathFinder():
         # initialize path_finder map to a 2D array of empty nodes
         for row in range(0, self.size[0], 1):
             for col in range(0, self.size[1], 1):
-                self.set( (row, col), Node(self.pacman) )
+                self.set( (row, col), Node() )
                 self.setType( (row, col), 0 )
 
     def cleanUpTemp(self):
@@ -232,3 +230,17 @@ class PathFinder():
 
                 thisTile = self.getType((row, col))
                 self.pacman.screen.blit (self.pacman.tileIDImage[ thisTile ], (col * (TILE_WIDTH*2), row * (TILE_WIDTH*2)))
+
+#      ___________________
+# ___/  base object class  \_______________________________________________
+
+class Node():
+
+    def __init__(self):
+        self.g = -1 # movement cost to move from previous node to this one (usually +10)
+        self.h = -1 # estimated movement cost to move from this node to the ending node (remaining horizontal and vertical steps * 10)
+        self.f = -1 # total movement cost of this node (= g + h)
+        # parent node - used to trace path back to the starting node at the end
+        self.parent = (-1, -1)
+        # node type - 0 for empty space, 1 for wall (optionally, 2 for starting node and 3 for end)
+        self.type = -1

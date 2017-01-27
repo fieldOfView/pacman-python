@@ -8,16 +8,16 @@ SCRIPT_PATH = sys.path[0]
 
 TILE_WIDTH = TILE_HEIGHT=24
 
-class Ghost():
+GHOST_COLORS = [
+    (255, 0, 0, 255),
+    (255, 128, 255, 255),
+    (128, 255, 255, 255),
+    (255, 128, 0, 255),
+    (50, 50, 255, 255), # blue, vulnerable ghost
+    (255, 255, 255, 255) # white, flashing ghost
+]
 
-    ghostcolor = [
-        (255, 0, 0, 255),
-        (255, 128, 255, 255),
-        (128, 255, 255, 255),
-        (255, 128, 0, 255),
-        (50, 50, 255, 255), # blue, vulnerable ghost
-        (255, 255, 255, 255) # white, flashing ghost
-    ]
+class Ghost():
 
     def __init__(self, pacman, ghostID):
         self.pacman = pacman
@@ -53,7 +53,7 @@ class Ghost():
 
                     if self.anim[i].get_at( (x, y) ) == (255, 0, 0, 255):
                         # default, red ghost body color
-                        self.anim[i].set_at( (x, y), self.ghostcolor[ self.id ] )
+                        self.anim[i].set_at( (x, y), GHOST_COLORS[ self.id ] )
 
         self.animFrame = 1
         self.animDelay = 0

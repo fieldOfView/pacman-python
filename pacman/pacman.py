@@ -24,7 +24,6 @@
 import pygame, sys, os, random
 from pygame.locals import *
 
-from Node import Node
 from PathFinder import PathFinder
 from Game import Game
 from Level import Level
@@ -67,7 +66,7 @@ class Pacman():
 
         self.clock = pygame.time.Clock()
         pygame.init()
-        pygame.display.set_mode((1, 1))
+        pygame.display.set_mode((1, 1)) # temporarily initialise display so bitmaps can be loaded
 
         pygame.display.set_caption("Pacman")
 
