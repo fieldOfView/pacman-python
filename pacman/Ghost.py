@@ -24,17 +24,17 @@ class Ghost():
     STATE_SPECTACLES = 3
 
     def __init__(self, pacman, ghostID):
-        self.pacman = pacman
+        self._pacman = pacman
         self.x = 0
         self.y = 0
-        self.velX = 0
-        self.velY = 0
-        self.speed = 1
+        self._velX = 0
+        self._velY = 0
+        self._speed = 1
 
         self.nearestRow = 0
         self.nearestCol = 0
 
-        self.id = ghostID
+        self._id = ghostID
 
         # ghost "state" variable
         self.state = self.STATE_NORMAL
@@ -54,31 +54,31 @@ class Ghost():
 
                     if self.anim[i].get_at( (x, y) ) == (255, 0, 0, 255):
                         # default, red ghost body color
-                        self.anim[i].set_at( (x, y), GHOST_COLORS[ self.id ] )
+                        self.anim[i].set_at( (x, y), GHOST_COLORS[ self._id ] )
 
-        self.animFrame = 1
-        self.animDelay = 0
+        self._animFrame = 1
+        self._animDelay = 0
 
     def draw(self):
-        if self.pacman.game.state == Game.STATE_GAME_OVER:
+        if self._pacman.game.state == Game.STATE_GAME_OVER:
             return
 
         # ghost eyes --
         for y in range(6,12,1):
             for x in [5,6,8,9]:
-                self.anim[ self.animFrame ].set_at( (x, y), (0xf8,0xf8,0xf8,255) )
-                self.anim[ self.animFrame ].set_at( (x+9, y), (0xf8,0xf8,0xf8,255) )
+                self.anim[ self._animFrame ].set_at( (x, y), (0xf8,0xf8,0xf8,255) )
+                self.anim[ self._animFrame ].set_at( (x+9, y), (0xf8,0xf8,0xf8,255) )
 
-        if self.pacman.player.x > self.x and self.pacman.player.y > self.y:
+        if self._pacman.player.x > self.x and self._pacman.player.y > self.y:
             #player is to lower-right
             pupilSet = (8,9)
-        elif self.pacman.player.x < self.x and self.pacman.player.y > self.y:
+        elif self._pacman.player.x < self.x and self._pacman.player.y > self.y:
             #player is to lower-left
             pupilSet = (5,9)
-        elif self.pacman.player.x > self.x and self.pacman.player.y < self.y:
+        elif self._pacman.player.x > self.x and self._pacman.player.y < self.y:
             #player is to upper-right
             pupilSet = (8,6)
-        elif self.pacman.player.x < self.x and self.pacman.player.y < self.y:
+        elif self._pacman.player.x < self.x and self._pacman.player.y < self.y:
             #player is to upper-left
             pupilSet = (5,6)
         else:
@@ -86,49 +86,49 @@ class Ghost():
 
         for y in range(pupilSet[1], pupilSet[1] + 3, 1):
             for x in range(pupilSet[0], pupilSet[0] + 2, 1):
-                self.anim[ self.animFrame ].set_at( (x, y), (0, 0, 255, 255) )
-                self.anim[ self.animFrame ].set_at( (x+9, y), (0, 0, 255, 255) )
+                self.anim[ self._animFrame ].set_at( (x, y), (0, 0, 255, 255) )
+                self.anim[ self._animFrame ].set_at( (x+9, y), (0, 0, 255, 255) )
         # -- end ghost eyes
 
         if self.state == self.STATE_NORMAL:
             # draw regular ghost (this one)
-            self.pacman.screen.blit (self.anim[ self.animFrame ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1]))
+            self._pacman.screen.blit (self.anim[ self._animFrame ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
         elif self.state == self.STATE_VULNERABLE:
             # draw vulnerable ghost
 
-            if self.pacman.game.ghostTimer > 100:
+            if self._pacman.game.ghostTimer > 100:
                 # blue
-                self.pacman.screen.blit (self.pacman.ghosts[4].anim[ self.animFrame ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1]))
+                self._pacman.screen.blit (self._pacman.ghosts[4].anim[ self._animFrame ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
             else:
                 # blue/white flashing
-                tempTimerI = int(self.pacman.game.ghostTimer / 10)
+                tempTimerI = int(self._pacman.game.ghostTimer / 10)
                 if tempTimerI == 1 or tempTimerI == 3 or tempTimerI == 5 or tempTimerI == 7 or tempTimerI == 9:
-                    self.pacman.screen.blit (self.pacman.ghosts[5].anim[ self.animFrame ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1]))
+                    self._pacman.screen.blit (self._pacman.ghosts[5].anim[ self._animFrame ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
                 else:
-                    self.pacman.screen.blit (self.pacman.ghosts[4].anim[ self.animFrame ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1]))
+                    self._pacman.screen.blit (self._pacman.ghosts[4].anim[ self._animFrame ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
 
         elif self.state == self.STATE_SPECTACLES:
             # draw glasses
-            self.pacman.screen.blit (self.pacman.tileIDImage[ self.pacman.tileID[ 'glasses' ] ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1]))
+            self._pacman.screen.blit (self._pacman.tileIDImage[ self._pacman.tileID[ 'glasses' ] ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
 
-        if self.pacman.game.state >= Game.STATE_WAIT_LEVEL_CLEAR:
+        if self._pacman.game.state >= Game.STATE_WAIT_LEVEL_CLEAR:
             # don't animate ghost if the level is complete
             return
 
-        self.animDelay += 1
+        self._animDelay += 1
 
-        if self.animDelay == 2:
-            self.animFrame += 1
+        if self._animDelay == 2:
+            self._animFrame += 1
 
-            if self.animFrame == 7:
+            if self._animFrame == 7:
                 # wrap to beginning
-                self.animFrame = 1
+                self._animFrame = 1
 
-            self.animDelay = 0
+            self._animDelay = 0
 
     def move(self):
-        self.x += self.velX
-        self.y += self.velY
+        self.x += self._velX
+        self.y += self._velY
 
         self.nearestRow = int(((self.y + (TILE_HEIGHT/2)) / TILE_HEIGHT))
         self.nearestCol = int(((self.x + (TILE_HEIGHT/2)) / TILE_WIDTH))
@@ -146,45 +146,75 @@ class Ghost():
                 self.y = self.nearestRow * TILE_HEIGHT
 
                 # chase pac-man
-                self.currentPath = self.pacman.path.findPath( (self.nearestRow, self.nearestCol), (self.pacman.player.nearestRow, self.pacman.player.nearestCol) )
+                self.currentPath = self._pacman.path.findPath( (self.nearestRow, self.nearestCol), (self._pacman.player.nearestRow, self._pacman.player.nearestCol) )
                 self.followNextPathWay()
 
     def followNextPathWay(self):
 
-        # print "Ghost " + str(self.id) + " rem: " + self.currentPath
+        # print "Ghost " + str(self._id) + " rem: " + self.currentPath
 
         # only follow this pathway if there is a possible path found!
         if not self.currentPath == False:
 
             if len(self.currentPath) > 0:
                 if self.currentPath[0] == "L":
-                    (self.velX, self.velY) = (-self.speed, 0)
+                    (self._velX, self._velY) = (-self._speed, 0)
                 elif self.currentPath[0] == "R":
-                    (self.velX, self.velY) = (self.speed, 0)
+                    (self._velX, self._velY) = (self._speed, 0)
                 elif self.currentPath[0] == "U":
-                    (self.velX, self.velY) = (0, -self.speed)
+                    (self._velX, self._velY) = (0, -self._speed)
                 elif self.currentPath[0] == "D":
-                    (self.velX, self.velY) = (0, self.speed)
+                    (self._velX, self._velY) = (0, self._speed)
 
             else:
                 # this ghost has reached his destination!!
 
                 if not self.state == self.STATE_SPECTACLES:
                     # chase pac-man
-                    self.currentPath = self.pacman.path.findPath( (self.nearestRow, self.nearestCol), (self.pacman.player.nearestRow, self.pacman.player.nearestCol) )
+                    self.currentPath = self._pacman.path.findPath( (self.nearestRow, self.nearestCol), (self._pacman.player.nearestRow, self._pacman.player.nearestCol) )
                     self.followNextPathWay()
 
                 else:
                     # glasses found way back to ghost box
                     self.state = self.STATE_NORMAL
-                    self.speed = self.speed / 4
+                    self._speed = self._speed / 4
 
                     # give ghost a path to a random spot (containing a pellet)
                     (randRow, randCol) = (0, 0)
 
-                    while not self.pacman.level.getMapTile((randRow, randCol)) == self.pacman.tileID[ 'pellet' ] or (randRow, randCol) == (0, 0):
-                        randRow = random.randint(1, self.pacman.level.lvlHeight - 2)
-                        randCol = random.randint(1, self.pacman.level.lvlWidth - 2)
+                    while not self._pacman.level.getMapTile((randRow, randCol)) == self._pacman.tileID[ 'pellet' ] or (randRow, randCol) == (0, 0):
+                        randRow = random.randint(1, self._pacman.level.lvlHeight - 2)
+                        randCol = random.randint(1, self._pacman.level.lvlWidth - 2)
 
-                    self.currentPath = self.pacman.path.findPath( (self.nearestRow, self.nearestCol), (randRow, randCol) )
+                    self.currentPath = self._pacman.path.findPath( (self.nearestRow, self.nearestCol), (randRow, randCol) )
                     self.followNextPathWay()
+
+    def runHome(self):
+        # make them run
+        self._speed = self._speed * 4
+        # and send them to the ghost box
+        self.x = self.nearestCol * TILE_WIDTH
+        self.y = self.nearestRow * TILE_HEIGHT
+        self.currentPath = self._pacman.path.findPath( (self.nearestRow, self.nearestCol), (self._pacman.level.getGhostBoxPos()[0]+1, self._pacman.level.getGhostBoxPos()[1]) )
+        self.followNextPathWay()
+
+    def restart(self):
+        # move ghosts back to home
+        self.x = self.homeX
+        self.y = self.homeY
+        self._velX = 0
+        self._velY = 0
+        self.state = Ghost.STATE_NORMAL
+        self._speed = 1
+        self.move()
+
+        # give each ghost a path to a random spot (containing a pellet)
+        (randRow, randCol) = (0, 0)
+
+        while not self._pacman.level.getMapTile((randRow, randCol)) == self._pacman.tileID[ 'pellet' ] or (randRow, randCol) == (0, 0):
+            randRow = random.randint(1, self._pacman.level.lvlHeight - 2)
+            randCol = random.randint(1, self._pacman.level.lvlWidth - 2)
+
+        # print "Ghost " + str(i) + " headed towards " + str((randRow, randCol))
+        self.currentPath = self._pacman.path.findPath( (self.nearestRow, self.nearestCol), (randRow, randCol) )
+        self.followNextPathWay()

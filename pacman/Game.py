@@ -36,9 +36,9 @@ class Game():
     STATE_WAIT_LEVEL_SWITCH = 8  # wait after finishing level
 
     def __init__(self, pacman):
-        self.pacman = pacman
+        self._pacman = pacman
 
-        self.levelNum = 0
+        self._levelNum = 0
         self.score = 0
         self.lives = 3
 
@@ -62,16 +62,17 @@ class Game():
         self.screenSize = (self.screenTileSize[1] * TILE_WIDTH, self.screenTileSize[0] * TILE_HEIGHT)
 
         # numerical display digits
-        self.digit = {}
+        self._digit = {}
         for i in range(0, 10, 1):
-            self.digit[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text",str(i) + ".gif")).convert()
-        self.imLife = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","life.gif")).convert()
-        self.imGameOver = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","gameover.gif")).convert()
-        self.imReady = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","ready.gif")).convert()
+            self._digit[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text",str(i) + ".gif")).convert()
+        self._imLife = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","life.gif")).convert()
+        self._imGameOver = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","gameover.gif")).convert()
+        self._imReady = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","ready.gif")).convert()
+
         self.imLogo = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","logo.gif")).convert()
         self.imHiscores = self.makeHiScoreList()
 
-        self.snd_extralife = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","extralife.wav"))
+        self._snd_extralife = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","extralife.wav"))
 
     def defaultHiScoreList(self):
             return [ (100000,"David") , (80000,"Andy") , (60000,"Count Pacula") , (40000,"Cleopacra") , (20000,"Brett Favre") , (10000,"Sergei Pachmaninoff") ]
@@ -154,20 +155,20 @@ class Game():
             self.imHiscores=self.makeHiScoreList()
 
     def startNewGame(self):
-        self.levelNum = 1
+        self._levelNum = 1
         self.score = 0
         self.lives = 3
 
         self.setState( self.STATE_WAIT_START )
-        self.pacman.level.loadLevel( self.pacman.game.getLevelNum() )
+        self._pacman.level.loadLevel( self._pacman.game.getLevelNum() )
 
     def addToScore(self, amount):
         extraLifeSet = [25000, 50000, 100000, 150000]
 
         for specialScore in extraLifeSet:
             if self.score < specialScore and self.score + amount >= specialScore:
-                self.snd_extralife.play()
-                self.pacman.game.lives += 1
+                self._snd_extralife.play()
+                self._pacman.game.lives += 1
 
         self.score += amount
 
@@ -176,16 +177,16 @@ class Game():
         self.drawNumber (self.score, (SCORE_XOFFSET, self.screenSize[1] - SCORE_YOFFSET) )
 
         for i in range(0, self.lives, 1):
-            self.pacman.screen.blit (self.imLife, (34 + i * 10 + 16, self.screenSize[1] - 18) )
+            self._pacman.screen.blit (self._imLife, (34 + i * 10 + 16, self.screenSize[1] - 18) )
 
-        self.pacman.screen.blit (self.pacman.fruit.imFruit[ self.pacman.fruit.fruitType ], (4 + 16, self.screenSize[1] - 28) )
+        self._pacman.screen.blit (self._pacman.fruit.imFruit[ self._pacman.fruit.fruitType ], (4 + 16, self.screenSize[1] - 28) )
 
         if self.state == self.STATE_GAME_OVER:
-            self.pacman.screen.blit (self.imGameOver, (self.screenSize[0] / 2 - (self.imGameOver.get_width()/2), self.screenSize[1] / 2 - (self.imGameOver.get_height()/2)) )
+            self._pacman.screen.blit (self._imGameOver, (self.screenSize[0] / 2 - (self._imGameOver.get_width()/2), self.screenSize[1] / 2 - (self._imGameOver.get_height()/2)) )
         elif self.state == self.STATE_WAIT_START:
-            self.pacman.screen.blit (self.imReady, (self.screenSize[0] / 2 - 20, self.screenSize[1] / 2 + 12) )
+            self._pacman.screen.blit (self._imReady, (self.screenSize[0] / 2 - 20, self.screenSize[1] / 2 + 12) )
 
-        self.drawNumber (self.levelNum, (0, self.screenSize[1] - 20) )
+        self.drawNumber (self._levelNum, (0, self.screenSize[1] - 20) )
 
     def drawNumber(self, number, position):
         (x, y) = position
@@ -193,23 +194,23 @@ class Game():
 
         for i in range(0, len(strNumber), 1):
             iDigit = int(strNumber[i])
-            self.pacman.screen.blit (self.digit[ iDigit ], (x + i * SCORE_COLWIDTH, y) )
+            self._pacman.screen.blit (self._digit[ iDigit ], (x + i * SCORE_COLWIDTH, y) )
 
     def smartMoveScreen(self):
-        possibleScreenX = self.pacman.player.x - self.screenTileSize[1] / 2 * TILE_WIDTH
-        possibleScreenY = self.pacman.player.y - self.screenTileSize[0] / 2 * TILE_HEIGHT
+        possibleScreenX = self._pacman.player.x - self.screenTileSize[1] / 2 * TILE_WIDTH
+        possibleScreenY = self._pacman.player.y - self.screenTileSize[0] / 2 * TILE_HEIGHT
 
         if possibleScreenX < 0:
             possibleScreenX = 0
-        elif possibleScreenX > self.pacman.level.lvlWidth * TILE_WIDTH - self.screenSize[0]:
-            possibleScreenX = self.pacman.level.lvlWidth * TILE_HEIGHT - self.screenSize[0]
+        elif possibleScreenX > self._pacman.level.lvlWidth * TILE_WIDTH - self.screenSize[0]:
+            possibleScreenX = self._pacman.level.lvlWidth * TILE_HEIGHT - self.screenSize[0]
 
         if possibleScreenY < 0:
             possibleScreenY = 0
-        elif possibleScreenY > self.pacman.level.lvlHeight * TILE_WIDTH - self.screenSize[1]:
-            possibleScreenY = self.pacman.level.lvlHeight * TILE_HEIGHT - self.screenSize[1]
+        elif possibleScreenY > self._pacman.level.lvlHeight * TILE_WIDTH - self.screenSize[1]:
+            possibleScreenY = self._pacman.level.lvlHeight * TILE_HEIGHT - self.screenSize[1]
 
-        self.pacman.game.moveScreen( (possibleScreenX, possibleScreenY) )
+        self._pacman.game.moveScreen( (possibleScreenX, possibleScreenY) )
 
     def moveScreen(self, newPosition ):
         (newX, newY) = newPosition
@@ -221,17 +222,15 @@ class Game():
         return self.screenPixelPos
 
     def getLevelNum(self):
-        return self.levelNum
+        return self._levelNum
 
     def setNextLevel(self):
-        self.levelNum += 1
+        self._levelNum += 1
 
         self.setState( self.STATE_WAIT_START )
-        self.pacman.level.loadLevel( self.pacman.game.getLevelNum() )
+        self._pacman.level.loadLevel( self._pacman.game.getLevelNum() )
 
-        self.pacman.player.velX = 0
-        self.pacman.player.velY = 0
-        self.pacman.player.anim_pacmanCurrent = self.pacman.player.anim_pacmanS
+        self._pacman.player.stop()
 
     def setState(self, newState):
         self.state = newState

@@ -13,7 +13,7 @@ TILE_WIDTH = TILE_HEIGHT=24
 class Level():
 
     def __init__(self, pacman):
-        self.pacman = pacman
+        self._pacman = pacman
         self.lvlWidth = 0
         self.lvlHeight = 0
         self.edgeLightColor = (255, 255, 0, 255)
@@ -21,38 +21,38 @@ class Level():
         self.fillColor = (0, 255, 255, 255)
         self.pelletColor = (255, 255, 255, 255)
 
-        self.map = {}
+        self._map = {}
 
-        self.pellets = 0
-        self.powerPelletBlinkTimer = 0
+        self._pellets = 0
+        self._powerPelletBlinkTimer = 0
 
-        self.snd_pellet = [
+        self._snd_pellet = [
             pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","pellet1.wav")),
             pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","pellet2.wav"))
         ]
-        self.snd_powerpellet = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","powerpellet.wav"))
+        self._snd_powerpellet = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","powerpellet.wav"))
 
     def setMapTile(self, position, newValue):
         (row, col) = position
-        self.map[ (row * self.lvlWidth) + col ] = newValue
+        self._map[ (row * self.lvlWidth) + col ] = newValue
 
     def getMapTile(self, position):
         (row, col) = position
         if row >= 0 and row < self.lvlHeight and col >= 0 and col < self.lvlWidth:
-            return self.map[ (row * self.lvlWidth) + col ]
+            return self._map[ (row * self.lvlWidth) + col ]
         else:
             return 0
 
     def isWall(self, position):
         (row, col) = position
-        if row > self.pacman.level.lvlHeight - 1 or row < 0:
+        if row > self.lvlHeight - 1 or row < 0:
             return True
 
-        if col > self.pacman.level.lvlWidth - 1 or col < 0:
+        if col > self.lvlWidth - 1 or col < 0:
             return True
 
         # check the offending tile ID
-        result = self.pacman.level.getMapTile((row, col))
+        result = self.getMapTile((row, col))
 
         # if the tile was a wall
         if result >= 100 and result <= 199:
@@ -97,82 +97,82 @@ class Level():
 
                 if  (playerX - (iCol * TILE_WIDTH) < TILE_WIDTH) and (playerX - (iCol * TILE_WIDTH) > -TILE_WIDTH) and (playerY - (iRow * TILE_HEIGHT) < TILE_HEIGHT) and (playerY - (iRow * TILE_HEIGHT) > -TILE_HEIGHT):
                     # check the offending tile ID
-                    result = self.pacman.level.getMapTile((iRow, iCol))
+                    result = self.getMapTile((iRow, iCol))
 
-                    if result == self.pacman.tileID[ 'pellet' ]:
+                    if result == self._pacman.tileID[ 'pellet' ]:
                         # got a pellet
-                        self.pacman.level.setMapTile((iRow, iCol), 0)
-                        self.snd_pellet[self.pacman.player.pelletSndNum].play()
-                        self.pacman.player.pelletSndNum = 1 - self.pacman.player.pelletSndNum
+                        self.setMapTile((iRow, iCol), 0)
+                        self._snd_pellet[self._pacman.player.pelletSndNum].play()
+                        self._pacman.player.pelletSndNum = 1 - self._pacman.player.pelletSndNum
 
-                        self.pacman.level.pellets -= 1
+                        self._pellets -= 1
 
-                        self.pacman.game.addToScore(10)
+                        self._pacman.game.addToScore(10)
 
-                        if self.pacman.level.pellets == 0:
+                        if self._pellets == 0:
                             # no more pellets left!
                             # WON THE LEVEL
-                            self.pacman.game.setState( Game.STATE_WAIT_LEVEL_CLEAR )
+                            self._pacman.game.setState( Game.STATE_WAIT_LEVEL_CLEAR )
 
 
-                    elif result == self.pacman.tileID[ 'pellet-power' ]:
+                    elif result == self._pacman.tileID[ 'pellet-power' ]:
                         # got a power pellet
-                        self.pacman.level.setMapTile((iRow, iCol), 0)
+                        self.setMapTile((iRow, iCol), 0)
                         pygame.mixer.stop()
-                        self.snd_powerpellet.play()
+                        self._snd_powerpellet.play()
 
-                        self.pacman.game.addToScore(100)
-                        self.pacman.game.ghostValue = 200
+                        self._pacman.game.addToScore(100)
+                        self._pacman.game.ghostValue = 200
 
-                        self.pacman.game.ghostTimer = 360
+                        self._pacman.game.ghostTimer = 360
                         for i in range(0, 4, 1):
-                            if self.pacman.ghosts[i].state == Ghost.STATE_NORMAL:
-                                self.pacman.ghosts[i].state = Ghost.STATE_VULNERABLE
+                            if self._pacman.ghosts[i].state == Ghost.STATE_NORMAL:
+                                self._pacman.ghosts[i].state = Ghost.STATE_VULNERABLE
 
                                 """
                                 # Must line up with grid before invoking a new path (for now)
-                                self.pacman.ghosts[i].x = self.pacman.ghosts[i].nearestCol * TILE_HEIGHT
-                                self.pacman.ghosts[i].y = self.pacman.ghosts[i].nearestRow * TILE_WIDTH
+                                self._pacman.ghosts[i].x = self._pacman.ghosts[i].nearestCol * TILE_HEIGHT
+                                self._pacman.ghosts[i].y = self._pacman.ghosts[i].nearestRow * TILE_WIDTH
 
                                 # give each ghost a path to a random spot (containing a pellet)
                                 (randRow, randCol) = (0, 0)
 
-                                while not self.getMapTile((randRow, randCol)) == self.pacman.tileID[ 'pellet' ] or (randRow, randCol) == (0, 0):
+                                while not self.getMapTile((randRow, randCol)) == self._pacman.tileID[ 'pellet' ] or (randRow, randCol) == (0, 0):
                                     randRow = random.randint(1, self.lvlHeight - 2)
                                     randCol = random.randint(1, self.lvlWidth - 2)
-                                self.pacman.ghosts[i].currentPath = path.findPath( (self.pacman.ghosts[i].nearestRow, self.pacman.ghosts[i].nearestCol), (randRow, randCol) )
+                                self._pacman.ghosts[i].currentPath = path.findPath( (self._pacman.ghosts[i].nearestRow, self._pacman.ghosts[i].nearestCol), (randRow, randCol) )
 
-                                self.pacman.ghosts[i].followNextPathWay()
+                                self._pacman.ghosts[i].followNextPathWay()
                                 """
 
-                    elif result == self.pacman.tileID[ 'door-h' ]:
+                    elif result == self._pacman.tileID[ 'door-h' ]:
                         # ran into a horizontal door
-                        for i in range(0, self.pacman.level.lvlWidth, 1):
+                        for i in range(0, self.lvlWidth, 1):
                             if not i == iCol:
-                                if self.pacman.level.getMapTile((iRow, i)) == self.pacman.tileID[ 'door-h' ]:
-                                    self.pacman.player.x = i * TILE_WIDTH
+                                if self.getMapTile((iRow, i)) == self._pacman.tileID[ 'door-h' ]:
+                                    self._pacman.player.x = i * TILE_WIDTH
 
-                                    if self.pacman.player.velX > 0:
-                                        self.pacman.player.x += TILE_WIDTH
+                                    if self._pacman.player.velX > 0:
+                                        self._pacman.player.x += TILE_WIDTH
                                     else:
-                                        self.pacman.player.x -= TILE_WIDTH
+                                        self._pacman.player.x -= TILE_WIDTH
 
-                    elif result == self.pacman.tileID[ 'door-v' ]:
+                    elif result == self._pacman.tileID[ 'door-v' ]:
                         # ran into a vertical door
-                        for i in range(0, self.pacman.level.lvlHeight, 1):
+                        for i in range(0, self.lvlHeight, 1):
                             if not i == iRow:
-                                if self.pacman.level.getMapTile((i, iCol)) == self.pacman.tileID[ 'door-v' ]:
-                                    self.pacman.player.y = i * TILE_HEIGHT
+                                if self.getMapTile((i, iCol)) == self._pacman.tileID[ 'door-v' ]:
+                                    self._pacman.player.y = i * TILE_HEIGHT
 
-                                    if self.pacman.player.velY > 0:
-                                        self.pacman.player.y += TILE_HEIGHT
+                                    if self._pacman.player.velY > 0:
+                                        self._pacman.player.y += TILE_HEIGHT
                                     else:
-                                        self.pacman.player.y -= TILE_HEIGHT
+                                        self._pacman.player.y -= TILE_HEIGHT
 
     def getGhostBoxPos(self):
         for row in range(0, self.lvlHeight, 1):
             for col in range(0, self.lvlWidth, 1):
-                if self.getMapTile((row, col)) == self.pacman.tileID[ 'ghost-door' ]:
+                if self.getMapTile((row, col)) == self._pacman.tileID[ 'ghost-door' ]:
                     return (row, col)
 
         return False
@@ -182,10 +182,10 @@ class Level():
 
         for row in range(0, self.lvlHeight, 1):
             for col in range(0, self.lvlWidth, 1):
-                if self.getMapTile((row, col)) == self.pacman.tileID[ 'door-h' ]:
+                if self.getMapTile((row, col)) == self._pacman.tileID[ 'door-h' ]:
                     # found a horizontal door
                     doorArray.append( (row, col) )
-                elif self.getMapTile((row, col)) == self.pacman.tileID[ 'door-v' ]:
+                elif self.getMapTile((row, col)) == self._pacman.tileID[ 'door-v' ]:
                     # found a vertical door
                     doorArray.append( (row, col) )
 
@@ -194,19 +194,19 @@ class Level():
 
         chosenDoor = random.randint(0, len(doorArray) - 1)
 
-        if self.getMapTile( doorArray[chosenDoor] ) == self.pacman.tileID[ 'door-h' ]:
+        if self.getMapTile( doorArray[chosenDoor] ) == self._pacman.tileID[ 'door-h' ]:
             # horizontal door was chosen
             # look for the opposite one
-            for i in range(0, self.pacman.level.lvlWidth, 1):
+            for i in range(0, self.lvlWidth, 1):
                 if not i == doorArray[chosenDoor][1]:
-                    if self.pacman.level.getMapTile((doorArray[chosenDoor][0], i)) == self.pacman.tileID[ 'door-h' ]:
+                    if self.getMapTile((doorArray[chosenDoor][0], i)) == self._pacman.tileID[ 'door-h' ]:
                         return doorArray[chosenDoor], (doorArray[chosenDoor][0], i)
         else:
             # vertical door was chosen
             # look for the opposite one
-            for i in range(0, self.pacman.level.lvlHeight, 1):
+            for i in range(0, self.lvlHeight, 1):
                 if not i == doorArray[chosenDoor][0]:
-                    if self.pacman.level.getMapTile((i, doorArray[chosenDoor][1])) == self.pacman.tileID[ 'door-v' ]:
+                    if self.getMapTile((i, doorArray[chosenDoor][1])) == self._pacman.tileID[ 'door-v' ]:
                         return doorArray[chosenDoor], (i, doorArray[chosenDoor][1])
 
         return False
@@ -221,39 +221,39 @@ class Level():
             # print outputLine
 
     def drawMap(self):
-        self.powerPelletBlinkTimer += 1
-        if self.powerPelletBlinkTimer == 60:
-            self.powerPelletBlinkTimer = 0
+        self._powerPelletBlinkTimer += 1
+        if self._powerPelletBlinkTimer == 60:
+            self._powerPelletBlinkTimer = 0
 
-        for row in range(-1, self.pacman.game.screenTileSize[0] +1, 1):
+        for row in range(-1, self._pacman.game.screenTileSize[0] +1, 1):
             outputLine = ""
-            for col in range(-1, self.pacman.game.screenTileSize[1] +1, 1):
+            for col in range(-1, self._pacman.game.screenTileSize[1] +1, 1):
 
                 # row containing tile that actually goes here
-                actualRow = self.pacman.game.screenNearestTilePos[0] + row
-                actualCol = self.pacman.game.screenNearestTilePos[1] + col
+                actualRow = self._pacman.game.screenNearestTilePos[0] + row
+                actualCol = self._pacman.game.screenNearestTilePos[1] + col
 
                 useTile = self.getMapTile((actualRow, actualCol))
-                if not useTile == 0 and not useTile == self.pacman.tileID['door-h'] and not useTile == self.pacman.tileID['door-v']:
+                if not useTile == 0 and not useTile == self._pacman.tileID['door-h'] and not useTile == self._pacman.tileID['door-v']:
                     # if this isn't a blank tile
 
-                    if useTile == self.pacman.tileID['pellet-power']:
-                        if self.powerPelletBlinkTimer < 30:
-                            self.pacman.screen.blit (self.pacman.tileIDImage[ useTile ], (col * TILE_WIDTH - self.pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self.pacman.game.screenPixelOffset[1]) )
+                    if useTile == self._pacman.tileID['pellet-power']:
+                        if self._powerPelletBlinkTimer < 30:
+                            self._pacman.screen.blit (self._pacman.tileIDImage[ useTile ], (col * TILE_WIDTH - self._pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self._pacman.game.screenPixelOffset[1]) )
 
-                    elif useTile == self.pacman.tileID['showlogo']:
-                        self.pacman.screen.blit (self.pacman.game.imLogo, (col * TILE_WIDTH - self.pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self.pacman.game.screenPixelOffset[1]) )
+                    elif useTile == self._pacman.tileID['showlogo']:
+                        self._pacman.screen.blit (self._pacman.game.imLogo, (col * TILE_WIDTH - self._pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self._pacman.game.screenPixelOffset[1]) )
 
-                    elif useTile == self.pacman.tileID['hiscores']:
-                            self.pacman.screen.blit(self.pacman.game.imHiscores,(col*TILE_WIDTH-self.pacman.game.screenPixelOffset[0],row*TILE_HEIGHT-self.pacman.game.screenPixelOffset[1]))
+                    elif useTile == self._pacman.tileID['hiscores']:
+                            self._pacman.screen.blit(self._pacman.game.imHiscores,(col*TILE_WIDTH-self._pacman.game.screenPixelOffset[0],row*TILE_HEIGHT-self._pacman.game.screenPixelOffset[1]))
 
                     else:
-                        self.pacman.screen.blit (self.pacman.tileIDImage[ useTile ], (col * TILE_WIDTH - self.pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self.pacman.game.screenPixelOffset[1]) )
+                        self._pacman.screen.blit (self._pacman.tileIDImage[ useTile ], (col * TILE_WIDTH - self._pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self._pacman.game.screenPixelOffset[1]) )
 
     def loadLevel(self, levelNum):
-        self.map = {}
+        self._map = {}
 
-        self.pellets = 0
+        self._pellets = 0
 
         f = open(os.path.join(SCRIPT_PATH,"res","levels",str(levelNum) + ".txt"), 'r')
         lineNum=-1
@@ -324,7 +324,7 @@ class Level():
                     self.pelletColor = (red, green, blue, 255)
 
                 elif firstWord == "fruittype":
-                    self.pacman.fruit.fruitType = int( str_splitBySpace[2] )
+                    self._pacman.fruit.fruitType = int( str_splitBySpace[2] )
 
                 elif firstWord == "startleveldata":
                     isReadingLevelData = True
@@ -353,72 +353,50 @@ class Level():
                         if thisID == 4:
                             # starting position for pac-man
 
-                            self.pacman.player.homeX = k * TILE_WIDTH
-                            self.pacman.player.homeY = rowNum * TILE_HEIGHT
+                            self._pacman.player.homeX = k * TILE_WIDTH
+                            self._pacman.player.homeY = rowNum * TILE_HEIGHT
                             self.setMapTile((rowNum, k), 0 )
 
                         elif thisID >= 10 and thisID <= 13:
                             # one of the ghosts
 
-                            self.pacman.ghosts[thisID - 10].homeX = k * TILE_WIDTH
-                            self.pacman.ghosts[thisID - 10].homeY = rowNum * TILE_HEIGHT
+                            self._pacman.ghosts[thisID - 10].homeX = k * TILE_WIDTH
+                            self._pacman.ghosts[thisID - 10].homeY = rowNum * TILE_HEIGHT
                             self.setMapTile((rowNum, k), 0 )
 
                         elif thisID == 2:
                             # pellet
 
-                            self.pellets += 1
+                            self._pellets += 1
 
                     rowNum += 1
 
 
         # reload all tiles and set appropriate colors
-        self.pacman.getCrossRef()
+        self._pacman.getCrossRef()
 
         # load map into the pathfinder object
-        self.pacman.path.resizeMap( (self.lvlHeight, self.lvlWidth) )
+        self._pacman.path.resizeMap( (self.lvlHeight, self.lvlWidth) )
 
-        for row in range(0, self.pacman.path.size[0], 1):
-            for col in range(0, self.pacman.path.size[1], 1):
+        for row in range(0, self._pacman.path.size[0], 1):
+            for col in range(0, self._pacman.path.size[1], 1):
                 if self.isWall( (row, col) ):
-                    self.pacman.path.setType( (row, col), 1 )
+                    self._pacman.path.setType( (row, col), 1 )
                 else:
-                    self.pacman.path.setType( (row, col), 0 )
+                    self._pacman.path.setType( (row, col), 0 )
 
         # do all the level-starting stuff
         self.restart()
 
     def restart(self):
         for i in range(0, 4, 1):
-            # move ghosts back to home
+            self._pacman.ghosts[i].restart()
 
-            self.pacman.ghosts[i].x = self.pacman.ghosts[i].homeX
-            self.pacman.ghosts[i].y = self.pacman.ghosts[i].homeY
-            self.pacman.ghosts[i].velX = 0
-            self.pacman.ghosts[i].velY = 0
-            self.pacman.ghosts[i].state = Ghost.STATE_NORMAL
-            self.pacman.ghosts[i].speed = 1
-            self.pacman.ghosts[i].move()
+        self._pacman.fruit.active = False
 
-            # give each ghost a path to a random spot (containing a pellet)
-            (randRow, randCol) = (0, 0)
+        self._pacman.game.fruitTimer = 0
 
-            while not self.getMapTile((randRow, randCol)) == self.pacman.tileID[ 'pellet' ] or (randRow, randCol) == (0, 0):
-                randRow = random.randint(1, self.lvlHeight - 2)
-                randCol = random.randint(1, self.lvlWidth - 2)
+        self._pacman.player.x = self._pacman.player.homeX
+        self._pacman.player.y = self._pacman.player.homeY
 
-            # print "Ghost " + str(i) + " headed towards " + str((randRow, randCol))
-            self.pacman.ghosts[i].currentPath = self.pacman.path.findPath( (self.pacman.ghosts[i].nearestRow, self.pacman.ghosts[i].nearestCol), (randRow, randCol) )
-            self.pacman.ghosts[i].followNextPathWay()
-
-        self.pacman.fruit.active = False
-
-        self.pacman.game.fruitTimer = 0
-
-        self.pacman.player.x = self.pacman.player.homeX
-        self.pacman.player.y = self.pacman.player.homeY
-        self.pacman.player.velX = 0
-        self.pacman.player.velY = 0
-
-        self.pacman.player.anim_pacmanCurrent = self.pacman.player.anim_pacmanS
-        self.pacman.player.animFrame = 3
+        self._pacman.player.stop()

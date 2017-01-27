@@ -14,18 +14,19 @@ BOUNCE_TABLE = [0, 2, 4, 5, 5, 6, 6, 6, 6, 6, 5, 5, 4, 3, 2, 1]
 class Fruit():
 
     def __init__(self, pacman):
-        self.pacman = pacman
+        self._pacman = pacman
+        self._slowTimer = 0
+
         # when fruit is not in use, it's in the (-1, -1) position off-screen.
-        self.slowTimer = 0
         self.x = -TILE_WIDTH
         self.y = -TILE_HEIGHT
-        self.velX = 0
-        self.velY = 0
-        self.speed = 2
+        self._velX = 0
+        self._velY = 0
+        self._speed = 2
         self.active = False
 
-        self.bouncei = 0
-        self.bounceY = 0
+        self._bouncei = 0
+        self._bounceY = 0
 
         self.nearestRow = (-1, -1)
         self.nearestCol = (-1, -1)
@@ -37,14 +38,14 @@ class Fruit():
         self.currentPath = ""
         self.fruitType = 1
 
-        self.snd_fruitbounce = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","fruitbounce.wav"))
+        self._snd_fruitbounce = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","fruitbounce.wav"))
 
 
     def draw(self):
-        if self.pacman.game.state == Game.STATE_GAME_OVER or self.active == False:
+        if self._pacman.game.state == Game.STATE_GAME_OVER or self.active == False:
             return
 
-        self.pacman.screen.blit (self.imFruit[ self.fruitType ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1] - self.bounceY))
+        self._pacman.screen.blit (self.imFruit[ self.fruitType ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1] - self._bounceY))
 
 
     def move(self):
@@ -52,18 +53,18 @@ class Fruit():
         if self.active == False:
             return False
 
-        self.bouncei += 1
-        if self.bouncei == 16:
-            self.bouncei = 0
-            self.snd_fruitbounce.play()
-        self.bounceY = BOUNCE_TABLE[self.bouncei]
+        self._bouncei += 1
+        if self._bouncei == 16:
+            self._bouncei = 0
+            self._snd_fruitbounce.play()
+        self._bounceY = BOUNCE_TABLE[self._bouncei]
 
-        self.slowTimer += 1
-        if self.slowTimer == 2:
-            self.slowTimer = 0
+        self._slowTimer += 1
+        if self._slowTimer == 2:
+            self._slowTimer = 0
 
-            self.x += self.velX
-            self.y += self.velY
+            self.x += self._velX
+            self.y += self._velY
 
             self.nearestRow = int(((self.y + (TILE_WIDTH/2)) / TILE_WIDTH))
             self.nearestCol = int(((self.x + (TILE_HEIGHT/2)) / TILE_HEIGHT))
@@ -81,7 +82,7 @@ class Fruit():
                     self.y = self.nearestRow * TILE_HEIGHT
 
                     self.active = False
-                    self.pacman.game.fruitTimer = 0
+                    self._pacman.game.fruitTimer = 0
 
     def followNextPathWay(self):
 
@@ -90,10 +91,10 @@ class Fruit():
 
             if len(self.currentPath) > 0:
                 if self.currentPath[0] == "L":
-                    (self.velX, self.velY) = (-self.speed, 0)
+                    (self._velX, self._velY) = (-self._speed, 0)
                 elif self.currentPath[0] == "R":
-                    (self.velX, self.velY) = (self.speed, 0)
+                    (self._velX, self._velY) = (self._speed, 0)
                 elif self.currentPath[0] == "U":
-                    (self.velX, self.velY) = (0, -self.speed)
+                    (self._velX, self._velY) = (0, -self._speed)
                 elif self.currentPath[0] == "D":
-                    (self.velX, self.velY) = (0, self.speed)
+                    (self._velX, self._velY) = (0, self._speed)

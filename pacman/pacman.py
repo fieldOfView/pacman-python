@@ -64,13 +64,13 @@ class Pacman():
         pygame.mixer.pre_init(22050,16,2,512)
         pygame.mixer.init()
 
-        self.clock = pygame.time.Clock()
+        self._clock = pygame.time.Clock()
         pygame.init()
         pygame.display.set_mode((1, 1)) # temporarily initialise display so bitmaps can be loaded
 
         pygame.display.set_caption("Pacman")
 
-        self.img_Background = pygame.image.load(os.path.join(SCRIPT_PATH,"res","backgrounds","1.gif")).convert()
+        self.self._img_Background = pygame.image.load(os.path.join(SCRIPT_PATH,"res","backgrounds","1.gif")).convert()
 
         self.screen = pygame.display.get_surface()
 
@@ -78,7 +78,7 @@ class Pacman():
         self.player = Player(self)
 
         # create a path_finder object
-        self.path = PathFinder(self)
+        self.path = PathFinder()
 
         # create ghost objects
         self.ghosts = {}
@@ -89,7 +89,6 @@ class Pacman():
         # create piece of fruit
         self.fruit = Fruit(self)
 
-        self.tileIDName = {} # gives tile name (when the ID# is known)
         self.tileID = {} # gives tile ID (when the name is known)
         self.tileIDImage = {} # gives tile image (when the ID# is known)
 
@@ -103,11 +102,11 @@ class Pacman():
         # initialise the joystick
         if pygame.joystick.get_count() > 0:
             if JS_DEVNUM < pygame.joystick.get_count():
-                self.js = pygame.joystick.Joystick(JS_DEVNUM)
+                self._js = pygame.joystick.Joystick(JS_DEVNUM)
             else:
-                self.js = pygame.joystick.Joystick(0)
-            self.js.init()
-        else: self.js = None
+                self._js = pygame.joystick.Joystick(0)
+            self._js.init()
+        else: self._js = None
 
     def run(self):
         while True:
@@ -198,7 +197,7 @@ class Pacman():
 
             self.game.smartMoveScreen()
 
-            self.screen.blit(self.img_Background, (0, 0))
+            self.screen.blit(self.self._img_Background, (0, 0))
 
             if not self.game.state == Game.STATE_WAIT_LEVEL_SWITCH:
                 self.level.drawMap()
@@ -222,7 +221,7 @@ class Pacman():
 
             pygame.display.flip()
 
-            self.clock.tick (60)
+            self._clock.tick (60)
 
 
     def checkIfCloseButton(self, events):
@@ -233,22 +232,22 @@ class Pacman():
 
     def checkInputs(self):
         if self.game.state == Game.STATE_PLAYING:
-            if pygame.key.get_pressed()[ pygame.K_RIGHT ] or (self.js != None and self.js.get_axis(JS_XAXIS) > 0):
+            if pygame.key.get_pressed()[ pygame.K_RIGHT ] or (self._js != None and self._js.get_axis(JS_XAXIS) > 0):
                 if not self.level.checkIfHitWall((self.player.x + self.player.speed, self.player.y), (self.player.nearestRow, self.player.nearestCol)):
                     self.player.velX = self.player.speed
                     self.player.velY = 0
 
-            elif pygame.key.get_pressed()[ pygame.K_LEFT ] or (self.js != None and self.js.get_axis(JS_XAXIS) < 0):
+            elif pygame.key.get_pressed()[ pygame.K_LEFT ] or (self._js != None and self._js.get_axis(JS_XAXIS) < 0):
                 if not self.level.checkIfHitWall((self.player.x - self.player.speed, self.player.y), (self.player.nearestRow, self.player.nearestCol)):
                     self.player.velX = -self.player.speed
                     self.player.velY = 0
 
-            elif pygame.key.get_pressed()[ pygame.K_DOWN ] or (self.js != None and self.js.get_axis(JS_YAXIS) > 0):
+            elif pygame.key.get_pressed()[ pygame.K_DOWN ] or (self._js != None and self._js.get_axis(JS_YAXIS) > 0):
                 if not self.level.checkIfHitWall((self.player.x, self.player.y + self.player.speed), (self.player.nearestRow, self.player.nearestCol)):
                     self.player.velX = 0
                     self.player.velY = self.player.speed
 
-            elif pygame.key.get_pressed()[ pygame.K_UP ] or (self.js != None and self.js.get_axis(JS_YAXIS) < 0):
+            elif pygame.key.get_pressed()[ pygame.K_UP ] or (self._js != None and self._js.get_axis(JS_YAXIS) < 0):
                 if not self.level.checkIfHitWall((self.player.x, self.player.y - self.player.speed), (self.player.nearestRow, self.player.nearestCol)):
                     self.player.velX = 0
                     self.player.velY = -self.player.speed
@@ -257,7 +256,7 @@ class Pacman():
             sys.exit(0)
 
         elif self.game.state == Game.STATE_GAME_OVER:
-            if pygame.key.get_pressed()[ pygame.K_RETURN ] or (self.js != None and self.js.get_button(JS_STARTBUTTON)):
+            if pygame.key.get_pressed()[ pygame.K_RETURN ] or (self._js != None and self._js.get_button(JS_STARTBUTTON)):
                 self.game.startNewGame()
 
 
@@ -289,7 +288,6 @@ class Pacman():
                 useLine = True
 
             if useLine == True:
-                self.tileIDName[ int(str_splitBySpace[0]) ] = str_splitBySpace[1]
                 self.tileID[ str_splitBySpace[1] ] = int(str_splitBySpace[0])
 
                 thisID = int(str_splitBySpace[0])
@@ -298,7 +296,7 @@ class Pacman():
                 else:
                     self.tileIDImage[ thisID ] = pygame.Surface((TILE_WIDTH,TILE_HEIGHT))
 
-                # change colors in self.pacman.tileIDImage to match maze colors
+                # change colors in self._pacman.tileIDImage to match maze colors
                 for y in range(0, TILE_WIDTH, 1):
                     for x in range(0, TILE_HEIGHT, 1):
 
