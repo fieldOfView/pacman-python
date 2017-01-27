@@ -2,6 +2,8 @@
 # ___/  level object class  \_______________________________________________
 
 import pygame, sys, os, random
+from Game import Game
+from Ghost import Ghost
 
 # WIN???
 SCRIPT_PATH = sys.path[0]
@@ -30,7 +32,6 @@ class Level():
         ]
         self.snd_powerpellet = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","powerpellet.wav"))
 
-
     def setMapTile(self, position, newValue):
         (row, col) = position
         self.map[ (row * self.lvlWidth) + col ] = newValue
@@ -43,7 +44,6 @@ class Level():
             return 0
 
     def isWall(self, position):
-
         (row, col) = position
         if row > self.pacman.level.lvlHeight - 1 or row < 0:
             return True
@@ -60,9 +60,7 @@ class Level():
         else:
             return False
 
-
     def checkIfHitWall(self, possiblePlayerPosition, position):
-
         (possiblePlayerX, possiblePlayerY) = possiblePlayerPosition
         (row, col) = position
         numCollisions = 0
@@ -83,7 +81,6 @@ class Level():
 
 
     def checkIfHit(self, playerPosition, position, cushion):
-
         (playerX, playerY) = playerPosition
         (x, y) = position
         if (playerX - x < cushion) and (playerX - x > -cushion) and (playerY - y < cushion) and (playerY - y > -cushion):
@@ -93,7 +90,6 @@ class Level():
 
 
     def checkIfHitSomething(self, playerPosition, position):
-
         (playerX, playerY) = playerPosition
         (row, col) = position
         for iRow in range(row - 1, row + 2, 1):
@@ -116,7 +112,7 @@ class Level():
                         if self.pacman.level.pellets == 0:
                             # no more pellets left!
                             # WON THE LEVEL
-                            self.pacman.game.setMode( 6 )
+                            self.pacman.game.setState( Game.STATE_WAIT_LEVEL_CLEAR )
 
 
                     elif result == self.pacman.tileID[ 'pellet-power' ]:
@@ -130,8 +126,8 @@ class Level():
 
                         self.pacman.game.ghostTimer = 360
                         for i in range(0, 4, 1):
-                            if self.pacman.ghosts[i].state == 1:
-                                self.pacman.ghosts[i].state = 2
+                            if self.pacman.ghosts[i].state == Ghost.STATE_NORMAL:
+                                self.pacman.ghosts[i].state = Ghost.STATE_VULNERABLE
 
                                 """
                                 # Must line up with grid before invoking a new path (for now)
@@ -174,7 +170,6 @@ class Level():
                                         self.pacman.player.y -= TILE_HEIGHT
 
     def getGhostBoxPos(self):
-
         for row in range(0, self.lvlHeight, 1):
             for col in range(0, self.lvlWidth, 1):
                 if self.getMapTile((row, col)) == self.pacman.tileID[ 'ghost-door' ]:
@@ -183,7 +178,6 @@ class Level():
         return False
 
     def getPathwayPairPos(self):
-
         doorArray = []
 
         for row in range(0, self.lvlHeight, 1):
@@ -218,7 +212,6 @@ class Level():
         return False
 
     def printMap(self):
-
         for row in range(0, self.lvlHeight, 1):
             outputLine = ""
             for col in range(0, self.lvlWidth, 1):
@@ -228,7 +221,6 @@ class Level():
             # print outputLine
 
     def drawMap(self):
-
         self.powerPelletBlinkTimer += 1
         if self.powerPelletBlinkTimer == 60:
             self.powerPelletBlinkTimer = 0
@@ -259,7 +251,6 @@ class Level():
                         self.pacman.screen.blit (self.pacman.tileIDImage[ useTile ], (col * TILE_WIDTH - self.pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self.pacman.game.screenPixelOffset[1]) )
 
     def loadLevel(self, levelNum):
-
         self.map = {}
 
         self.pellets = 0
@@ -398,7 +389,6 @@ class Level():
         self.restart()
 
     def restart(self):
-
         for i in range(0, 4, 1):
             # move ghosts back to home
 
@@ -406,7 +396,7 @@ class Level():
             self.pacman.ghosts[i].y = self.pacman.ghosts[i].homeY
             self.pacman.ghosts[i].velX = 0
             self.pacman.ghosts[i].velY = 0
-            self.pacman.ghosts[i].state = 1
+            self.pacman.ghosts[i].state = Ghost.STATE_NORMAL
             self.pacman.ghosts[i].speed = 1
             self.pacman.ghosts[i].move()
 

@@ -2,6 +2,7 @@
 # ___/  ghost object class  \_______________________________________________
 
 import pygame, sys, os, random
+from Game import Game
 
 # WIN???
 SCRIPT_PATH = sys.path[0]
@@ -18,6 +19,9 @@ GHOST_COLORS = [
 ]
 
 class Ghost():
+    STATE_NORMAL = 1
+    STATE_VULNERABLE = 2
+    STATE_SPECTACLES = 3
 
     def __init__(self, pacman, ghostID):
         self.pacman = pacman
@@ -33,10 +37,7 @@ class Ghost():
         self.id = ghostID
 
         # ghost "state" variable
-        # 1 = normal
-        # 2 = vulnerable
-        # 3 = spectacles
-        self.state = 1
+        self.state = self.STATE_NORMAL
 
         self.homeX = 0
         self.homeY = 0
@@ -59,10 +60,8 @@ class Ghost():
         self.animDelay = 0
 
     def draw(self):
-
-        if self.pacman.game.mode == 3:
-            return False
-
+        if self.pacman.game.state == Game.STATE_GAME_OVER:
+            return
 
         # ghost eyes --
         for y in range(6,12,1):
@@ -91,10 +90,10 @@ class Ghost():
                 self.anim[ self.animFrame ].set_at( (x+9, y), (0, 0, 255, 255) )
         # -- end ghost eyes
 
-        if self.state == 1:
+        if self.state == self.STATE_NORMAL:
             # draw regular ghost (this one)
             self.pacman.screen.blit (self.anim[ self.animFrame ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1]))
-        elif self.state == 2:
+        elif self.state == self.STATE_VULNERABLE:
             # draw vulnerable ghost
 
             if self.pacman.game.ghostTimer > 100:
@@ -108,13 +107,13 @@ class Ghost():
                 else:
                     self.pacman.screen.blit (self.pacman.ghosts[4].anim[ self.animFrame ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1]))
 
-        elif self.state == 3:
+        elif self.state == self.STATE_SPECTACLES:
             # draw glasses
             self.pacman.screen.blit (self.pacman.tileIDImage[ self.pacman.tileID[ 'glasses' ] ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1]))
 
-        if self.pacman.game.mode == 6 or self.pacman.game.mode == 7:
+        if self.pacman.game.state >= Game.STATE_WAIT_LEVEL_CLEAR:
             # don't animate ghost if the level is complete
-            return False
+            return
 
         self.animDelay += 1
 
@@ -128,7 +127,6 @@ class Ghost():
             self.animDelay = 0
 
     def move(self):
-
         self.x += self.velX
         self.y += self.velY
 
@@ -171,14 +169,14 @@ class Ghost():
             else:
                 # this ghost has reached his destination!!
 
-                if not self.state == 3:
+                if not self.state == self.STATE_SPECTACLES:
                     # chase pac-man
                     self.currentPath = self.pacman.path.findPath( (self.nearestRow, self.nearestCol), (self.pacman.player.nearestRow, self.pacman.player.nearestCol) )
                     self.followNextPathWay()
 
                 else:
                     # glasses found way back to ghost box
-                    self.state = 1
+                    self.state = self.STATE_NORMAL
                     self.speed = self.speed / 4
 
                     # give ghost a path to a random spot (containing a pellet)

@@ -2,6 +2,7 @@
 # ___/  fruit object class   \_______________________________________________
 
 import pygame, sys, os
+from Game import Game
 
 # WIN???
 SCRIPT_PATH = sys.path[0]
@@ -40,9 +41,8 @@ class Fruit():
 
 
     def draw(self):
-
-        if self.pacman.game.mode == 3 or self.active == False:
-            return False
+        if self.pacman.game.state == Game.STATE_GAME_OVER or self.active == False:
+            return
 
         self.pacman.screen.blit (self.imFruit[ self.fruitType ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1] - self.bounceY))
 

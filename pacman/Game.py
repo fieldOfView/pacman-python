@@ -25,6 +25,15 @@ USER_NAME = "User" # USER_NAME=os.getlogin() # the default user name if wx fails
                  # Oops! os.getlogin() only works if you launch from a terminal
 
 class Game():
+    STATE_IDLE = 0
+    STATE_PLAYING = 1             # normal
+    STATE_HIT_GHOST = 2          # hit ghost
+    STATE_GAME_OVER = 3          # game over
+    STATE_WAIT_START = 4         # wait to start
+    STATE_WAIT_ATE_GHOST = 5     # wait after eating ghost
+    STATE_WAIT_LEVEL_CLEAR = 6   # wait after eating all pellets
+    STATE_FLASH_LEVEL = 7        # flash level when complete
+    STATE_WAIT_LEVEL_SWITCH = 8  # wait after finishing level
 
     def __init__(self, pacman):
         self.pacman = pacman
@@ -33,22 +42,16 @@ class Game():
         self.score = 0
         self.lives = 3
 
-        # game "mode" variable
-        # 1 = normal
-        # 2 = hit ghost
-        # 3 = game over
-        # 4 = wait to start
-        # 5 = wait after eating ghost
-        # 6 = wait after finishing level
-        self.mode = 0
-        self.modeTimer = 0
+        # game "state" variable
+        self.state = self.STATE_GAME_OVER
+        self.stateTimer = 0
         self.ghostTimer = 0
         self.ghostValue = 0
         self.fruitTimer = 0
         self.fruitScoreTimer = 0
         self.fruitScorePos = (0, 0)
 
-        self.setMode( 3 )
+        self.setState( self.STATE_GAME_OVER )
 
         # camera variables
         self.screenPixelPos = (0, 0) # absolute x,y position of the screen from the upper-left corner of the level
@@ -155,11 +158,10 @@ class Game():
         self.score = 0
         self.lives = 3
 
-        self.setMode( 4 )
+        self.setState( self.STATE_WAIT_START )
         self.pacman.level.loadLevel( self.pacman.game.getLevelNum() )
 
     def addToScore(self, amount):
-
         extraLifeSet = [25000, 50000, 100000, 150000]
 
         for specialScore in extraLifeSet:
@@ -178,9 +180,9 @@ class Game():
 
         self.pacman.screen.blit (self.pacman.fruit.imFruit[ self.pacman.fruit.fruitType ], (4 + 16, self.screenSize[1] - 28) )
 
-        if self.mode == 3:
+        if self.state == self.STATE_GAME_OVER:
             self.pacman.screen.blit (self.imGameOver, (self.screenSize[0] / 2 - (self.imGameOver.get_width()/2), self.screenSize[1] / 2 - (self.imGameOver.get_height()/2)) )
-        elif self.mode == 4:
+        elif self.state == self.STATE_WAIT_START:
             self.pacman.screen.blit (self.imReady, (self.screenSize[0] / 2 - 20, self.screenSize[1] / 2 + 12) )
 
         self.drawNumber (self.levelNum, (0, self.screenSize[1] - 20) )
@@ -194,7 +196,6 @@ class Game():
             self.pacman.screen.blit (self.digit[ iDigit ], (x + i * SCORE_COLWIDTH, y) )
 
     def smartMoveScreen(self):
-
         possibleScreenX = self.pacman.player.x - self.screenTileSize[1] / 2 * TILE_WIDTH
         possibleScreenY = self.pacman.player.y - self.screenTileSize[0] / 2 * TILE_HEIGHT
 
@@ -225,15 +226,14 @@ class Game():
     def setNextLevel(self):
         self.levelNum += 1
 
-        self.setMode( 4 )
+        self.setState( self.STATE_WAIT_START )
         self.pacman.level.loadLevel( self.pacman.game.getLevelNum() )
 
         self.pacman.player.velX = 0
         self.pacman.player.velY = 0
         self.pacman.player.anim_pacmanCurrent = self.pacman.player.anim_pacmanS
 
-
-    def setMode(self, newMode):
-        self.mode = newMode
-        self.modeTimer = 0
-        # print " ***** GAME MODE IS NOW ***** " + str(newMode)
+    def setState(self, newState):
+        self.state = newState
+        self.stateTimer = 0
+        # print " ***** GAME STATE IS NOW ***** " + str(newState)

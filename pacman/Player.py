@@ -2,6 +2,8 @@
 # ___/  player object class   \_______________________________________________
 
 import pygame, sys, os, random
+from Game import Game
+from Ghost import Ghost
 
 # WIN???
 SCRIPT_PATH = sys.path[0]
@@ -45,7 +47,6 @@ class Player():
 
 
     def move(self):
-
         self.nearestRow = int(((self.y + (TILE_WIDTH/2)) / TILE_WIDTH))
         self.nearestCol = int(((self.x + (TILE_HEIGHT/2)) / TILE_HEIGHT))
 
@@ -63,11 +64,11 @@ class Player():
                 if self.pacman.level.checkIfHit( (self.x, self.y), (self.pacman.ghosts[i].x, self.pacman.ghosts[i].y), TILE_WIDTH/2):
                     # hit a ghost
 
-                    if self.pacman.ghosts[i].state == 1:
+                    if self.pacman.ghosts[i].state == Ghost.STATE_NORMAL:
                         # ghost is normal
-                        self.pacman.game.setMode( 2 )
+                        self.pacman.game.setState( Game.STATE_HIT_GHOST )
 
-                    elif self.pacman.ghosts[i].state == 2:
+                    elif self.pacman.ghosts[i].state == Ghost.STATE_VULNERABLE:
                         # ghost is vulnerable
                         # give them glasses
                         # make them run
@@ -75,7 +76,7 @@ class Player():
                         self.pacman.game.ghostValue = self.pacman.game.ghostValue * 2
                         self.snd_eatgh.play()
 
-                        self.pacman.ghosts[i].state = 3
+                        self.pacman.ghosts[i].state = Ghost.STATE_SPECTACLES
                         self.pacman.ghosts[i].speed = self.pacman.ghosts[i].speed * 4
                         # and send them to the ghost box
                         self.pacman.ghosts[i].x = self.pacman.ghosts[i].nearestCol * TILE_WIDTH
@@ -83,8 +84,8 @@ class Player():
                         self.pacman.ghosts[i].currentPath = self.pacman.path.findPath( (self.pacman.ghosts[i].nearestRow, self.pacman.ghosts[i].nearestCol), (self.pacman.level.getGhostBoxPos()[0]+1, self.pacman.level.getGhostBoxPos()[1]) )
                         self.pacman.ghosts[i].followNextPathWay()
 
-                        # set game mode to brief pause after eating
-                        self.pacman.game.setMode( 5 )
+                        # set game state to brief pause after eating
+                        self.pacman.game.setState( Game.STATE_WAIT_ATE_GHOST )
 
             # check for collisions with the fruit
             if self.pacman.fruit.active == True:
@@ -106,8 +107,8 @@ class Player():
 
             if self.pacman.game.ghostTimer == 0:
                 for i in range(0, 4, 1):
-                    if self.pacman.ghosts[i].state == 2:
-                        self.pacman.ghosts[i].state = 1
+                    if self.pacman.ghosts[i].state == Ghost.STATE_VULNERABLE:
+                        self.pacman.ghosts[i].state = Ghost.STATE_NORMAL
                 self.ghostValue = 0
 
         # deal with fruit timer
@@ -137,7 +138,7 @@ class Player():
 
     def draw(self):
 
-        if self.pacman.game.mode == 3:
+        if self.pacman.game.state == Game.STATE_GAME_OVER:
             return False
 
         # set the current frame array to match the direction pacman is facing
@@ -152,7 +153,7 @@ class Player():
 
         self.pacman.screen.blit (self.anim_pacmanCurrent[ self.animFrame ], (self.x - self.pacman.game.screenPixelPos[0], self.y - self.pacman.game.screenPixelPos[1]))
 
-        if self.pacman.game.mode == 1:
+        if self.pacman.game.state == Game.STATE_PLAYING:
             if not self.velX == 0 or not self.velY == 0:
                 # only Move mouth when pacman is moving
                 self.animFrame += 1

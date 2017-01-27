@@ -114,97 +114,97 @@ class Pacman():
 
             self.checkIfCloseButton( pygame.event.get() )
 
-            if self.game.mode == 1:
-                # normal gameplay mode
+            if self.game.state == Game.STATE_PLAYING:
+                # normal gameplay state
                 self.checkInputs()
 
-                self.game.modeTimer += 1
+                self.game.stateTimer += 1
                 self.player.move()
                 for i in range(0, 4, 1):
                     self.ghosts[i].move()
                 self.fruit.move()
 
-            elif self.game.mode == 2:
+            elif self.game.state == Game.STATE_HIT_GHOST:
                 # waiting after getting hit by a ghost
-                self.game.modeTimer += 1
+                self.game.stateTimer += 1
 
-                if self.game.modeTimer == 90:
+                if self.game.stateTimer == 90:
                     self.level.restart()
 
                     self.game.lives -= 1
                     if self.game.lives == -1:
                         self.game.updateHiScores(self.game.score)
-                        self.game.setMode( 3 )
+                        self.game.setState( Game.STATE_GAME_OVER )
                         self.game.drawMidGameHiScores()
                     else:
-                        self.game.setMode( 4 )
+                        self.game.setState( Game.STATE_WAIT_START )
 
-            elif self.game.mode == 3:
+            elif self.game.state == Game.STATE_GAME_OVER:
                 # game over
                 self.checkInputs()
 
-            elif self.game.mode == 4:
+            elif self.game.state == Game.STATE_WAIT_START:
                 # waiting to start
-                self.game.modeTimer += 1
+                self.game.stateTimer += 1
 
-                if self.game.modeTimer == 90:
-                    self.game.setMode( 1 )
+                if self.game.stateTimer == 90:
+                    self.game.setState( Game.STATE_PLAYING )
                     self.player.velX = self.player.speed
 
-            elif self.game.mode == 5:
+            elif self.game.state == Game.STATE_WAIT_ATE_GHOST:
                 # brief pause after munching a vulnerable ghost
-                self.game.modeTimer += 1
+                self.game.stateTimer += 1
 
-                if self.game.modeTimer == 30:
-                    self.game.setMode( 1 )
+                if self.game.stateTimer == 30:
+                    self.game.setState( Game.STATE_PLAYING )
 
-            elif self.game.mode == 6:
+            elif self.game.state == Game.STATE_WAIT_LEVEL_CLEAR:
                 # pause after eating all the pellets
-                self.game.modeTimer += 1
+                self.game.stateTimer += 1
 
-                if self.game.modeTimer == 60:
-                    self.game.setMode( 7 )
+                if self.game.stateTimer == 60:
+                    self.game.setState( Game.STATE_FLASH_LEVEL )
                     oldEdgeLightColor = self.level.edgeLightColor
                     oldEdgeShadowColor = self.level.edgeShadowColor
                     oldFillColor = self.level.fillColor
 
-            elif self.game.mode == 7:
+            elif self.game.state == Game.STATE_FLASH_LEVEL:
                 # flashing maze after finishing level
-                self.game.modeTimer += 1
+                self.game.stateTimer += 1
 
                 whiteSet = [10, 30, 50, 70]
                 normalSet = [20, 40, 60, 80]
 
-                if not whiteSet.count(self.game.modeTimer) == 0:
+                if not whiteSet.count(self.game.stateTimer) == 0:
                     # member of white set
                     self.level.edgeLightColor = (255, 255, 255, 255)
                     self.level.edgeShadowColor = (255, 255, 255, 255)
                     self.level.fillColor = (0, 0, 0, 255)
                     self.getCrossRef()
-                elif not normalSet.count(self.game.modeTimer) == 0:
+                elif not normalSet.count(self.game.stateTimer) == 0:
                     # member of normal set
                     self.level.edgeLightColor = oldEdgeLightColor
                     self.level.edgeShadowColor = oldEdgeShadowColor
                     self.level.fillColor = oldFillColor
                     self.getCrossRef()
-                elif self.game.modeTimer == 150:
-                    self.game.setMode ( 8 )
+                elif self.game.stateTimer == 150:
+                    self.game.setState( Game.STATE_WAIT_LEVEL_SWITCH )
 
-            elif self.game.mode == 8:
+            elif self.game.state == Game.STATE_WAIT_LEVEL_SWITCH:
                 # blank screen before changing levels
-                self.game.modeTimer += 1
-                if self.game.modeTimer == 10:
+                self.game.stateTimer += 1
+                if self.game.stateTimer == 10:
                     self.game.setNextLevel()
 
             self.game.smartMoveScreen()
 
             self.screen.blit(self.img_Background, (0, 0))
 
-            if not self.game.mode == 8:
+            if not self.game.state == Game.STATE_WAIT_LEVEL_SWITCH:
                 self.level.drawMap()
 
                 if self.game.fruitScoreTimer > 0:
-                    if self.game.modeTimer % 2 == 0:
+                    if self.game.stateTimer % 2 == 0:
                         self.game.drawNumber (2500, (self.fruit.x - self.game.screenPixelPos[0] - 16, self.fruit.y - self.game.screenPixelPos[1] + 4))
 
                 for i in range(0, 4, 1):
@@ -212,10 +212,10 @@ class Pacman():
                 self.fruit.draw()
                 self.player.draw()
 
-                if self.game.mode == 3:
+                if self.game.state == Game.STATE_GAME_OVER:
                         self.screen.blit(self.game.imHiscores,(HS_XOFFSET,HS_YOFFSET))
 
-            if self.game.mode == 5:
+            if self.game.state == Game.STATE_WAIT_ATE_GHOST:
                 self.game.drawNumber (self.game.ghostValue / 2, (self.player.x - self.game.screenPixelPos[0] - 4, self.player.y - self.game.screenPixelPos[1] + 6))
 
             self.game.drawScore()
@@ -232,7 +232,7 @@ class Pacman():
 
 
     def checkInputs(self):
-        if self.game.mode == 1:
+        if self.game.state == Game.STATE_PLAYING:
             if pygame.key.get_pressed()[ pygame.K_RIGHT ] or (self.js != None and self.js.get_axis(JS_XAXIS) > 0):
                 if not self.level.checkIfHitWall((self.player.x + self.player.speed, self.player.y), (self.player.nearestRow, self.player.nearestCol)):
                     self.player.velX = self.player.speed
@@ -256,7 +256,7 @@ class Pacman():
         if pygame.key.get_pressed()[ pygame.K_ESCAPE ]:
             sys.exit(0)
 
-        elif self.game.mode == 3:
+        elif self.game.state == Game.STATE_GAME_OVER:
             if pygame.key.get_pressed()[ pygame.K_RETURN ] or (self.js != None and self.js.get_button(JS_STARTBUTTON)):
                 self.game.startNewGame()
 
