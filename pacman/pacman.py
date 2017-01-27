@@ -70,7 +70,7 @@ class Pacman():
 
         pygame.display.set_caption("Pacman")
 
-        self.self._img_Background = pygame.image.load(os.path.join(SCRIPT_PATH,"res","backgrounds","1.gif")).convert()
+        self._img_Background = pygame.image.load(os.path.join(SCRIPT_PATH,"res","backgrounds","1.gif")).convert()
 
         self.screen = pygame.display.get_surface()
 
@@ -197,7 +197,7 @@ class Pacman():
 
             self.game.smartMoveScreen()
 
-            self.screen.blit(self.self._img_Background, (0, 0))
+            self.screen.blit(self._img_Background, (0, 0))
 
             if not self.game.state == Game.STATE_WAIT_LEVEL_SWITCH:
                 self.level.drawMap()

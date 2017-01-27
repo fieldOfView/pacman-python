@@ -45,6 +45,7 @@ class Player():
 
         self._snd_eatgh = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","eatgh2.wav"))
         self._snd_eatfruit = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","eatfruit.wav"))
+        self._snd_death = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","death.wav"))
 
     def stop(self):
         self.velX = 0
@@ -74,6 +75,7 @@ class Player():
                     if self._pacman.ghosts[i].state == Ghost.STATE_NORMAL:
                         # ghost is normal
                         self._pacman.game.setState( Game.STATE_HIT_GHOST )
+                        self._snd_death.play()
 
                     elif self._pacman.ghosts[i].state == Ghost.STATE_VULNERABLE:
                         self._pacman.game.addToScore(self._pacman.game.ghostValue)

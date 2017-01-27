@@ -73,6 +73,7 @@ class Game():
         self.imHiscores = self.makeHiScoreList()
 
         self._snd_extralife = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","extralife.wav"))
+        self._snd_start = pygame.mixer.Sound(os.path.join(SCRIPT_PATH,"res","sounds","start.wav"))
 
     def defaultHiScoreList(self):
             return [ (100000,"David") , (80000,"Andy") , (60000,"Count Pacula") , (40000,"Cleopacra") , (20000,"Brett Favre") , (10000,"Sergei Pachmaninoff") ]
@@ -160,7 +161,8 @@ class Game():
         self.lives = 3
 
         self.setState( self.STATE_WAIT_START )
-        self._pacman.level.loadLevel( self._pacman.game.getLevelNum() )
+        self._pacman.level.loadLevel( self.getLevelNum() )
+        self._snd_start.play()
 
     def addToScore(self, amount):
         extraLifeSet = [25000, 50000, 100000, 150000]
