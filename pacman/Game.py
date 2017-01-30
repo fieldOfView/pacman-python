@@ -25,8 +25,7 @@ USER_NAME = "User" # USER_NAME=os.getlogin() # the default user name if wx fails
                  # Oops! os.getlogin() only works if you launch from a terminal
 
 class Game():
-    STATE_IDLE = 0
-    STATE_PLAYING = 1             # normal
+    STATE_PLAYING = 1            # normal
     STATE_HIT_GHOST = 2          # hit ghost
     STATE_GAME_OVER = 3          # game over
     STATE_WAIT_START = 4         # wait to start
@@ -169,7 +168,7 @@ class Game():
 
         for specialScore in extraLifeSet:
             if self.score < specialScore and self.score + amount >= specialScore:
-                self._pacman.sounds,play("extralife")
+                self._pacman.sounds.play("extralife")
                 self._pacman.game.lives += 1
 
         self.score += amount
@@ -212,11 +211,16 @@ class Game():
         elif possibleScreenY > self._pacman.level.lvlHeight * TILE_WIDTH - self.screenSize[1]:
             possibleScreenY = self._pacman.level.lvlHeight * TILE_HEIGHT - self.screenSize[1]
 
-        self._pacman.game.moveScreen( (possibleScreenX, possibleScreenY) )
+        self.moveScreen( (possibleScreenX, possibleScreenY) )
 
     def moveScreen(self, newPosition ):
-        (newX, newY) = newPosition
-        self.screenPixelPos = newPosition
+        if self.state != self.STATE_GAME_OVER:
+            factor = 0.1
+            nfactor = 1 - factor
+            (newX, newY) = (self.screenPixelPos[0] * nfactor + newPosition[0] * factor), (self.screenPixelPos[1] * nfactor + newPosition[1] * factor)
+        else:
+            (newX, newY) = newPosition
+        self.screenPixelPos = (newX, newY)
         self.screenNearestTilePos = (int(newY / TILE_HEIGHT), int(newX / TILE_WIDTH)) # nearest-tile position of the screen from the UL corner
         self.screenPixelOffset = (newX - self.screenNearestTilePos[1]*TILE_WIDTH, newY - self.screenNearestTilePos[0]*TILE_HEIGHT)
 
