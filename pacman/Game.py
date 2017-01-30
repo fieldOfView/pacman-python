@@ -160,7 +160,7 @@ class Game():
         self.lives = 3
 
         self.setState( self.STATE_WAIT_START )
-        self._pacman.level.loadLevel( self.getLevelNum() )
+        self._pacman.level.loadLevel( self._levelNum )
         self._pacman.sounds.play("start")
 
     def addToScore(self, amount):
@@ -169,7 +169,7 @@ class Game():
         for specialScore in extraLifeSet:
             if self.score < specialScore and self.score + amount >= specialScore:
                 self._pacman.sounds.play("extralife")
-                self._pacman.game.lives += 1
+                self.lives += 1
 
         self.score += amount
 
@@ -234,7 +234,7 @@ class Game():
         self._levelNum += 1
 
         self.setState( self.STATE_WAIT_START )
-        self._pacman.level.loadLevel( self._pacman.game.getLevelNum() )
+        self._pacman.level.loadLevel( self._levelNum )
 
         self._pacman.player.stop()
 
