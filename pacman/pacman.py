@@ -25,15 +25,13 @@ import pygame, sys, os, random
 from pygame.locals import *
 
 from PathFinder import PathFinder
+from Graphics import Graphics
 from Sounds import Sounds
 from Game import Game
 from Level import Level
 from Player import Player
 from Ghost import Ghost
 from Fruit import Fruit
-
-# WIN???
-SCRIPT_PATH = sys.path[0]
 
 TILE_WIDTH = TILE_HEIGHT = 24
 
@@ -67,12 +65,11 @@ class Pacman():
         self._clock = pygame.time.Clock()
         pygame.init()
         pygame.display.set_mode((1, 1)) # temporarily initialise display so bitmaps can be loaded
-
         pygame.display.set_caption("Pacman")
 
-        self._img_Background = pygame.image.load(os.path.join(SCRIPT_PATH,"res","backgrounds","1.gif")).convert()
+        self.graphics = Graphics(self)
 
-        self.screen = pygame.display.get_surface()
+        self._img_Background = self.graphics.loadImage("backgrounds","1.gif")
 
         # create the pacman
         self.player = Player(self)
@@ -97,7 +94,7 @@ class Pacman():
         self.level = Level(self)
         self.level.loadLevel( self.game.getLevelNum() )
 
-        pygame.display.set_mode( self.game.screenSize, pygame.DOUBLEBUF | pygame.HWSURFACE )
+        self.graphics.initDisplay()
 
         # initialise the joystick
         if pygame.joystick.get_count() > 0:
@@ -111,7 +108,9 @@ class Pacman():
     def run(self):
         while True:
 
-            self.checkIfCloseButton( pygame.event.get() )
+            events = pygame.event.get()
+            self.checkIfCloseButton( events )
+            self.checkResizeEvent( events )
 
             if self.game.state == Game.STATE_PLAYING:
                 # normal gameplay state
@@ -197,7 +196,7 @@ class Pacman():
 
             self.game.smartMoveScreen()
 
-            self.screen.blit(self._img_Background, (0, 0))
+            self.graphics.blit(self._img_Background, (0, 0))
 
             if not self.game.state == Game.STATE_WAIT_LEVEL_SWITCH:
                 self.level.drawMap()
@@ -212,7 +211,7 @@ class Pacman():
                 self.player.draw()
 
                 if self.game.state == Game.STATE_GAME_OVER:
-                        self.screen.blit(self.game.imHiscores,(HS_XOFFSET,HS_YOFFSET))
+                        self.graphics.blit(self.game.imHiscores,(HS_XOFFSET,HS_YOFFSET))
 
             if self.game.state == Game.STATE_WAIT_ATE_GHOST:
                 self.game.drawNumber (self.game.ghostValue / 2, (self.player.x - self.game.screenPixelPos[0] - 4, self.player.y - self.game.screenPixelPos[1] + 6))
@@ -229,6 +228,10 @@ class Pacman():
             if event.type == QUIT:
                 sys.exit(0)
 
+    def checkResizeEvent(self, events):
+        for event in events:
+            if event.type == VIDEORESIZE:
+                self.graphics.resizeDisplay(event.dict['size'])
 
     def checkInputs(self):
         if self.game.state == Game.STATE_PLAYING:
@@ -266,7 +269,7 @@ class Pacman():
 
     def getCrossRef(self):
 
-        f = open(os.path.join(SCRIPT_PATH,"res","crossref.txt"), 'r')
+        f = open(os.path.join(sys.path[0], "res", "crossref.txt"), 'r')
 
         lineNum = 0
         useLine = False
@@ -292,11 +295,11 @@ class Pacman():
 
                 thisID = int(str_splitBySpace[0])
                 if not thisID in NO_GIF_TILES:
-                    self.tileIDImage[ thisID ] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","tiles",str_splitBySpace[1] + ".gif")).convert()
+                    self.tileIDImage[ thisID ] = self.graphics.loadImage("tiles",str_splitBySpace[1] + ".gif")
                 else:
                     self.tileIDImage[ thisID ] = pygame.Surface((TILE_WIDTH,TILE_HEIGHT))
 
-                # change colors in self._pacman.tileIDImage to match maze colors
+                # change colors in tileIDImage to match maze colors
                 for y in range(0, TILE_WIDTH, 1):
                     for x in range(0, TILE_HEIGHT, 1):
 

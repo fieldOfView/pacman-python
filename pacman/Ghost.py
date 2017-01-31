@@ -1,11 +1,8 @@
 #      _____________________
 # ___/  ghost object class  \_______________________________________________
 
-import pygame, sys, os, random
+import pygame, random
 from Game import Game
-
-# WIN???
-SCRIPT_PATH = sys.path[0]
 
 TILE_WIDTH = TILE_HEIGHT=24
 
@@ -46,7 +43,7 @@ class Ghost():
 
         self.anim = {}
         for i in range(1, 7, 1):
-            self.anim[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","sprite","ghost " + str(i) + ".gif")).convert()
+            self.anim[i] = self._pacman.graphics.loadImage("sprite", "ghost %d.gif" % i)
 
             # change the ghost color in this frame
             for y in range(0, TILE_HEIGHT, 1):
@@ -92,24 +89,24 @@ class Ghost():
 
         if self.state == self.STATE_NORMAL:
             # draw regular ghost (this one)
-            self._pacman.screen.blit (self.anim[ self._animFrame ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
+            self._pacman.graphics.blit (self.anim[ self._animFrame ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
         elif self.state == self.STATE_VULNERABLE:
             # draw vulnerable ghost
 
             if self._pacman.game.ghostTimer > 100:
                 # blue
-                self._pacman.screen.blit (self._pacman.ghosts[4].anim[ self._animFrame ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
+                self._pacman.graphics.blit (self._pacman.ghosts[4].anim[ self._animFrame ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
             else:
                 # blue/white flashing
                 tempTimerI = int(self._pacman.game.ghostTimer / 10)
                 if tempTimerI == 1 or tempTimerI == 3 or tempTimerI == 5 or tempTimerI == 7 or tempTimerI == 9:
-                    self._pacman.screen.blit (self._pacman.ghosts[5].anim[ self._animFrame ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
+                    self._pacman.graphics.blit (self._pacman.ghosts[5].anim[ self._animFrame ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
                 else:
-                    self._pacman.screen.blit (self._pacman.ghosts[4].anim[ self._animFrame ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
+                    self._pacman.graphics.blit (self._pacman.ghosts[4].anim[ self._animFrame ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
 
         elif self.state == self.STATE_SPECTACLES:
             # draw glasses
-            self._pacman.screen.blit (self._pacman.tileIDImage[ self._pacman.tileID[ 'glasses' ] ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
+            self._pacman.graphics.blit (self._pacman.tileIDImage[ self._pacman.tileID[ 'glasses' ] ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
 
         if self._pacman.game.state >= Game.STATE_WAIT_LEVEL_CLEAR:
             # don't animate ghost if the level is complete
@@ -150,10 +147,6 @@ class Ghost():
                 self.followNextPathWay()
 
     def followNextPathWay(self):
-
-        if self._pacman.game.state != Game.STATE_PLAYING:
-            return
-
         # only follow this pathway if there is a possible path found!
         if not self.currentPath == False:
 

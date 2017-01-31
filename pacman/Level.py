@@ -5,9 +5,6 @@ import pygame, sys, os, random
 from Game import Game
 from Ghost import Ghost
 
-# WIN???
-SCRIPT_PATH = sys.path[0]
-
 TILE_WIDTH = TILE_HEIGHT=24
 
 class Level():
@@ -236,23 +233,23 @@ class Level():
 
                     if useTile == self._pacman.tileID['pellet-power']:
                         if self._powerPelletBlinkTimer < 30:
-                            self._pacman.screen.blit (self._pacman.tileIDImage[ useTile ], (col * TILE_WIDTH - self._pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self._pacman.game.screenPixelOffset[1]) )
+                            self._pacman.graphics.blit (self._pacman.tileIDImage[ useTile ], (col * TILE_WIDTH - self._pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self._pacman.game.screenPixelOffset[1]) )
 
                     elif useTile == self._pacman.tileID['showlogo']:
-                        self._pacman.screen.blit (self._pacman.game.imLogo, (col * TILE_WIDTH - self._pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self._pacman.game.screenPixelOffset[1]) )
+                        self._pacman.graphics.blit (self._pacman.game.imLogo, (col * TILE_WIDTH - self._pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self._pacman.game.screenPixelOffset[1]) )
 
                     elif useTile == self._pacman.tileID['hiscores']:
-                            self._pacman.screen.blit(self._pacman.game.imHiscores,(col*TILE_WIDTH-self._pacman.game.screenPixelOffset[0],row*TILE_HEIGHT-self._pacman.game.screenPixelOffset[1]))
+                            self._pacman.graphics.blit(self._pacman.game.imHiscores,(col*TILE_WIDTH-self._pacman.game.screenPixelOffset[0],row*TILE_HEIGHT-self._pacman.game.screenPixelOffset[1]))
 
                     else:
-                        self._pacman.screen.blit (self._pacman.tileIDImage[ useTile ], (col * TILE_WIDTH - self._pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self._pacman.game.screenPixelOffset[1]) )
+                        self._pacman.graphics.blit (self._pacman.tileIDImage[ useTile ], (col * TILE_WIDTH - self._pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self._pacman.game.screenPixelOffset[1]) )
 
     def loadLevel(self, levelNum):
         self._map = {}
 
         self._pellets = 0
 
-        f = open(os.path.join(SCRIPT_PATH,"res","levels",str(levelNum) + ".txt"), 'r')
+        f = open(os.path.join(sys.path[0], "res", "levels", str(levelNum) + ".txt"), 'r')
         lineNum=-1
         rowNum = 0
         useLine = False

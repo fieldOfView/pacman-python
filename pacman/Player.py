@@ -1,12 +1,9 @@
 #      _______________________
 # ___/  player object class   \_______________________________________________
 
-import pygame, sys, os, random
+import pygame, random
 from Game import Game
 from Ghost import Ghost
-
-# WIN???
-SCRIPT_PATH = sys.path[0]
 
 TILE_WIDTH = TILE_HEIGHT=24
 
@@ -35,11 +32,11 @@ class Player():
         self._anim_pacmanCurrent = {}
 
         for i in range(1, 9, 1):
-            self._anim_pacmanL[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","sprite","pacman-l " + str(i) + ".gif")).convert()
-            self._anim_pacmanR[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","sprite","pacman-r " + str(i) + ".gif")).convert()
-            self._anim_pacmanU[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","sprite","pacman-u " + str(i) + ".gif")).convert()
-            self._anim_pacmanD[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","sprite","pacman-d " + str(i) + ".gif")).convert()
-            self._anim_pacmanS[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","sprite","pacman.gif")).convert()
+            self._anim_pacmanL[i] = self._pacman.graphics.loadImage("sprite", "pacman-l %d.gif" % i)
+            self._anim_pacmanR[i] = self._pacman.graphics.loadImage("sprite", "pacman-r %d.gif" % i)
+            self._anim_pacmanU[i] = self._pacman.graphics.loadImage("sprite", "pacman-u %d.gif" % i)
+            self._anim_pacmanD[i] = self._pacman.graphics.loadImage("sprite", "pacman-d %d.gif" % i)
+            self._anim_pacmanS[i] = self._pacman.graphics.loadImage("sprite", "pacman.gif")
 
         self.pelletSndNum = 0
 
@@ -154,7 +151,7 @@ class Player():
         elif self.velY < 0:
             self._anim_pacmanCurrent = self._anim_pacmanU
 
-        self._pacman.screen.blit (self._anim_pacmanCurrent[ self._animFrame ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
+        self._pacman.graphics.blit (self._anim_pacmanCurrent[ self._animFrame ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1]))
 
         if self._pacman.game.state == Game.STATE_PLAYING:
             if not self.velX == 0 or not self.velY == 0:

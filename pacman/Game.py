@@ -63,12 +63,12 @@ class Game():
         # numerical display digits
         self._digit = {}
         for i in range(0, 10, 1):
-            self._digit[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text",str(i) + ".gif")).convert()
-        self._imLife = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","life.gif")).convert()
-        self._imGameOver = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","gameover.gif")).convert()
-        self._imReady = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","ready.gif")).convert()
+            self._digit[i] = self._pacman.graphics.loadImage("text",str(i) + ".gif")
+        self._imLife = self._pacman.graphics.loadImage("text","life.gif")
+        self._imGameOver = self._pacman.graphics.loadImage("text","gameover.gif")
+        self._imReady = self._pacman.graphics.loadImage("text","ready.gif")
 
-        self.imLogo = pygame.image.load(os.path.join(SCRIPT_PATH,"res","text","logo.gif")).convert()
+        self.imLogo = self._pacman.graphics.loadImage("text","logo.gif")
         self.imHiscores = self.makeHiScoreList()
 
         self._pacman.sounds.register("extralife", "extralife.wav")
@@ -178,14 +178,14 @@ class Game():
         self.drawNumber (self.score, (SCORE_XOFFSET, self.screenSize[1] - SCORE_YOFFSET) )
 
         for i in range(0, self.lives, 1):
-            self._pacman.screen.blit (self._imLife, (34 + i * 10 + 16, self.screenSize[1] - 18) )
+            self._pacman.graphics.blit (self._imLife, (34 + i * 10 + 16, self.screenSize[1] - 18) )
 
-        self._pacman.screen.blit (self._pacman.fruit.imFruit[ self._pacman.fruit.fruitType ], (4 + 16, self.screenSize[1] - 28) )
+        self._pacman.graphics.blit (self._pacman.fruit.imFruit[ self._pacman.fruit.fruitType ], (4 + 16, self.screenSize[1] - 28) )
 
         if self.state == self.STATE_GAME_OVER:
-            self._pacman.screen.blit (self._imGameOver, (self.screenSize[0] / 2 - (self._imGameOver.get_width()/2), self.screenSize[1] / 2 - (self._imGameOver.get_height()/2)) )
+            self._pacman.graphics.blit (self._imGameOver, (self.screenSize[0] / 2 - (self._imGameOver.get_width()/2), self.screenSize[1] / 2 - (self._imGameOver.get_height()/2)) )
         elif self.state == self.STATE_WAIT_START:
-            self._pacman.screen.blit (self._imReady, (self.screenSize[0] / 2 - 20, self.screenSize[1] / 2 + 12) )
+            self._pacman.graphics.blit (self._imReady, (self.screenSize[0] / 2 - 20, self.screenSize[1] / 2 + 12) )
 
         self.drawNumber (self._levelNum, (0, self.screenSize[1] - 20) )
 
@@ -195,7 +195,7 @@ class Game():
 
         for i in range(0, len(strNumber), 1):
             iDigit = int(strNumber[i])
-            self._pacman.screen.blit (self._digit[ iDigit ], (x + i * SCORE_COLWIDTH, y) )
+            self._pacman.graphics.blit (self._digit[ iDigit ], (x + i * SCORE_COLWIDTH, y) )
 
     def smartMoveScreen(self):
         possibleScreenX = self._pacman.player.x - self.screenTileSize[1] / 2 * TILE_WIDTH

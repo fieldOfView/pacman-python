@@ -1,11 +1,8 @@
 #      ______________________
 # ___/  fruit object class   \_______________________________________________
 
-import pygame, sys, os
+import pygame
 from Game import Game
-
-# WIN???
-SCRIPT_PATH = sys.path[0]
 
 TILE_WIDTH = TILE_HEIGHT=24
 
@@ -33,7 +30,7 @@ class Fruit():
 
         self.imFruit = {}
         for i in range(0, 5, 1):
-            self.imFruit[i] = pygame.image.load(os.path.join(SCRIPT_PATH,"res","sprite","fruit " + str(i) + ".gif")).convert()
+            self.imFruit[i] = self._pacman.graphics.loadImage("sprite", "fruit %d.gif" % i)
 
         self.currentPath = ""
         self.fruitType = 1
@@ -44,7 +41,7 @@ class Fruit():
         if self._pacman.game.state == Game.STATE_GAME_OVER or self.active == False:
             return
 
-        self._pacman.screen.blit (self.imFruit[ self.fruitType ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1] - self._bounceY))
+        self._pacman.graphics.blit (self.imFruit[ self.fruitType ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1] - self._bounceY))
 
 
     def move(self):

@@ -3,9 +3,6 @@
 
 import pygame, sys, os
 
-# WIN???
-SCRIPT_PATH = sys.path[0]
-
 class Sounds():
     def __init__(self):
         # Must come before pygame.init()
@@ -15,7 +12,7 @@ class Sounds():
         self._sounds = {}
 
     def register(self, name, filename):
-        path = os.path.join(SCRIPT_PATH,"res","sounds",filename)
+        path = os.path.join(sys.path[0], "res", "sounds", filename)
         self._sounds[name] = pygame.mixer.Sound(path)
 
     def play(self, name):
