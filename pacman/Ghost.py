@@ -151,7 +151,8 @@ class Ghost():
 
     def followNextPathWay(self):
 
-        # print "Ghost " + str(self._id) + " rem: " + self.currentPath
+        if self._pacman.game.state != Game.STATE_PLAYING:
+            return
 
         # only follow this pathway if there is a possible path found!
         if not self.currentPath == False:
