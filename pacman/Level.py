@@ -66,8 +66,7 @@ class Level():
         # check each of the 9 surrounding tiles for a collision
         for iRow in range(row - 1, row + 2, 1):
             for iCol in range(col - 1, col + 2, 1):
-
-                if  (possiblePlayerX - (iCol * TILE_WIDTH) < TILE_WIDTH) and (possiblePlayerX - (iCol * TILE_WIDTH) > -TILE_WIDTH) and (possiblePlayerY - (iRow * TILE_HEIGHT) < TILE_HEIGHT) and (possiblePlayerY - (iRow * TILE_HEIGHT) > -TILE_HEIGHT):
+                if  TILE_WIDTH > possiblePlayerX - (iCol * TILE_WIDTH) > -TILE_WIDTH and TILE_HEIGHT > possiblePlayerY - (iRow * TILE_HEIGHT) > -TILE_HEIGHT:
 
                     if self.isWall((iRow, iCol)):
                         numCollisions += 1
@@ -81,7 +80,7 @@ class Level():
     def checkIfHit(self, playerPosition, position, cushion):
         (playerX, playerY) = playerPosition
         (x, y) = position
-        if (playerX - x < cushion) and (playerX - x > -cushion) and (playerY - y < cushion) and (playerY - y > -cushion):
+        if cushion > playerX - x  > -cushion and cushion > playerY - y > -cushion:
             return True
         else:
             return False
@@ -93,7 +92,7 @@ class Level():
         for iRow in range(row - 1, row + 2, 1):
             for iCol in range(col - 1, col + 2, 1):
 
-                if  (playerX - (iCol * TILE_WIDTH) < TILE_WIDTH) and (playerX - (iCol * TILE_WIDTH) > -TILE_WIDTH) and (playerY - (iRow * TILE_HEIGHT) < TILE_HEIGHT) and (playerY - (iRow * TILE_HEIGHT) > -TILE_HEIGHT):
+                if  TILE_WIDTH > playerX - (iCol * TILE_WIDTH) > -TILE_WIDTH and TILE_HEIGHT > playerY - (iRow * TILE_HEIGHT) > -TILE_HEIGHT:
                     # check the offending tile ID
                     result = self.getMapTile((iRow, iCol))
 
