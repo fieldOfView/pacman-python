@@ -20,6 +20,7 @@
 # Modified by Aldo Hoeben, January 2016:
 # - Python 3 compatibility
 # - Refactor classes to separate files
+# - Fix crash when finishing all levels
 
 import pygame, sys, os, random
 from pygame.locals import *
