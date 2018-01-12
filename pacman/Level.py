@@ -5,8 +5,6 @@ import pygame, sys, os, random
 from Game import Game
 from Ghost import Ghost
 
-TILE_WIDTH = TILE_HEIGHT=24
-
 class Level():
 
     def __init__(self, pacman):
@@ -63,7 +61,7 @@ class Level():
         # check each of the 9 surrounding tiles for a collision
         for iRow in range(row - 1, row + 2, 1):
             for iCol in range(col - 1, col + 2, 1):
-                if  TILE_WIDTH > possiblePlayerX - (iCol * TILE_WIDTH) > -TILE_WIDTH and TILE_HEIGHT > possiblePlayerY - (iRow * TILE_HEIGHT) > -TILE_HEIGHT:
+                if  self._pacman.TILE_WIDTH > possiblePlayerX - (iCol * self._pacman.TILE_WIDTH) > -self._pacman.TILE_WIDTH and self._pacman.TILE_HEIGHT > possiblePlayerY - (iRow * self._pacman.TILE_HEIGHT) > -self._pacman.TILE_HEIGHT:
 
                     if self.isWall((iRow, iCol)):
                         numCollisions += 1
@@ -89,7 +87,7 @@ class Level():
         for iRow in range(row - 1, row + 2, 1):
             for iCol in range(col - 1, col + 2, 1):
 
-                if  TILE_WIDTH > playerX - (iCol * TILE_WIDTH) > -TILE_WIDTH and TILE_HEIGHT > playerY - (iRow * TILE_HEIGHT) > -TILE_HEIGHT:
+                if  self._pacman.TILE_WIDTH > playerX - (iCol * self._pacman.TILE_WIDTH) > -self._pacman.TILE_WIDTH and self._pacman.TILE_HEIGHT > playerY - (iRow * self._pacman.TILE_HEIGHT) > -self._pacman.TILE_HEIGHT:
                     # check the offending tile ID
                     result = self.getMapTile((iRow, iCol))
 
@@ -125,8 +123,8 @@ class Level():
 
                                 """
                                 # Must line up with grid before invoking a new path (for now)
-                                self._pacman.ghosts[i].x = self._pacman.ghosts[i].nearestCol * TILE_HEIGHT
-                                self._pacman.ghosts[i].y = self._pacman.ghosts[i].nearestRow * TILE_WIDTH
+                                self._pacman.ghosts[i].x = self._pacman.ghosts[i].nearestCol * self._pacman.TILE_HEIGHT
+                                self._pacman.ghosts[i].y = self._pacman.ghosts[i].nearestRow * self._pacman.TILE_WIDTH
 
                                 # give each ghost a path to a random spot (containing a pellet)
                                 (randRow, randCol) = (0, 0)
@@ -144,24 +142,24 @@ class Level():
                         for i in range(0, self.lvlWidth, 1):
                             if not i == iCol:
                                 if self.getMapTile((iRow, i)) == self._pacman.tileID[ 'door-h' ]:
-                                    self._pacman.player.x = i * TILE_WIDTH
+                                    self._pacman.player.x = i * self._pacman.TILE_WIDTH
 
                                     if self._pacman.player.velX > 0:
-                                        self._pacman.player.x += TILE_WIDTH
+                                        self._pacman.player.x += self._pacman.TILE_WIDTH
                                     else:
-                                        self._pacman.player.x -= TILE_WIDTH
+                                        self._pacman.player.x -= self._pacman.TILE_WIDTH
 
                     elif result == self._pacman.tileID[ 'door-v' ]:
                         # ran into a vertical door
                         for i in range(0, self.lvlHeight, 1):
                             if not i == iRow:
                                 if self.getMapTile((i, iCol)) == self._pacman.tileID[ 'door-v' ]:
-                                    self._pacman.player.y = i * TILE_HEIGHT
+                                    self._pacman.player.y = i * self._pacman.TILE_HEIGHT
 
                                     if self._pacman.player.velY > 0:
-                                        self._pacman.player.y += TILE_HEIGHT
+                                        self._pacman.player.y += self._pacman.TILE_HEIGHT
                                     else:
-                                        self._pacman.player.y -= TILE_HEIGHT
+                                        self._pacman.player.y -= self._pacman.TILE_HEIGHT
 
     def getGhostBoxPos(self):
         for row in range(0, self.lvlHeight, 1):
@@ -230,19 +228,24 @@ class Level():
                 useTile = self.getMapTile((actualRow, actualCol))
                 if not useTile == 0 and not useTile == self._pacman.tileID['door-h'] and not useTile == self._pacman.tileID['door-v']:
                     # if this isn't a blank tile
+                    position = (col * self._pacman.TILE_WIDTH - self._pacman.game.screenPixelOffset[0], row * self._pacman.TILE_HEIGHT - self._pacman.game.screenPixelOffset[1])
+                    surface = None
 
                     if useTile == self._pacman.tileID['pellet-power']:
                         if self._powerPelletBlinkTimer < 30:
-                            self._pacman.graphics.blit (self._pacman.tileIDImage[ useTile ], (col * TILE_WIDTH - self._pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self._pacman.game.screenPixelOffset[1]) )
+                            surface = self._pacman.tileIDImage[ useTile ]
 
                     elif useTile == self._pacman.tileID['showlogo']:
-                        self._pacman.graphics.blit (self._pacman.game.imLogo, (col * TILE_WIDTH - self._pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self._pacman.game.screenPixelOffset[1]) )
+                        surface = self._pacman.game.imLogo
 
                     elif useTile == self._pacman.tileID['hiscores']:
-                            self._pacman.graphics.blit(self._pacman.game.imHiscores,(col*TILE_WIDTH-self._pacman.game.screenPixelOffset[0],row*TILE_HEIGHT-self._pacman.game.screenPixelOffset[1]))
+                        surface = self._pacman.game.imHiscores
 
                     else:
-                        self._pacman.graphics.blit (self._pacman.tileIDImage[ useTile ], (col * TILE_WIDTH - self._pacman.game.screenPixelOffset[0], row * TILE_HEIGHT - self._pacman.game.screenPixelOffset[1]) )
+                        surface = self._pacman.tileIDImage[ useTile ]
+
+                    if surface:
+                        self._pacman.graphics.blit(surface, position)
 
     def loadLevel(self, levelNum):
         self._map = {}
@@ -347,15 +350,15 @@ class Level():
                         if thisID == 4:
                             # starting position for pac-man
 
-                            self._pacman.player.homeX = k * TILE_WIDTH
-                            self._pacman.player.homeY = rowNum * TILE_HEIGHT
+                            self._pacman.player.homeX = k * self._pacman.TILE_WIDTH
+                            self._pacman.player.homeY = rowNum * self._pacman.TILE_HEIGHT
                             self.setMapTile((rowNum, k), 0 )
 
                         elif thisID >= 10 and thisID <= 13:
                             # one of the ghosts
 
-                            self._pacman.ghosts[thisID - 10].homeX = k * TILE_WIDTH
-                            self._pacman.ghosts[thisID - 10].homeY = rowNum * TILE_HEIGHT
+                            self._pacman.ghosts[thisID - 10].homeX = k * self._pacman.TILE_WIDTH
+                            self._pacman.ghosts[thisID - 10].homeY = rowNum * self._pacman.TILE_HEIGHT
                             self.setMapTile((rowNum, k), 0 )
 
                         elif thisID == 2:

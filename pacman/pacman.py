@@ -15,7 +15,7 @@
 
 # Modified by Andy Sommerville, 11 October 2007:
 # - Mom's eyes aren't what they used to be, so I'm switching 16x16 tiles to 24x24
-#   Added constants TILE_WIDTH,TILE_HEIGHT to make this easier to change later.
+#   Added constants self.TILE_WIDTH,self.TILE_HEIGHT to make this easier to change later.
 
 # Modified by Aldo Hoeben, January 2016:
 # - Python 3 compatibility
@@ -32,8 +32,6 @@ from Level import Level
 from Player import Player
 from Ghost import Ghost
 from Fruit import Fruit
-
-TILE_WIDTH = TILE_HEIGHT = 24
 
 # NO_GIF_TILES -- tile numbers which do not correspond to a GIF file
 # currently only "23" for the high-score list
@@ -58,6 +56,8 @@ IMG_PELLET_COLOR = (0x80,0x00,0x80,0xff)
 # ___/  main game class  \_____________________________________________________
 
 class Pacman():
+    TILE_WIDTH = TILE_HEIGHT = 24
+
     def __init__(self):
         # Must come before pygame.init()
         self.sounds = Sounds()
@@ -297,11 +297,11 @@ class Pacman():
                 if not thisID in NO_GIF_TILES:
                     self.tileIDImage[ thisID ] = self.graphics.loadImage("tiles",str_splitBySpace[1] + ".gif")
                 else:
-                    self.tileIDImage[ thisID ] = pygame.Surface((TILE_WIDTH,TILE_HEIGHT))
+                    self.tileIDImage[ thisID ] = pygame.Surface((self.TILE_WIDTH,self.TILE_HEIGHT))
 
                 # change colors in tileIDImage to match maze colors
-                for y in range(0, TILE_WIDTH, 1):
-                    for x in range(0, TILE_HEIGHT, 1):
+                for y in range(0, self.TILE_WIDTH, 1):
+                    for x in range(0, self.TILE_HEIGHT, 1):
 
                         if self.tileIDImage[ thisID ].get_at( (x, y) ) == IMG_EDGE_LIGHT_COLOR:
                             # wall edge

@@ -4,8 +4,6 @@
 import pygame, random
 from Game import Game
 
-TILE_WIDTH = TILE_HEIGHT=24
-
 GHOST_COLORS = [
     (255, 0, 0, 255),
     (255, 128, 255, 255),
@@ -46,8 +44,8 @@ class Ghost():
             self.anim[i] = self._pacman.graphics.loadImage("sprite", "ghost %d.gif" % i)
 
             # change the ghost color in this frame
-            for y in range(0, TILE_HEIGHT, 1):
-                for x in range(0, TILE_WIDTH, 1):
+            for y in range(0, self._pacman.TILE_HEIGHT, 1):
+                for x in range(0, self._pacman.TILE_WIDTH, 1):
 
                     if self.anim[i].get_at( (x, y) ) == (255, 0, 0, 255):
                         # default, red ghost body color
@@ -127,10 +125,10 @@ class Ghost():
         self.x += self._velX
         self.y += self._velY
 
-        self.nearestRow = int(((self.y + (TILE_HEIGHT/2)) / TILE_HEIGHT))
-        self.nearestCol = int(((self.x + (TILE_HEIGHT/2)) / TILE_WIDTH))
+        self.nearestRow = int(((self.y + (self._pacman.TILE_HEIGHT/2)) / self._pacman.TILE_HEIGHT))
+        self.nearestCol = int(((self.x + (self._pacman.TILE_HEIGHT/2)) / self._pacman.TILE_WIDTH))
 
-        if (self.x % TILE_WIDTH) == 0 and (self.y % TILE_HEIGHT) == 0:
+        if (self.x % self._pacman.TILE_WIDTH) == 0 and (self.y % self._pacman.TILE_HEIGHT) == 0:
             # if the ghost is lined up with the grid again
             # meaning, it's time to go to the next path item
 
@@ -139,8 +137,8 @@ class Ghost():
                 self.followNextPathWay()
 
             else:
-                self.x = self.nearestCol * TILE_WIDTH
-                self.y = self.nearestRow * TILE_HEIGHT
+                self.x = self.nearestCol * self._pacman.TILE_WIDTH
+                self.y = self.nearestRow * self._pacman.TILE_HEIGHT
 
                 # chase pac-man
                 self.currentPath = self._pacman.path.findPath( (self.nearestRow, self.nearestCol), (self._pacman.player.nearestRow, self._pacman.player.nearestCol) )
@@ -187,8 +185,8 @@ class Ghost():
         # make them run
         self._speed = self._speed * 4
         # and send them to the ghost box
-        self.x = self.nearestCol * TILE_WIDTH
-        self.y = self.nearestRow * TILE_HEIGHT
+        self.x = self.nearestCol * self._pacman.TILE_WIDTH
+        self.y = self.nearestRow * self._pacman.TILE_HEIGHT
         self.currentPath = self._pacman.path.findPath( (self.nearestRow, self.nearestCol), (self._pacman.level.getGhostBoxPos()[0]+1, self._pacman.level.getGhostBoxPos()[1]) )
         self.followNextPathWay()
 

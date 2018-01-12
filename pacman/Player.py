@@ -5,8 +5,6 @@ import pygame, random
 from Game import Game
 from Ghost import Ghost
 
-TILE_WIDTH = TILE_HEIGHT=24
-
 class Player():
 
     def __init__(self, pacman):
@@ -52,8 +50,8 @@ class Player():
         self._animFrame = 3
 
     def move(self):
-        self.nearestRow = int(((self.y + (TILE_WIDTH/2)) / TILE_WIDTH))
-        self.nearestCol = int(((self.x + (TILE_HEIGHT/2)) / TILE_HEIGHT))
+        self.nearestRow = int(((self.y + (self._pacman.TILE_WIDTH/2)) / self._pacman.TILE_WIDTH))
+        self.nearestCol = int(((self.x + (self._pacman.TILE_HEIGHT/2)) / self._pacman.TILE_HEIGHT))
 
         # make sure the current velocity will not cause a collision before moving
         if not self._pacman.level.checkIfHitWall((self.x + self.velX, self.y + self.velY), (self.nearestRow, self.nearestCol)):
@@ -66,7 +64,7 @@ class Player():
 
             # check for collisions with the ghosts
             for i in range(0, 4, 1):
-                if self._pacman.level.checkIfHit( (self.x, self.y), (self._pacman.ghosts[i].x, self._pacman.ghosts[i].y), TILE_WIDTH/2):
+                if self._pacman.level.checkIfHit( (self.x, self.y), (self._pacman.ghosts[i].x, self._pacman.ghosts[i].y), self._pacman.TILE_WIDTH/2):
                     # hit a ghost
 
                     if self._pacman.ghosts[i].state == Ghost.STATE_NORMAL:
@@ -89,7 +87,7 @@ class Player():
 
             # check for collisions with the fruit
             if self._pacman.fruit.active == True:
-                if self._pacman.level.checkIfHit( (self.x, self.y), (self._pacman.fruit.x, self._pacman.fruit.y), TILE_WIDTH/2):
+                if self._pacman.level.checkIfHit( (self.x, self.y), (self._pacman.fruit.x, self._pacman.fruit.y), self._pacman.TILE_WIDTH/2):
                     self._pacman.game.addToScore(2500)
                     self._pacman.fruit.active = False
                     self._pacman.game.fruitTimer = 0
@@ -126,8 +124,8 @@ class Player():
                 self._pacman.fruit.nearestRow = pathwayEntrance[0]
                 self._pacman.fruit.nearestCol = pathwayEntrance[1]
 
-                self._pacman.fruit.x = self._pacman.fruit.nearestCol * TILE_WIDTH
-                self._pacman.fruit.y = self._pacman.fruit.nearestRow * TILE_HEIGHT
+                self._pacman.fruit.x = self._pacman.fruit.nearestCol * self._pacman.TILE_WIDTH
+                self._pacman.fruit.y = self._pacman.fruit.nearestRow * self._pacman.TILE_HEIGHT
 
                 self._pacman.fruit.currentPath = self._pacman.path.findPath( (self._pacman.fruit.nearestRow, self._pacman.fruit.nearestCol), pathwayExit )
                 self._pacman.fruit.followNextPathWay()

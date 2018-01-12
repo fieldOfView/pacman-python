@@ -6,8 +6,6 @@ import pygame, sys, os
 # WIN???
 SCRIPT_PATH = sys.path[0]
 
-TILE_WIDTH = TILE_HEIGHT=24
-
 # constants for the high-score display
 HS_FONT_SIZE = 14
 HS_LINE_HEIGHT = 16
@@ -58,7 +56,7 @@ class Game():
         self.screenPixelOffset = (0, 0) # offset in pixels of the screen from its nearest-tile position
 
         self.screenTileSize = (23, 21)
-        self.screenSize = (self.screenTileSize[1] * TILE_WIDTH, self.screenTileSize[0] * TILE_HEIGHT)
+        self.screenSize = (self.screenTileSize[1] * self._pacman.TILE_WIDTH, self.screenTileSize[0] * self._pacman.TILE_HEIGHT)
 
         # numerical display digits
         self._digit = {}
@@ -198,18 +196,18 @@ class Game():
             self._pacman.graphics.blit (self._digit[ iDigit ], (x + i * SCORE_COLWIDTH, y) )
 
     def smartMoveScreen(self):
-        possibleScreenX = self._pacman.player.x - self.screenTileSize[1] / 2 * TILE_WIDTH
-        possibleScreenY = self._pacman.player.y - self.screenTileSize[0] / 2 * TILE_HEIGHT
+        possibleScreenX = self._pacman.player.x - self.screenTileSize[1] / 2 * self._pacman.TILE_WIDTH
+        possibleScreenY = self._pacman.player.y - self.screenTileSize[0] / 2 * self._pacman.TILE_HEIGHT
 
         if possibleScreenX < 0:
             possibleScreenX = 0
-        elif possibleScreenX > self._pacman.level.lvlWidth * TILE_WIDTH - self.screenSize[0]:
-            possibleScreenX = self._pacman.level.lvlWidth * TILE_HEIGHT - self.screenSize[0]
+        elif possibleScreenX > self._pacman.level.lvlWidth * self._pacman.TILE_WIDTH - self.screenSize[0]:
+            possibleScreenX = self._pacman.level.lvlWidth * self._pacman.TILE_HEIGHT - self.screenSize[0]
 
         if possibleScreenY < 0:
             possibleScreenY = 0
-        elif possibleScreenY > self._pacman.level.lvlHeight * TILE_WIDTH - self.screenSize[1]:
-            possibleScreenY = self._pacman.level.lvlHeight * TILE_HEIGHT - self.screenSize[1]
+        elif possibleScreenY > self._pacman.level.lvlHeight * self._pacman.TILE_WIDTH - self.screenSize[1]:
+            possibleScreenY = self._pacman.level.lvlHeight * self._pacman.TILE_HEIGHT - self.screenSize[1]
 
         self.moveScreen( (possibleScreenX, possibleScreenY) )
 
@@ -221,8 +219,8 @@ class Game():
         else:
             (newX, newY) = newPosition
         self.screenPixelPos = (newX, newY)
-        self.screenNearestTilePos = (int(newY / TILE_HEIGHT), int(newX / TILE_WIDTH)) # nearest-tile position of the screen from the UL corner
-        self.screenPixelOffset = (newX - self.screenNearestTilePos[1]*TILE_WIDTH, newY - self.screenNearestTilePos[0]*TILE_HEIGHT)
+        self.screenNearestTilePos = (int(newY / self._pacman.TILE_HEIGHT), int(newX / self._pacman.TILE_WIDTH)) # nearest-tile position of the screen from the UL corner
+        self.screenPixelOffset = (newX - self.screenNearestTilePos[1]*self._pacman.TILE_WIDTH, newY - self.screenNearestTilePos[0]*self._pacman.TILE_HEIGHT)
 
     def getScreenPos(self):
         return self.screenPixelPos

@@ -4,8 +4,6 @@
 import pygame
 from Game import Game
 
-TILE_WIDTH = TILE_HEIGHT=24
-
 BOUNCE_TABLE = [0, 2, 4, 5, 5, 6, 6, 6, 6, 6, 5, 5, 4, 3, 2, 1]
 
 class Fruit():
@@ -15,8 +13,8 @@ class Fruit():
         self._slowTimer = 0
 
         # when fruit is not in use, it's in the (-1, -1) position off-screen.
-        self.x = -TILE_WIDTH
-        self.y = -TILE_HEIGHT
+        self.x = -self._pacman.TILE_WIDTH
+        self.y = -self._pacman.TILE_HEIGHT
         self._velX = 0
         self._velY = 0
         self._speed = 2
@@ -62,10 +60,10 @@ class Fruit():
             self.x += self._velX
             self.y += self._velY
 
-            self.nearestRow = int(((self.y + (TILE_WIDTH/2)) / TILE_WIDTH))
-            self.nearestCol = int(((self.x + (TILE_HEIGHT/2)) / TILE_HEIGHT))
+            self.nearestRow = int(((self.y + (self._pacman.TILE_WIDTH/2)) / self._pacman.TILE_WIDTH))
+            self.nearestCol = int(((self.x + (self._pacman.TILE_HEIGHT/2)) / self._pacman.TILE_HEIGHT))
 
-            if (self.x % TILE_WIDTH) == 0 and (self.y % TILE_HEIGHT) == 0:
+            if (self.x % self._pacman.TILE_WIDTH) == 0 and (self.y % self._pacman.TILE_HEIGHT) == 0:
                 # if the fruit is lined up with the grid again
                 # meaning, it's time to go to the next path item
 
@@ -74,8 +72,8 @@ class Fruit():
                     self.followNextPathWay()
 
                 else:
-                    self.x = self.nearestCol * TILE_WIDTH
-                    self.y = self.nearestRow * TILE_HEIGHT
+                    self.x = self.nearestCol * self._pacman.TILE_WIDTH
+                    self.y = self.nearestRow * self._pacman.TILE_HEIGHT
 
                     self.active = False
                     self._pacman.game.fruitTimer = 0

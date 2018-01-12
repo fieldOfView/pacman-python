@@ -3,8 +3,6 @@
 
 import pygame, sys, os
 
-TILE_WIDTH = TILE_HEIGHT=24
-
 class Graphics():
 
     def __init__(self, pacman):
