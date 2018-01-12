@@ -248,11 +248,18 @@ class Level():
                         self._pacman.graphics.blit(surface, position)
 
     def loadLevel(self, levelNum):
-        self._map = {}
+        try:
+            f = open(os.path.join(sys.path[0], "res", "levels", str(levelNum) + ".txt"), 'r')
+        except FileNotFoundError:
+            # no more levels!
+            self._pacman.game.updateHiScores(self._pacman.game.score)
+            self._pacman.game.setState( Game.STATE_GAME_OVER )
+            self._pacman.game.drawMidGameHiScores()
+            return
 
+        self._map = {}
         self._pellets = 0
 
-        f = open(os.path.join(sys.path[0], "res", "levels", str(levelNum) + ".txt"), 'r')
         lineNum=-1
         rowNum = 0
         useLine = False
