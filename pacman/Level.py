@@ -217,18 +217,14 @@ class Level():
         if self._powerPelletBlinkTimer == 60:
             self._powerPelletBlinkTimer = 0
 
-        for row in range(-1, self._pacman.game.screenTileSize[0] +1, 1):
+        for row in range(0, self.lvlHeight, 1):
             outputLine = ""
-            for col in range(-1, self._pacman.game.screenTileSize[1] +1, 1):
+            for col in range(0, self.lvlWidth, 1):
 
-                # row containing tile that actually goes here
-                actualRow = self._pacman.game.screenNearestTilePos[0] + row
-                actualCol = self._pacman.game.screenNearestTilePos[1] + col
-
-                useTile = self.getMapTile((actualRow, actualCol))
+                useTile = self.getMapTile((row, col))
                 if not useTile == 0 and not useTile == self._pacman.tileID['door-h'] and not useTile == self._pacman.tileID['door-v']:
                     # if this isn't a blank tile
-                    position = (col * self._pacman.TILE_WIDTH - self._pacman.game.screenPixelOffset[0], row * self._pacman.TILE_HEIGHT - self._pacman.game.screenPixelOffset[1])
+                    position = (col * self._pacman.TILE_WIDTH, row * self._pacman.TILE_HEIGHT)
                     surface = None
 
                     if useTile == self._pacman.tileID['pellet-power']:

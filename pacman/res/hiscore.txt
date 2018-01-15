@@ -1,6 +1,6 @@
 135260 David
+106580 User
 100000 David
 80000 Andy
-60000 Count Pacula
-40000 Cleopacra
-20000 Brett Favre
+66950 User
+17790 User

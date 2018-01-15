@@ -195,8 +195,7 @@ class Pacman():
                 if self.game.stateTimer == 10:
                     self.game.setNextLevel()
 
-            self.game.smartMoveScreen()
-
+            self.graphics.clear()
             self.graphics.blit(self._img_Background, (0, 0))
 
             if not self.game.state == Game.STATE_WAIT_LEVEL_SWITCH:
@@ -204,7 +203,7 @@ class Pacman():
 
                 if self.game.fruitScoreTimer > 0:
                     if self.game.stateTimer % 2 == 0:
-                        self.game.drawNumber (2500, (self.fruit.x - self.game.screenPixelPos[0] - 16, self.fruit.y - self.game.screenPixelPos[1] + 4))
+                        self.game.drawNumber (2500, (self.fruit.x - 16, self.fruit.y + 4))
 
                 for i in range(0, 4, 1):
                     self.ghosts[i].draw()
@@ -215,7 +214,7 @@ class Pacman():
                         self.graphics.blit(self.game.imHiscores,(HS_XOFFSET,HS_YOFFSET))
 
             if self.game.state == Game.STATE_WAIT_ATE_GHOST:
-                self.game.drawNumber (self.game.ghostValue / 2, (self.player.x - self.game.screenPixelPos[0] - 4, self.player.y - self.game.screenPixelPos[1] + 6))
+                self.game.drawNumber (self.game.ghostValue / 2, (self.player.x - 4, self.player.y + 6))
 
             self.game.drawScore()
 

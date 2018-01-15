@@ -50,14 +50,6 @@ class Game():
 
         self.setState( self.STATE_GAME_OVER )
 
-        # camera variables
-        self.screenPixelPos = (0, 0) # absolute x,y position of the screen from the upper-left corner of the level
-        self.screenNearestTilePos = (0, 0) # nearest-tile position of the screen from the UL corner
-        self.screenPixelOffset = (0, 0) # offset in pixels of the screen from its nearest-tile position
-
-        self.screenTileSize = (23, 21)
-        self.screenSize = (self.screenTileSize[1] * self._pacman.TILE_WIDTH, self.screenTileSize[0] * self._pacman.TILE_HEIGHT)
-
         # numerical display digits
         self._digit = {}
         for i in range(0, 10, 1):
@@ -173,19 +165,19 @@ class Game():
 
 
     def drawScore(self):
-        self.drawNumber (self.score, (SCORE_XOFFSET, self.screenSize[1] - SCORE_YOFFSET) )
+        self.drawNumber (self.score, (SCORE_XOFFSET, self._pacman.graphics.screenSize[1] - SCORE_YOFFSET) )
 
         for i in range(0, self.lives, 1):
-            self._pacman.graphics.blit (self._imLife, (34 + i * 10 + 16, self.screenSize[1] - 18) )
+            self._pacman.graphics.blit (self._imLife, (34 + i * 10 + 16, self._pacman.graphics.screenSize[1] - 18) )
 
-        self._pacman.graphics.blit (self._pacman.fruit.imFruit[ self._pacman.fruit.fruitType ], (4 + 16, self.screenSize[1] - 28) )
+        self._pacman.graphics.blit (self._pacman.fruit.imFruit[ self._pacman.fruit.fruitType ], (4 + 16, self._pacman.graphics.screenSize[1] - 28) )
 
         if self.state == self.STATE_GAME_OVER:
-            self._pacman.graphics.blit (self._imGameOver, (self.screenSize[0] / 2 - (self._imGameOver.get_width()/2), self.screenSize[1] / 2 - (self._imGameOver.get_height()/2)) )
+            self._pacman.graphics.blit (self._imGameOver, (self._pacman.graphics.screenSize[0] / 2 - (self._imGameOver.get_width()/2), self._pacman.graphics.screenSize[1] / 2 - (self._imGameOver.get_height()/2)) )
         elif self.state == self.STATE_WAIT_START:
-            self._pacman.graphics.blit (self._imReady, (self.screenSize[0] / 2 - 20, self.screenSize[1] / 2 + 12) )
+            self._pacman.graphics.blit (self._imReady, (self._pacman.graphics.screenSize[0] / 2 - 20, self._pacman.graphics.screenSize[1] / 2 + 12) )
 
-        self.drawNumber (self._levelNum, (0, self.screenSize[1] - 20) )
+        self.drawNumber (self._levelNum, (0, self._pacman.graphics.screenSize[1] - 20) )
 
     def drawNumber(self, number, position):
         (x, y) = position
@@ -195,35 +187,6 @@ class Game():
             iDigit = int(strNumber[i])
             self._pacman.graphics.blit (self._digit[ iDigit ], (x + i * SCORE_COLWIDTH, y) )
 
-    def smartMoveScreen(self):
-        possibleScreenX = self._pacman.player.x - self.screenTileSize[1] / 2 * self._pacman.TILE_WIDTH
-        possibleScreenY = self._pacman.player.y - self.screenTileSize[0] / 2 * self._pacman.TILE_HEIGHT
-
-        if possibleScreenX < 0:
-            possibleScreenX = 0
-        elif possibleScreenX > self._pacman.level.lvlWidth * self._pacman.TILE_WIDTH - self.screenSize[0]:
-            possibleScreenX = self._pacman.level.lvlWidth * self._pacman.TILE_HEIGHT - self.screenSize[0]
-
-        if possibleScreenY < 0:
-            possibleScreenY = 0
-        elif possibleScreenY > self._pacman.level.lvlHeight * self._pacman.TILE_WIDTH - self.screenSize[1]:
-            possibleScreenY = self._pacman.level.lvlHeight * self._pacman.TILE_HEIGHT - self.screenSize[1]
-
-        self.moveScreen( (possibleScreenX, possibleScreenY) )
-
-    def moveScreen(self, newPosition ):
-        if self.state != self.STATE_GAME_OVER:
-            factor = 0.1
-            nfactor = 1 - factor
-            (newX, newY) = (self.screenPixelPos[0] * nfactor + newPosition[0] * factor), (self.screenPixelPos[1] * nfactor + newPosition[1] * factor)
-        else:
-            (newX, newY) = newPosition
-        self.screenPixelPos = (newX, newY)
-        self.screenNearestTilePos = (int(newY / self._pacman.TILE_HEIGHT), int(newX / self._pacman.TILE_WIDTH)) # nearest-tile position of the screen from the UL corner
-        self.screenPixelOffset = (newX - self.screenNearestTilePos[1]*self._pacman.TILE_WIDTH, newY - self.screenNearestTilePos[0]*self._pacman.TILE_HEIGHT)
-
-    def getScreenPos(self):
-        return self.screenPixelPos
 
     def getLevelNum(self):
         return self._levelNum

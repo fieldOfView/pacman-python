@@ -39,7 +39,7 @@ class Fruit():
         if self._pacman.game.state == Game.STATE_GAME_OVER or self.active == False:
             return
 
-        self._pacman.graphics.blit (self.imFruit[ self.fruitType ], (self.x - self._pacman.game.screenPixelPos[0], self.y - self._pacman.game.screenPixelPos[1] - self._bounceY))
+        self._pacman.graphics.blit (self.imFruit[ self.fruitType ], (self.x, self.y - self._bounceY))
 
 
     def move(self):
