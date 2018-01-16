@@ -20,3 +20,6 @@ class Sounds():
             self._sounds[name].play()
         else:
             print("unknown sound: %s" % name)
+
+    def stop(self):
+        pygame.mixer.stop()

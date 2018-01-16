@@ -1,7 +1,7 @@
 #      _____________________
 # ___/  ghost object class  \_______________________________________________
 
-import pygame, random
+import random
 from Game import Game
 
 GHOST_COLORS = [

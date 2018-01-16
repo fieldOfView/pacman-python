@@ -1,7 +1,7 @@
 #      _____________________
 # ___/  level object class  \_______________________________________________
 
-import pygame, sys, os, random
+import sys, os, random
 from Game import Game
 from Ghost import Ghost
 
@@ -110,7 +110,7 @@ class Level():
                     elif result == self._pacman.tileID[ 'pellet-power' ]:
                         # got a power pellet
                         self.setMapTile((iRow, iCol), 0)
-                        pygame.mixer.stop()
+                        self._pacman.sounds.stop()
                         self._pacman.sounds.play("powerpellet")
 
                         self._pacman.game.addToScore(100)

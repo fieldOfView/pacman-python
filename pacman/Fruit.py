@@ -1,7 +1,6 @@
 #      ______________________
 # ___/  fruit object class   \_______________________________________________
 
-import pygame
 from Game import Game
 
 BOUNCE_TABLE = [0, 2, 4, 5, 5, 6, 6, 6, 6, 6, 5, 5, 4, 3, 2, 1]

@@ -1,7 +1,7 @@
 #      _______________________
 # ___/  player object class   \_______________________________________________
 
-import pygame, random
+import random
 from Game import Game
 from Ghost import Ghost
 

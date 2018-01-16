@@ -39,3 +39,6 @@ class Graphics():
     def loadImage(self, dirname, filename):
     	path = os.path.join(sys.path[0], "res", dirname, filename)
     	return pygame.image.load(path).convert()
+
+    def emptyImage(self):
+        return pygame.Surface((self._pacman.TILE_WIDTH, self._pacman.TILE_HEIGHT))

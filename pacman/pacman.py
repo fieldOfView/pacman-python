@@ -297,7 +297,7 @@ class Pacman():
                 if not thisID in NO_GIF_TILES:
                     self.tileIDImage[ thisID ] = self.graphics.loadImage("tiles",str_splitBySpace[1] + ".gif")
                 else:
-                    self.tileIDImage[ thisID ] = pygame.Surface((self.TILE_WIDTH,self.TILE_HEIGHT))
+                    self.tileIDImage[ thisID ] = self.graphics.emptyImage()
 
                 # change colors in tileIDImage to match maze colors
                 for y in range(0, self.TILE_WIDTH, 1):
