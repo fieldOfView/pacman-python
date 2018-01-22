@@ -65,12 +65,10 @@ class Pacman():
 
         self._clock = pygame.time.Clock()
         pygame.init()
-        pygame.display.set_mode((1, 1)) # temporarily initialise display so bitmaps can be loaded
+        pygame.display.set_mode((1, 1), pygame.OPENGL) # temporarily initialise display so bitmaps can be loaded
         pygame.display.set_caption("Pacman")
 
         self.graphics = Graphics(self)
-
-        self._img_Background = self.graphics.loadImage("backgrounds","1.gif")
 
         # create the pacman
         self.player = Player(self)
@@ -196,7 +194,6 @@ class Pacman():
                     self.game.setNextLevel()
 
             self.graphics.clear()
-            self.graphics.blit(self._img_Background, (0, 0))
 
             if not self.game.state == Game.STATE_WAIT_LEVEL_SWITCH:
                 self.level.drawMap()
@@ -210,8 +207,8 @@ class Pacman():
                 self.fruit.draw()
                 self.player.draw()
 
-                if self.game.state == Game.STATE_GAME_OVER:
-                        self.graphics.blit(self.game.imHiscores,(HS_XOFFSET,HS_YOFFSET))
+                #if self.game.state == Game.STATE_GAME_OVER:
+                #    self.graphics.blit(self.game.imHiscores,(HS_XOFFSET,HS_YOFFSET))
 
             if self.game.state == Game.STATE_WAIT_ATE_GHOST:
                 self.game.drawNumber (self.game.ghostValue / 2, (self.player.x - 4, self.player.y + 6))
