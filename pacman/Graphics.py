@@ -29,7 +29,7 @@ class Graphics():
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         gluLookAt(
-            5, -20, 40,
+            2, -40, 30,
             0, 0, 0,
             0, 1, 0
         )
@@ -45,8 +45,8 @@ class Graphics():
     def blit(self, surface, position):
         glPushMatrix()
         (x,y) = (
-            (position[0] / self._pacman.TILE_WIDTH) - (self._pacman.level.lvlWidth / 2.0) ,
-            (position[1] / self._pacman.TILE_HEIGHT) - (self._pacman.level.lvlHeight / 2.0)
+            (position[0] / self._pacman.TILE_WIDTH) + .5 - (self._pacman.level.lvlWidth / 2.0) ,
+            (position[1] / self._pacman.TILE_HEIGHT) + 1.5 - (self._pacman.level.lvlHeight / 2.0)
         )
         glTranslatef(2*x, 2*(1-y), 0.0)
         surface.bindTexture()
