@@ -91,9 +91,10 @@ class Pacman():
         # create game and level objects and load first level
         self.game = Game(self)
         self.level = Level(self)
-        self.level.loadLevel( self.game.getLevelNum() )
 
         self.graphics.initDisplay()
+
+        self.level.loadLevel( self.game.getLevelNum() )
 
         # initialise the joystick
         if pygame.joystick.get_count() > 0:
