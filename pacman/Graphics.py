@@ -23,10 +23,13 @@ class Graphics():
         (width, height) = self.screenSize
         pygame.display.set_mode( (width, height), pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.RESIZABLE | pygame.OPENGL )
 
+        glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
         gluPerspective(60, (width/height), 0.1, 100.0)
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
         gluLookAt(
-            0, -40, 30,
+            5, -20, 40,
             0, 0, 0,
             0, 1, 0
         )
@@ -65,25 +68,30 @@ class Graphics():
         self._fbo = Fbo((width * self._pacman.TILE_WIDTH, height * self._pacman.TILE_HEIGHT))
         self._fbo.bindBuffer()
 
-        glClearColor(1,0,0,1)
         self.clear()
-        glClearColor(0,0,0,1)
 
         # set up perspective
         glPushMatrix()
-
-        gluPerspective(90, (width / height), height / 4, height)
+        glLoadIdentity()
         gluLookAt(
-            0, 0, 1,
+            0, 0, height,
             0, 0, 0,
             0, 1, 0
         )
+        glMatrixMode(GL_PROJECTION)
+        glPushMatrix()
+        glLoadIdentity()
+        gluPerspective(90, (width/height), 0.1, 100.0)
+        glMatrixMode(GL_MODELVIEW)
 
         return self._fbo
 
     def closeBuffer(self):
-        self._fbo.unbindBuffer()
+        glMatrixMode(GL_PROJECTION)
         glPopMatrix()
+        glMatrixMode(GL_MODELVIEW)
+        glPopMatrix()
+        self._fbo.unbindBuffer()
 
     def drawBuffer(self):
         glEnable(GL_TEXTURE_2D)
