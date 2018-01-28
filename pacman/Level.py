@@ -217,6 +217,8 @@ class Level():
         if self._powerPelletBlinkTimer == 60:
             self._powerPelletBlinkTimer = 0
 
+        drawData = {}
+
         for row in range(0, self.lvlHeight, 1):
             outputLine = ""
             for col in range(0, self.lvlWidth, 1):
@@ -244,7 +246,11 @@ class Level():
                             surface = self._pacman.tileIDImage[ useTile ]
 
                     if surface:
-                        self._pacman.graphics.blit(surface, position)
+                        if surface not in drawData:
+                            drawData[surface] = []
+                        drawData[surface].append(position)
+
+        self._pacman.graphics.drawMultiple(drawData)
 
     def loadLevel(self, levelNum):
         try:

@@ -54,6 +54,22 @@ class Graphics():
         surface.unbindTexture()
         glPopMatrix()
 
+    def drawMultiple(self, data):
+        offsetX = 0.5 - (self._pacman.level.lvlWidth / 2.0)
+        offsetY = 1.5 - (self._pacman.level.lvlHeight / 2.0)
+        for surface in data:
+            surface.bindTexture()
+            for position in data[surface]:
+                glPushMatrix()
+                (x,y) = (
+                    (position[0] / self._pacman.TILE_WIDTH) + offsetX ,
+                    (position[1] / self._pacman.TILE_HEIGHT) + offsetY
+                )
+                glTranslatef(2 * x, 2 * (1 - y), 0.0)
+                self._quad.draw()
+                glPopMatrix()
+            surface.unbindTexture()
+
     def loadImage(self, dirname, filename):
         path = os.path.join(sys.path[0], "res", dirname, filename)
         surface = pygame.image.load(path).convert()
@@ -219,21 +235,13 @@ class Quad():
         (0,1)
     )
 
-    __edges = (
-        (0,1),
-        (0,3),
-        (2,1),
-        (2,3)
-    )
-
     def __init__(self):
         pass
 
     def draw(self, size=(1,1)):
         glBegin(GL_QUADS)
-        for edge in self.__edges:
-            for vertex in edge:
-                glTexCoord2fv(self.__uvs[vertex])
-                v = self.__vertices[vertex]
-                glVertex3fv((v[0] * size[0], v[1] * size[1], 0))
+        for vertex in range(0, len(self.__vertices)):
+            glTexCoord2fv(self.__uvs[vertex])
+            v = self.__vertices[vertex]
+            glVertex3fv((v[0] * size[0], v[1] * size[1], 0))
         glEnd()
