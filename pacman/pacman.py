@@ -196,7 +196,8 @@ class Pacman():
             self.graphics.clear()
 
             if not self.game.state == Game.STATE_WAIT_LEVEL_SWITCH:
-                self.level.drawMap()
+                self.graphics.drawBuffer()
+                self.level.drawMap(drawPellets = True)
 
                 if self.game.fruitScoreTimer > 0:
                     if self.game.stateTimer % 2 == 0:

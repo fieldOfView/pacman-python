@@ -212,7 +212,7 @@ class Level():
 
             # print outputLine
 
-    def drawMap(self):
+    def drawMap(self, drawPellets = False):
         self._powerPelletBlinkTimer += 1
         if self._powerPelletBlinkTimer == 60:
             self._powerPelletBlinkTimer = 0
@@ -227,18 +227,21 @@ class Level():
                     position = (col * self._pacman.TILE_WIDTH, row * self._pacman.TILE_HEIGHT)
                     surface = None
 
-                    if useTile == self._pacman.tileID['pellet-power']:
-                        if self._powerPelletBlinkTimer < 30:
+                    if drawPellets:
+                        if useTile == self._pacman.tileID['pellet-power']:
+                            if self._powerPelletBlinkTimer < 30:
+                                surface = self._pacman.tileIDImage[ useTile ]
+                        if useTile == self._pacman.tileID['pellet']:
                             surface = self._pacman.tileIDImage[ useTile ]
-
-                    elif useTile == self._pacman.tileID['showlogo']:
-                        surface = self._pacman.game.imLogo
-
-                    elif useTile == self._pacman.tileID['hiscores']:
-                        surface = self._pacman.game.imHiscores
-
                     else:
-                        surface = self._pacman.tileIDImage[ useTile ]
+                        #elif useTile == self._pacman.tileID['showlogo']:
+                        #    surface = self._pacman.game.imLogo
+
+                        #elif useTile == self._pacman.tileID['hiscores']:
+                        #    surface = self._pacman.game.imHiscores
+
+                        if useTile not in [self._pacman.tileID['pellet-power'], self._pacman.tileID['pellet']]:
+                            surface = self._pacman.tileIDImage[ useTile ]
 
                     if surface:
                         self._pacman.graphics.blit(surface, position)
@@ -384,6 +387,11 @@ class Level():
                     self._pacman.path.setType( (row, col), 1 )
                 else:
                     self._pacman.path.setType( (row, col), 0 )
+
+        # draw everything but pellets into buffer
+        self._pacman.graphics.createBuffer((self.lvlWidth, self.lvlHeight))
+        self.drawMap(drawPellets = False)
+        self._pacman.graphics.closeBuffer()
 
         # do all the level-starting stuff
         self.restart()
