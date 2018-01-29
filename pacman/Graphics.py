@@ -14,7 +14,7 @@ class Graphics():
         self._pacman = pacman
         self._screen = pygame.display.get_surface()
 
-        self._quad = Quad()
+        self._quad = None
         self._fbo = None
         self._fbo_position = (0, 0)
 
@@ -40,6 +40,8 @@ class Graphics():
 
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+        self._quad = Quad()
 
     def resizeDisplay(self, size):
         self.screenSize = size
@@ -277,11 +279,24 @@ class Quad():
     )
 
     def __init__(self):
-        pass
+        self._listID = glGenLists(1)
+        glNewList(self._listID, GL_COMPILE)
 
-    def draw(self):
         glBegin(GL_QUADS)
         for vertex in range(0, len(self.__vertices)):
             glTexCoord2fv(self.__uvs[vertex])
             glVertex3fv(self.__vertices[vertex])
         glEnd()
+
+        glEndList()
+
+    def __del__(self):
+        if self._listID is not None:
+            try:
+                glDeleteLists(self._listID)
+            except:
+                pass
+            self._listID = None
+
+    def draw(self):
+        glCallList(self._listID)
