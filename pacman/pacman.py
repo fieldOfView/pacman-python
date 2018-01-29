@@ -193,7 +193,7 @@ class Pacman():
                 if self.game.stateTimer == 10:
                     self.game.setNextLevel()
 
-            self.graphics.clear()
+            self.graphics.beginRenderBatch()
 
             if not self.game.state == Game.STATE_WAIT_LEVEL_SWITCH:
                 self.graphics.drawBuffer()
@@ -215,6 +215,16 @@ class Pacman():
                 self.game.drawNumber (self.game.ghostValue / 2, (self.player.x - 4, self.player.y + 6))
 
             self.game.drawScore()
+
+            self.graphics.beginAnaglyph(left = True)
+            self.graphics.clear()
+            self.graphics.drawRenderBatch()
+            self.graphics.endAnaglyph()
+
+            self.graphics.beginAnaglyph(left = False)
+            self.graphics.clear()
+            self.graphics.drawRenderBatch()
+            self.graphics.endAnaglyph()
 
             pygame.display.flip()
 
@@ -295,27 +305,7 @@ class Pacman():
                 if not thisID in NO_GIF_TILES:
                     self.tileIDImage[ thisID ] = self.graphics.loadImage("tiles",str_splitBySpace[1] + ".gif")
                 else:
-                    self.tileIDImage[ thisID ] = self.graphics.emptyImage()
-
-                # change colors in tileIDImage to match maze colors
-                for y in range(0, self.TILE_WIDTH, 1):
-                    for x in range(0, self.TILE_HEIGHT, 1):
-
-                        if self.tileIDImage[ thisID ].get_at( (x, y) ) == IMG_EDGE_LIGHT_COLOR:
-                            # wall edge
-                            self.tileIDImage[ thisID ].set_at( (x, y), self.level.edgeLightColor )
-
-                        elif self.tileIDImage[ thisID ].get_at( (x, y) ) == IMG_FILL_COLOR:
-                            # wall fill
-                            self.tileIDImage[ thisID ].set_at( (x, y), self.level.fillColor )
-
-                        elif self.tileIDImage[ thisID ].get_at( (x, y) ) == IMG_EDGE_SHADOW_COLOR:
-                            # pellet color
-                            self.tileIDImage[ thisID ].set_at( (x, y), self.level.edgeShadowColor )
-
-                        elif self.tileIDImage[ thisID ].get_at( (x, y) ) == IMG_PELLET_COLOR:
-                            # pellet color
-                            self.tileIDImage[ thisID ].set_at( (x, y), self.level.pelletColor )
+                    self.tileIDImage[ thisID ] = None
 
                 # print str_splitBySpace[0] + " is married to " + str_splitBySpace[1]
             lineNum += 1

@@ -16,6 +16,10 @@ class Graphics():
 
         self._quad = Quad()
         self._fbo = None
+        self._fbo_position = (0, 0)
+
+        self._batch = []
+        self._collectingBatch = False
 
         self.screenSize = (1280, 720)
 
@@ -29,8 +33,8 @@ class Graphics():
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         gluLookAt(
-            2, -40, 30,
-            0, 0, 0,
+            2, -35, 25,
+            0, 0, -10,
             0, 1, 0
         )
 
@@ -45,10 +49,52 @@ class Graphics():
     def clear(self):
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
+    def beginAnaglyph(self, left = True):
+        proj = glGetFloatv( GL_PROJECTION_MATRIX)
+        if left:
+            # cyan
+            #glTranslate(-2.0, 0., 0.)
+            proj[2][0] = -.05
+            proj[3][0] = -2.0
+            glColorMask(GL_FALSE,GL_TRUE,GL_TRUE,GL_TRUE)
+        else:
+            # red
+            #glTranslate(2.0, 0., 0.)
+            proj[2][0] = .05
+            proj[3][0] = 2.0
+            glColorMask(GL_TRUE,GL_FALSE,GL_FALSE,GL_TRUE)
+
+        glMatrixMode(GL_PROJECTION)
+        glPushMatrix()
+        glLoadMatrixf(proj)
+        glMatrixMode(GL_MODELVIEW)
+
+    def endAnaglyph(self):
+        glMatrixMode(GL_PROJECTION)
+        glPopMatrix()
+        glMatrixMode(GL_MODELVIEW)
+        glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE)
+
+    def beginRenderBatch(self):
+        self._batch = []
+        self._collectingBatch = True
+
+    def addToRenderBatch(self, data):
+        self._batch.append(data)
+
+    def drawRenderBatch(self):
+        self._collectingBatch = False
+        for data in self._batch:
+            self.drawMultiple(data)
+
     def draw(self, surface, position):
         self.drawMultiple({surface: [position]})
 
     def drawMultiple(self, data):
+        if self._collectingBatch:
+            self.addToRenderBatch(data)
+            return
+
         offsetX = 0.5 - (self._pacman.level.lvlWidth / 2.0)
         offsetY = 1.5 - (self._pacman.level.lvlHeight / 2.0)
         for surface in data:
@@ -74,13 +120,11 @@ class Graphics():
         return self.createImage(surface)
 
     def createImage(self, surface):
-        return GameSurface((0,0),0,surface)
-
-    def emptyImage(self):
-        return GameSurface((self._pacman.TILE_WIDTH, self._pacman.TILE_HEIGHT), 0)
+        return GameSurface((0, 0), 0, surface)
 
     def createBuffer(self, size):
         (width, height) = size
+        self._fbo_position = ((self._pacman.TILE_WIDTH * (width - 1) / 2.0), (self._pacman.TILE_HEIGHT * (height - 1) / 2.0))
 
         self._fbo = Fbo((width * self._pacman.TILE_WIDTH, height * self._pacman.TILE_HEIGHT))
         self._fbo.bindBuffer()
@@ -101,8 +145,6 @@ class Graphics():
         gluPerspective(90, (width/height), 0.1, 100.0)
         glMatrixMode(GL_MODELVIEW)
 
-        return self._fbo
-
     def closeBuffer(self):
         glMatrixMode(GL_PROJECTION)
         glPopMatrix()
@@ -111,14 +153,7 @@ class Graphics():
         self._fbo.unbindBuffer()
 
     def drawBuffer(self):
-        glEnable(GL_TEXTURE_2D)
-        self._fbo.bindTexture()
-        glPushMatrix()
-        (width, height) = (self._pacman.level.lvlWidth, self._pacman.level.lvlHeight)
-        glScalef(width, -height, 1)
-        self._quad.draw()
-        glPopMatrix()
-        self._fbo.unbindTexture()
+        self.draw(self._fbo, self._fbo_position)
 
 class Fbo():
     def __init__(self, size):
@@ -152,6 +187,9 @@ class Fbo():
             except:
                 pass
             self._textureID = None
+
+    def get_size(self):
+        return self._size
 
     def bindBuffer(self):
         glPushAttrib(GL_VIEWPORT_BIT)
@@ -198,7 +236,7 @@ class GameSurface(pygame.Surface):
             glDeleteTextures(self._textureID)
 
         size = self.get_size()
-        data = pygame.image.tostring(self, "RGBA")
+        data = pygame.image.tostring(self, "RGBA", True) # flipped = True
 
         self._textureID = glGenTextures(1)
 
@@ -232,10 +270,10 @@ class Quad():
     )
 
     __uvs = (
-        (1,1),
         (1,0),
-        (0,0),
-        (0,1)
+        (1,1),
+        (0,1),
+        (0,0)
     )
 
     def __init__(self):
