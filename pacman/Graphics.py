@@ -34,6 +34,9 @@ class Graphics():
             0, 1, 0
         )
 
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
     def resizeDisplay(self, size):
         self.screenSize = size
         (width, height) = size
@@ -72,7 +75,7 @@ class Graphics():
 
     def loadImage(self, dirname, filename):
         path = os.path.join(sys.path[0], "res", dirname, filename)
-        surface = pygame.image.load(path).convert()
+        surface = pygame.image.load(path).convert_alpha()
         return GameSurface((0,0),0,surface)
 
     def emptyImage(self):
@@ -175,7 +178,7 @@ class Fbo():
 class GameSurface(pygame.Surface):
     def __init__(self, size, flags=0, surface=None):
         if surface:
-            super().__init__(surface.get_size(), surface.get_flags())
+            super().__init__(surface.get_size(), surface.get_flags(), depth=32)
             self.blit(surface, (0,0))
         else:
             super().__init__(size, flags)
@@ -195,7 +198,7 @@ class GameSurface(pygame.Surface):
             glDeleteTextures(self._textureID)
 
         size = self.get_size()
-        data = pygame.image.tostring(self, "RGBX")
+        data = pygame.image.tostring(self, "RGBA")
 
         self._textureID = glGenTextures(1)
 
@@ -203,7 +206,7 @@ class GameSurface(pygame.Surface):
 
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
         glTexImage2D(
-            GL_TEXTURE_2D, 0, 3, size[0], size[1], 0,
+            GL_TEXTURE_2D, 0, GL_RGBA, size[0], size[1], 0,
             GL_RGBA, GL_UNSIGNED_BYTE, data
         )
 
