@@ -46,20 +46,7 @@ class Graphics():
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
     def draw(self, surface, position):
-        glPushMatrix()
-        (x,y) = (
-            (position[0] / self._pacman.TILE_WIDTH) + .5 - (self._pacman.level.lvlWidth / 2.0) ,
-            (position[1] / self._pacman.TILE_HEIGHT) + 1.5 - (self._pacman.level.lvlHeight / 2.0)
-        )
-        glTranslatef(2*x, 2*(1-y), 0.0)
-        size = surface.get_size()
-        if size != (self._pacman.TILE_WIDTH, self._pacman.TILE_HEIGHT):
-            (width, height) = (size[0] / self._pacman.TILE_WIDTH, size[1] / self._pacman.TILE_HEIGHT)
-            glScalef(width, height, 1)
-        surface.bindTexture()
-        self._quad.draw()
-        surface.unbindTexture()
-        glPopMatrix()
+        self.drawMultiple({surface: [position]})
 
     def drawMultiple(self, data):
         offsetX = 0.5 - (self._pacman.level.lvlWidth / 2.0)
@@ -73,6 +60,10 @@ class Graphics():
                     (position[1] / self._pacman.TILE_HEIGHT) + offsetY
                 )
                 glTranslatef(2 * x, 2 * (1 - y), 0.0)
+                size = surface.get_size()
+                if size != (self._pacman.TILE_WIDTH, self._pacman.TILE_HEIGHT):
+                    (width, height) = (size[0] / self._pacman.TILE_WIDTH, size[1] / self._pacman.TILE_HEIGHT)
+                    glScalef(width, height, 1)
                 self._quad.draw()
                 glPopMatrix()
             surface.unbindTexture()
