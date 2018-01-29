@@ -52,6 +52,10 @@ class Graphics():
             (position[1] / self._pacman.TILE_HEIGHT) + 1.5 - (self._pacman.level.lvlHeight / 2.0)
         )
         glTranslatef(2*x, 2*(1-y), 0.0)
+        size = surface.get_size()
+        if size != (self._pacman.TILE_WIDTH, self._pacman.TILE_HEIGHT):
+            (width, height) = (size[0] / self._pacman.TILE_WIDTH, size[1] / self._pacman.TILE_HEIGHT)
+            glScalef(width, height, 1)
         surface.bindTexture()
         self._quad.draw()
         surface.unbindTexture()
@@ -76,6 +80,9 @@ class Graphics():
     def loadImage(self, dirname, filename):
         path = os.path.join(sys.path[0], "res", dirname, filename)
         surface = pygame.image.load(path).convert_alpha()
+        return self.createImage(surface)
+
+    def createImage(self, surface):
         return GameSurface((0,0),0,surface)
 
     def emptyImage(self):
@@ -115,9 +122,11 @@ class Graphics():
     def drawBuffer(self):
         glEnable(GL_TEXTURE_2D)
         self._fbo.bindTexture()
+        glPushMatrix()
         (width, height) = (self._pacman.level.lvlWidth, self._pacman.level.lvlHeight)
-        height = -height
-        self._quad.draw((width, height))
+        glScalef(width, -height, 1)
+        self._quad.draw()
+        glPopMatrix()
         self._fbo.unbindTexture()
 
 class Fbo():
@@ -241,10 +250,9 @@ class Quad():
     def __init__(self):
         pass
 
-    def draw(self, size=(1,1)):
+    def draw(self):
         glBegin(GL_QUADS)
         for vertex in range(0, len(self.__vertices)):
             glTexCoord2fv(self.__uvs[vertex])
-            v = self.__vertices[vertex]
-            glVertex3fv((v[0] * size[0], v[1] * size[1], 0))
+            glVertex3fv(self.__vertices[vertex])
         glEnd()

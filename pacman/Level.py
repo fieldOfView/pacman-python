@@ -233,16 +233,17 @@ class Level():
                         if useTile == self._pacman.tileID['pellet-power']:
                             if self._powerPelletBlinkTimer < 30:
                                 surface = self._pacman.tileIDImage[ useTile ]
-                        if useTile == self._pacman.tileID['pellet']:
+
+                        elif useTile == self._pacman.tileID['pellet']:
                             surface = self._pacman.tileIDImage[ useTile ]
                     else:
-                        #elif useTile == self._pacman.tileID['showlogo']:
-                        #    surface = self._pacman.game.imLogo
+                        if useTile == self._pacman.tileID['showlogo']:
+                            surface = self._pacman.game.imLogo
 
-                        #elif useTile == self._pacman.tileID['hiscores']:
-                        #    surface = self._pacman.game.imHiscores
+                        elif useTile == self._pacman.tileID['hiscores']:
+                            surface = self._pacman.game.imHiscores
 
-                        if useTile not in [self._pacman.tileID['pellet-power'], self._pacman.tileID['pellet']]:
+                        elif useTile not in [self._pacman.tileID['pellet-power'], self._pacman.tileID['pellet']]:
                             surface = self._pacman.tileIDImage[ useTile ]
 
                     if surface:

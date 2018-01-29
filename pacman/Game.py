@@ -138,7 +138,7 @@ class Game():
               vpos+=HS_LINE_HEIGHT
               linesurf=f.render(line[1].rjust(22)+str(line[0]).rjust(9),1,(255,255,255))
               scoresurf.blit(linesurf,(0,vpos))
-            return scoresurf
+            return self._pacman.graphics.createImage(scoresurf)
 
     def drawMidGameHiScores(self):
             """Redraw the high-score list image after pacman dies."""
@@ -173,7 +173,7 @@ class Game():
         self._pacman.graphics.draw (self._pacman.fruit.imFruit[ self._pacman.fruit.fruitType ], (4 + 16, self._pacman.graphics.screenSize[1] - 28) )
 
         if self.state == self.STATE_GAME_OVER:
-            self._pacman.graphics.draw (self._imGameOver, (self._pacman.graphics.screenSize[0] / 2 - (self._imGameOver.get_width()/2), self._pacman.graphics.screenSize[1] / 2 - (self._imGameOver.get_height()/2)) )
+            self._pacman.graphics.draw (self._imGameOver, (self._pacman.TILE_WIDTH * self._pacman.level.lvlWidth / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2) )
         elif self.state == self.STATE_WAIT_START:
             self._pacman.graphics.draw (self._imReady, (self._pacman.TILE_WIDTH * self._pacman.level.lvlWidth / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2) )
 

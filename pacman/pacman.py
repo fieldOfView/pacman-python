@@ -208,8 +208,8 @@ class Pacman():
                 self.fruit.draw()
                 self.player.draw()
 
-                #if self.game.state == Game.STATE_GAME_OVER:
-                #    self.graphics.draw(self.game.imHiscores,(HS_XOFFSET,HS_YOFFSET))
+                if self.game.state == Game.STATE_GAME_OVER:
+                    self.graphics.draw(self.game.imHiscores,(HS_XOFFSET,HS_YOFFSET))
 
             if self.game.state == Game.STATE_WAIT_ATE_GHOST:
                 self.game.drawNumber (self.game.ghostValue / 2, (self.player.x - 4, self.player.y + 6))
