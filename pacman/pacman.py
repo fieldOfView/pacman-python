@@ -65,10 +65,11 @@ class Pacman():
 
         self._clock = pygame.time.Clock()
         pygame.init()
-        pygame.display.set_mode((1, 1), pygame.OPENGL) # temporarily initialise display so bitmaps can be loaded
-        pygame.display.set_caption("Pacman")
 
         self.graphics = Graphics(self)
+        self.graphics.initDisplay()
+
+        pygame.display.set_caption("Pacman")
 
         # create the pacman
         self.player = Player(self)
@@ -91,8 +92,6 @@ class Pacman():
         # create game and level objects and load first level
         self.game = Game(self)
         self.level = Level(self)
-
-        self.graphics.initDisplay()
 
         self.level.loadLevel( self.game.getLevelNum() )
 
