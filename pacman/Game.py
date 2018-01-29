@@ -168,14 +168,14 @@ class Game():
         self.drawNumber (self.score, (SCORE_XOFFSET, self._pacman.graphics.screenSize[1] - SCORE_YOFFSET) )
 
         for i in range(0, self.lives, 1):
-            self._pacman.graphics.blit (self._imLife, (34 + i * 10 + 16, self._pacman.graphics.screenSize[1] - 18) )
+            self._pacman.graphics.draw (self._imLife, (34 + i * 10 + 16, self._pacman.graphics.screenSize[1] - 18) )
 
-        self._pacman.graphics.blit (self._pacman.fruit.imFruit[ self._pacman.fruit.fruitType ], (4 + 16, self._pacman.graphics.screenSize[1] - 28) )
+        self._pacman.graphics.draw (self._pacman.fruit.imFruit[ self._pacman.fruit.fruitType ], (4 + 16, self._pacman.graphics.screenSize[1] - 28) )
 
         if self.state == self.STATE_GAME_OVER:
-            self._pacman.graphics.blit (self._imGameOver, (self._pacman.graphics.screenSize[0] / 2 - (self._imGameOver.get_width()/2), self._pacman.graphics.screenSize[1] / 2 - (self._imGameOver.get_height()/2)) )
+            self._pacman.graphics.draw (self._imGameOver, (self._pacman.graphics.screenSize[0] / 2 - (self._imGameOver.get_width()/2), self._pacman.graphics.screenSize[1] / 2 - (self._imGameOver.get_height()/2)) )
         elif self.state == self.STATE_WAIT_START:
-            self._pacman.graphics.blit (self._imReady, (self._pacman.graphics.screenSize[0] / 2 - 20, self._pacman.graphics.screenSize[1] / 2 + 12) )
+            self._pacman.graphics.draw (self._imReady, (self._pacman.TILE_WIDTH * self._pacman.level.lvlWidth / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2) )
 
         self.drawNumber (self._levelNum, (0, self._pacman.graphics.screenSize[1] - 20) )
 
@@ -185,7 +185,7 @@ class Game():
 
         for i in range(0, len(strNumber), 1):
             iDigit = int(strNumber[i])
-            self._pacman.graphics.blit (self._digit[ iDigit ], (x + i * SCORE_COLWIDTH, y) )
+            self._pacman.graphics.draw (self._digit[ iDigit ], (x + i * SCORE_COLWIDTH, y) )
 
 
     def getLevelNum(self):

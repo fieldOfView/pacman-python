@@ -87,24 +87,24 @@ class Ghost():
 
         if self.state == self.STATE_NORMAL:
             # draw regular ghost (this one)
-            self._pacman.graphics.blit (self.anim[ self._animFrame ], (self.x, self.y))
+            self._pacman.graphics.draw (self.anim[ self._animFrame ], (self.x, self.y))
         elif self.state == self.STATE_VULNERABLE:
             # draw vulnerable ghost
 
             if self._pacman.game.ghostTimer > 100:
                 # blue
-                self._pacman.graphics.blit (self._pacman.ghosts[4].anim[ self._animFrame ], (self.x, self.y))
+                self._pacman.graphics.draw (self._pacman.ghosts[4].anim[ self._animFrame ], (self.x, self.y))
             else:
                 # blue/white flashing
                 tempTimerI = int(self._pacman.game.ghostTimer / 10)
                 if tempTimerI == 1 or tempTimerI == 3 or tempTimerI == 5 or tempTimerI == 7 or tempTimerI == 9:
-                    self._pacman.graphics.blit (self._pacman.ghosts[5].anim[ self._animFrame ], (self.x, self.y))
+                    self._pacman.graphics.draw (self._pacman.ghosts[5].anim[ self._animFrame ], (self.x, self.y))
                 else:
-                    self._pacman.graphics.blit (self._pacman.ghosts[4].anim[ self._animFrame ], (self.x, self.y))
+                    self._pacman.graphics.draw (self._pacman.ghosts[4].anim[ self._animFrame ], (self.x, self.y))
 
         elif self.state == self.STATE_SPECTACLES:
             # draw glasses
-            self._pacman.graphics.blit (self._pacman.tileIDImage[ self._pacman.tileID[ 'glasses' ] ], (self.x, self.y))
+            self._pacman.graphics.draw (self._pacman.tileIDImage[ self._pacman.tileID[ 'glasses' ] ], (self.x, self.y))
 
         if self._pacman.game.state >= Game.STATE_WAIT_LEVEL_CLEAR:
             # don't animate ghost if the level is complete

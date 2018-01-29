@@ -45,7 +45,7 @@ class Graphics():
     def clear(self):
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
-    def blit(self, surface, position):
+    def draw(self, surface, position):
         glPushMatrix()
         (x,y) = (
             (position[0] / self._pacman.TILE_WIDTH) + .5 - (self._pacman.level.lvlWidth / 2.0) ,

@@ -149,7 +149,7 @@ class Player():
         elif self.velY < 0:
             self._anim_pacmanCurrent = self._anim_pacmanU
 
-        self._pacman.graphics.blit (self._anim_pacmanCurrent[ self._animFrame ], (self.x, self.y))
+        self._pacman.graphics.draw (self._anim_pacmanCurrent[ self._animFrame ], (self.x, self.y))
 
         if self._pacman.game.state == Game.STATE_PLAYING:
             if not self.velX == 0 or not self.velY == 0:
