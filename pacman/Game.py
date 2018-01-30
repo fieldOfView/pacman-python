@@ -142,7 +142,7 @@ class Game():
 
     def drawMidGameHiScores(self):
             """Redraw the high-score list image after pacman dies."""
-            self.imHiscores=self.makeHiScoreList()
+            self.imHiscores = self.makeHiScoreList()
 
     def startNewGame(self):
         self._levelNum = 1

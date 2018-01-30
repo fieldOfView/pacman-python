@@ -194,9 +194,11 @@ class Pacman():
                 self.player.draw()
 
                 if self.game.state == Game.STATE_GAME_OVER:
-                    position = self.graphics._fbo_position
-                    position = (position[0], position[1] + 10 * self.TILE_HEIGHT)
-                    self.graphics.draw(self.game.imHiscores, position, billboard = True)
+                    position = list(self.graphics._fbo_position)
+                    position[1] -=  5 * self.TILE_HEIGHT
+                    self.graphics.draw(self.game.imLogo, tuple(position), billboard = True)
+                    position[1] +=  15 * self.TILE_HEIGHT
+                    self.graphics.draw(self.game.imHiscores, tuple(position), billboard = True)
 
             if self.game.state == Game.STATE_WAIT_ATE_GHOST:
                 self.game.drawNumber (self.game.ghostValue / 2, (self.player.x - 4, self.player.y + 6))
