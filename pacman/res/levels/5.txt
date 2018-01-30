@@ -4,7 +4,7 @@
 # edgelightcolor 255 0 128
 # edgeshadowcolor 100 0 50
 # fillcolor 0 0 0
-# pelletcolor 0 0 255
+# pelletcolor 50 50 255
 # fruittype 4
 
 # startleveldata

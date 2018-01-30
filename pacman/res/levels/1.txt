@@ -1,7 +1,7 @@
 # lvlwidth 21
 # lvlheight 25
 # bgcolor 0 0 0
-# edgecolor 0 0 255
+# edgecolor 50 50 255
 # fillcolor 0 0 0
 # pelletcolor 255 255 255
 # fruittype 1
