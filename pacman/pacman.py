@@ -216,6 +216,7 @@ class Pacman():
 
             self.game.drawScore()
 
+            self.graphics.setView()
             displayList = self.graphics.createList()
             displayList.begin()
             self.graphics.clear()

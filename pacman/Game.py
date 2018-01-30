@@ -173,9 +173,9 @@ class Game():
         self._pacman.graphics.draw (self._pacman.fruit.imFruit[ self._pacman.fruit.fruitType ], (4 + 16, self._pacman.graphics.screenSize[1] - 28) )
 
         if self.state == self.STATE_GAME_OVER:
-            self._pacman.graphics.draw (self._imGameOver, (self._pacman.TILE_WIDTH * self._pacman.level.lvlWidth / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2) )
+            self._pacman.graphics.draw (self._imGameOver, (self._pacman.TILE_WIDTH * self._pacman.level.lvlWidth / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2), billboard = True )
         elif self.state == self.STATE_WAIT_START:
-            self._pacman.graphics.draw (self._imReady, (self._pacman.TILE_WIDTH * self._pacman.level.lvlWidth / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2) )
+            self._pacman.graphics.draw (self._imReady, (self._pacman.TILE_WIDTH * self._pacman.level.lvlWidth / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2), billboard = True )
 
         self.drawNumber (self._levelNum, (0, self._pacman.graphics.screenSize[1] - 20) )
 

@@ -133,6 +133,14 @@ class Player():
         if self._pacman.game.fruitScoreTimer > 0:
             self._pacman.game.fruitScoreTimer -= 1
 
+        if self._pacman.game.state == Game.STATE_PLAYING:
+            if not self.velX == 0 or not self.velY == 0:
+                # only Move mouth when pacman is moving
+                self._animFrame += 1
+
+            if self._animFrame == 9:
+                # wrap to beginning
+                self._animFrame = 1
 
     def draw(self):
 
@@ -149,13 +157,4 @@ class Player():
         elif self.velY < 0:
             self._anim_pacmanCurrent = self._anim_pacmanU
 
-        self._pacman.graphics.draw (self._anim_pacmanCurrent[ self._animFrame ], (self.x, self.y))
-
-        if self._pacman.game.state == Game.STATE_PLAYING:
-            if not self.velX == 0 or not self.velY == 0:
-                # only Move mouth when pacman is moving
-                self._animFrame += 1
-
-            if self._animFrame == 9:
-                # wrap to beginning
-                self._animFrame = 1
+        self._pacman.graphics.draw (self._anim_pacmanCurrent[ self._animFrame ], (self.x, self.y), billboard = True)

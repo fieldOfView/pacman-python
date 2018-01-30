@@ -22,6 +22,8 @@ class Graphics():
         self._batch = []
         self._collectingBatch = False
 
+        self._billboardDisplayList = None
+
         self.screenSize = (1280, 720)
 
     def initDisplay(self):
@@ -43,6 +45,21 @@ class Graphics():
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
         self._quad = Quad()
+
+        self._billboardDisplayList = DisplayList()
+        self._billboardDisplayList.begin()
+        glRotatef(45, 1, 0, 0)
+        glTranslatef(0, 0.5, 0)
+        self._billboardDisplayList.end()
+
+    def setView(self):
+        x = ((self._pacman.player.x / self._pacman.TILE_WIDTH) - (self._pacman.level.lvlWidth / 2)) / 2
+        glLoadIdentity()
+        gluLookAt(
+            x, -35, 25,
+            0, 0, -10,
+            0, 1, 0
+        )
 
     def resizeDisplay(self, size):
         self.screenSize = size
@@ -90,8 +107,8 @@ class Graphics():
         for data in self._batch:
             self.drawMultiple(data)
 
-    def draw(self, surface, position):
-        self.drawMultiple({surface: [position]})
+    def draw(self, surface, position, billboard = False):
+        self.drawMultiple({surface: [(position, billboard)]})
 
     def drawMultiple(self, data):
         if self._collectingBatch:
@@ -100,17 +117,20 @@ class Graphics():
 
         for surface in data:
             surface.bindTexture()
-            for position in data[surface]:
+            for (position, billboard) in data[surface]:
                 glPushMatrix()
                 (x,y) = (
                     (position[0] / self._pacman.TILE_WIDTH) + self._draw_offset[0] ,
                     (position[1] / self._pacman.TILE_HEIGHT) + self._draw_offset[1]
                 )
-                glTranslatef(2 * x, 2 * (1 - y), 0.0)
+                z = position[2] / self._pacman.TILE_HEIGHT if len(position) > 2 else 0
+                glTranslatef(2 * x, 2 * (1 - y), z)
                 size = surface.get_size()
                 if size != (self._pacman.TILE_WIDTH, self._pacman.TILE_HEIGHT):
                     (width, height) = (size[0] / self._pacman.TILE_WIDTH, size[1] / self._pacman.TILE_HEIGHT)
                     glScalef(width, height, 1)
+                if billboard:
+                    self._billboardDisplayList.execute()
                 self._quad.draw()
                 glPopMatrix()
             surface.unbindTexture()

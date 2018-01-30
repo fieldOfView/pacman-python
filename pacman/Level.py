@@ -249,7 +249,7 @@ class Level():
                     if surface:
                         if surface not in drawData:
                             drawData[surface] = []
-                        drawData[surface].append(position)
+                        drawData[surface].append((position, drawPellets))
 
         self._pacman.graphics.drawMultiple(drawData)
 
