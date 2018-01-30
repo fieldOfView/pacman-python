@@ -128,7 +128,7 @@ class Graphics():
         (width, height) = size
         self._fbo_position = ((self._pacman.TILE_WIDTH * (width - 1) / 2.0), (self._pacman.TILE_HEIGHT * (height - 1) / 2.0))
 
-        self._fbo = Fbo((width * self._pacman.TILE_WIDTH, height * self._pacman.TILE_HEIGHT))
+        self._fbo = FrameBuffer((width * self._pacman.TILE_WIDTH, height * self._pacman.TILE_HEIGHT))
         self._fbo.bindBuffer()
 
         self.clear()
@@ -157,7 +157,11 @@ class Graphics():
     def drawBuffer(self):
         self.draw(self._fbo, self._fbo_position)
 
-class Fbo():
+    def createList(self):
+        return DisplayList()
+
+
+class FrameBuffer():
     def __init__(self, size):
         self._size = size
         (width, height) = size
@@ -215,6 +219,7 @@ class Fbo():
     def getSize(self):
         return self._size
 
+
 class GameSurface(pygame.Surface):
     def __init__(self, size, flags=0, surface=None):
         if surface:
@@ -263,6 +268,7 @@ class GameSurface(pygame.Surface):
     def unbindTexture(self):
         glBindTexture(GL_TEXTURE_2D, 0)
 
+
 class Quad():
     __vertices = (
         (1, -1, 0),
@@ -279,8 +285,8 @@ class Quad():
     )
 
     def __init__(self):
-        self._listID = glGenLists(1)
-        glNewList(self._listID, GL_COMPILE)
+        self._list = DisplayList()
+        self._list.begin()
 
         glBegin(GL_QUADS)
         for vertex in range(0, len(self.__vertices)):
@@ -288,7 +294,15 @@ class Quad():
             glVertex3fv(self.__vertices[vertex])
         glEnd()
 
-        glEndList()
+        self._list.end()
+
+    def draw(self):
+        self._list.execute()
+
+
+class DisplayList():
+    def __init__(self):
+        self._listID = glGenLists(1)
 
     def __del__(self):
         if self._listID is not None:
@@ -298,5 +312,14 @@ class Quad():
                 pass
             self._listID = None
 
-    def draw(self):
+    def __del__(self):
+        pass
+
+    def begin(self):
+        glNewList(self._listID, GL_COMPILE)
+
+    def end(self):
+        glEndList()
+
+    def execute(self):
         glCallList(self._listID)

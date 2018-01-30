@@ -216,14 +216,18 @@ class Pacman():
 
             self.game.drawScore()
 
-            self.graphics.beginAnaglyph(left = True)
+            displayList = self.graphics.createList()
+            displayList.begin()
             self.graphics.clear()
             self.graphics.drawRenderBatch()
+            displayList.end()
+
+            self.graphics.beginAnaglyph(left = True)
+            displayList.execute()
             self.graphics.endAnaglyph()
 
             self.graphics.beginAnaglyph(left = False)
-            self.graphics.clear()
-            self.graphics.drawRenderBatch()
+            displayList.execute()
             self.graphics.endAnaglyph()
 
             pygame.display.flip()
