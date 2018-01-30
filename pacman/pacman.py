@@ -308,6 +308,27 @@ class Pacman():
                 thisID = int(str_splitBySpace[0])
                 if not thisID in NO_GIF_TILES:
                     self.tileIDImage[ thisID ] = self.graphics.loadImage("tiles",str_splitBySpace[1] + ".gif")
+
+                    # change colors in tileIDImage to match maze colors
+                    for y in range(0, self.TILE_WIDTH, 1):
+                        for x in range(0, self.TILE_HEIGHT, 1):
+
+                            if self.tileIDImage[ thisID ].get_at( (x, y) ) == IMG_EDGE_LIGHT_COLOR:
+                                # wall edge
+                                self.tileIDImage[ thisID ].set_at( (x, y), self.level.edgeLightColor )
+
+                            elif self.tileIDImage[ thisID ].get_at( (x, y) ) == IMG_FILL_COLOR:
+                                # wall fill
+                                self.tileIDImage[ thisID ].set_at( (x, y), self.level.fillColor )
+
+                            elif self.tileIDImage[ thisID ].get_at( (x, y) ) == IMG_EDGE_SHADOW_COLOR:
+                                # pellet color
+                                self.tileIDImage[ thisID ].set_at( (x, y), self.level.edgeShadowColor )
+
+                            elif self.tileIDImage[ thisID ].get_at( (x, y) ) == IMG_PELLET_COLOR:
+                                # pellet color
+                                self.tileIDImage[ thisID ].set_at( (x, y), self.level.pelletColor )
+                    self.tileIDImage[ thisID ].updateTexture()
                 else:
                     self.tileIDImage[ thisID ] = None
 

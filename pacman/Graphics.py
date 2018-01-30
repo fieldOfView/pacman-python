@@ -14,6 +14,7 @@ class Graphics():
         self._pacman = pacman
         self._screen = pygame.display.get_surface()
 
+        self._draw_offset = (0, 0)
         self._quad = None
         self._fbo = None
         self._fbo_position = (0, 0)
@@ -97,15 +98,13 @@ class Graphics():
             self.addToRenderBatch(data)
             return
 
-        offsetX = 0.5 - (self._pacman.level.lvlWidth / 2.0)
-        offsetY = 1.5 - (self._pacman.level.lvlHeight / 2.0)
         for surface in data:
             surface.bindTexture()
             for position in data[surface]:
                 glPushMatrix()
                 (x,y) = (
-                    (position[0] / self._pacman.TILE_WIDTH) + offsetX ,
-                    (position[1] / self._pacman.TILE_HEIGHT) + offsetY
+                    (position[0] / self._pacman.TILE_WIDTH) + self._draw_offset[0] ,
+                    (position[1] / self._pacman.TILE_HEIGHT) + self._draw_offset[1]
                 )
                 glTranslatef(2 * x, 2 * (1 - y), 0.0)
                 size = surface.get_size()
@@ -126,7 +125,15 @@ class Graphics():
 
     def createBuffer(self, size):
         (width, height) = size
-        self._fbo_position = ((self._pacman.TILE_WIDTH * (width - 1) / 2.0), (self._pacman.TILE_HEIGHT * (height - 1) / 2.0))
+        self._fbo_position = (
+            (self._pacman.TILE_WIDTH * (width - 1) / 2.0),
+            (self._pacman.TILE_HEIGHT * (height - 1) / 2.0)
+        )
+
+        self._draw_offset = (
+            0.5 - (self._pacman.level.lvlWidth / 2.0),
+            1.5 - (self._pacman.level.lvlHeight / 2.0)
+        )
 
         self._fbo = FrameBuffer((width * self._pacman.TILE_WIDTH, height * self._pacman.TILE_HEIGHT))
         self._fbo.bindBuffer()
