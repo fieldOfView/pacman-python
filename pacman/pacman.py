@@ -35,8 +35,7 @@ from Ghost import Ghost
 from Fruit import Fruit
 
 # NO_GIF_TILES -- tile numbers which do not correspond to a GIF file
-# currently only "23" for the high-score list
-NO_GIF_TILES = [23]
+NO_GIF_TILES = [4, 10, 11, 12, 13, 20, 21, 22, 23, 500]
 
 # Joystick defaults - maybe add a Preferences dialog in the future?
 JS_DEVNUM = 0 # device 0 (pygame joysticks always start at 0). if JS_DEVNUM is not a valid device, will use 0
