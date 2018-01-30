@@ -38,9 +38,6 @@ from Fruit import Fruit
 # currently only "23" for the high-score list
 NO_GIF_TILES = [23]
 
-HS_XOFFSET = 48
-HS_YOFFSET = 384
-
 # Joystick defaults - maybe add a Preferences dialog in the future?
 JS_DEVNUM = 0 # device 0 (pygame joysticks always start at 0). if JS_DEVNUM is not a valid device, will use 0
 JS_XAXIS = 0 # axis 0 for left/right (default for most joysticks)
@@ -161,30 +158,12 @@ class Pacman():
 
                 if self.game.stateTimer == 60:
                     self.game.setState( Game.STATE_FLASH_LEVEL )
-                    oldEdgeLightColor = self.level.edgeLightColor
-                    oldEdgeShadowColor = self.level.edgeShadowColor
-                    oldFillColor = self.level.fillColor
 
             elif self.game.state == Game.STATE_FLASH_LEVEL:
                 # flashing maze after finishing level
                 self.game.stateTimer += 1
 
-                whiteSet = [10, 30, 50, 70]
-                normalSet = [20, 40, 60, 80]
-
-                if not whiteSet.count(self.game.stateTimer) == 0:
-                    # member of white set
-                    self.level.edgeLightColor = (255, 255, 255, 255)
-                    self.level.edgeShadowColor = (255, 255, 255, 255)
-                    self.level.fillColor = (0, 0, 0, 255)
-                    self.getCrossRef()
-                elif not normalSet.count(self.game.stateTimer) == 0:
-                    # member of normal set
-                    self.level.edgeLightColor = oldEdgeLightColor
-                    self.level.edgeShadowColor = oldEdgeShadowColor
-                    self.level.fillColor = oldFillColor
-                    self.getCrossRef()
-                elif self.game.stateTimer == 150:
+                if self.game.stateTimer == 150:
                     self.game.setState( Game.STATE_WAIT_LEVEL_SWITCH )
 
             elif self.game.state == Game.STATE_WAIT_LEVEL_SWITCH:
@@ -196,7 +175,14 @@ class Pacman():
             self.graphics.beginRenderBatch()
 
             if not self.game.state == Game.STATE_WAIT_LEVEL_SWITCH:
-                self.graphics.drawBuffer()
+                if self.game.state == Game.STATE_FLASH_LEVEL:
+                    # blink level
+                    if int(self.game.stateTimer / 10) % 2:
+                        pass
+                    else:
+                        self.graphics.drawBuffer()
+                else:
+                    self.graphics.drawBuffer()
                 self.level.drawMap(drawPellets = True)
 
                 if self.game.fruitScoreTimer > 0:
@@ -209,7 +195,9 @@ class Pacman():
                 self.player.draw()
 
                 if self.game.state == Game.STATE_GAME_OVER:
-                    self.graphics.draw(self.game.imHiscores,(HS_XOFFSET,HS_YOFFSET))
+                    position = self.graphics._fbo_position
+                    position = (position[0], position[1] + 10 * self.TILE_HEIGHT)
+                    self.graphics.draw(self.game.imHiscores, position, billboard = True)
 
             if self.game.state == Game.STATE_WAIT_ATE_GHOST:
                 self.game.drawNumber (self.game.ghostValue / 2, (self.player.x - 4, self.player.y + 6))
