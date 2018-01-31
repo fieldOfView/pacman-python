@@ -120,21 +120,15 @@ class Graphics():
             for (position, billboard) in data[surface]:
                 glPushMatrix()
 
-                matrix = self._identity()
-                # translate
-                matrix[3] = [
+                glTranslatef(
                     2 * ((position[0] / self._pacman.TILE_WIDTH) + self._draw_offset[0]) ,
                     2 * (1 - ((position[1] / self._pacman.TILE_HEIGHT) + self._draw_offset[1])),
-                    position[2] / self._pacman.TILE_HEIGHT if len(position) > 2 else 0,
-                    1
-                ]
+                    position[2] / self._pacman.TILE_HEIGHT if len(position) > 2 else 0
+                )
 
-                # scale
                 size = surface.get_size()
                 if size != (self._pacman.TILE_WIDTH, self._pacman.TILE_HEIGHT):
-                    (matrix[0][0], matrix[1][1]) = (size[0] / self._pacman.TILE_WIDTH, size[1] / self._pacman.TILE_HEIGHT)
-
-                glMultMatrixf(matrix)
+                    glScalef(size[0] / self._pacman.TILE_WIDTH, size[1] / self._pacman.TILE_HEIGHT, 1)
 
                 if billboard:
                     self._billboardDisplayList.execute()
@@ -194,14 +188,6 @@ class Graphics():
 
     def createList(self):
         return DisplayList()
-
-    def _identity(self):
-        return [
-            [ 1.,  0.,  0.,  0.],
-            [ 0.,  1.,  0.,  0.],
-            [ 0.,  0.,  1.,  0.],
-            [ 0.,  0.,  0.,  1.]
-        ]
 
 
 class FrameBuffer():
