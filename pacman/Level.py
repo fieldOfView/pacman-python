@@ -20,6 +20,7 @@ class Level():
 
         self._pellets = 0
         self._powerPelletBlinkTimer = 0
+        self._pelletsDisplayList = None
 
         self._pacman.sounds.register("pellet0", "pellet1.wav")
         self._pacman.sounds.register("pellet1", "pellet2.wav")
@@ -101,6 +102,8 @@ class Level():
 
                         self._pacman.game.addToScore(10)
 
+                        self._pelletsDisplayList = None
+
                         if self._pellets == 0:
                             # no more pellets left!
                             # WON THE LEVEL
@@ -115,6 +118,8 @@ class Level():
 
                         self._pacman.game.addToScore(100)
                         self._pacman.game.ghostValue = 200
+
+                        self._pelletsDisplayList = None
 
                         self._pacman.game.ghostTimer = 360
                         for i in range(0, 4, 1):
@@ -219,6 +224,10 @@ class Level():
 
         drawData = {}
 
+        if drawPellets and self._pelletsDisplayList:
+            self._pacman.graphics.drawMultiple([self._pelletsDisplayList])
+            return
+
         for row in range(0, self.lvlHeight, 1):
             outputLine = ""
             for col in range(0, self.lvlWidth, 1):
@@ -230,12 +239,9 @@ class Level():
                     surface = None
 
                     if drawPellets:
-                        if useTile == self._pacman.tileID['pellet-power']:
-                            if self._powerPelletBlinkTimer < 30:
-                                surface = self._pacman.tileIDImage[ useTile ]
-
-                        elif useTile == self._pacman.tileID['pellet']:
+                        if useTile in [self._pacman.tileID['pellet'], self._pacman.tileID['pellet-power']]:
                             surface = self._pacman.tileIDImage[ useTile ]
+
                     else:
                         if useTile in [self._pacman.tileID['showlogo'], self._pacman.tileID['hiscores']]:
                             surface = None
@@ -248,7 +254,15 @@ class Level():
                             drawData[surface] = []
                         drawData[surface].append((position, drawPellets))
 
-        self._pacman.graphics.drawMultiple(drawData)
+        if drawPellets:
+            self._pelletsDisplayList = self._pacman.graphics.createList()
+            self._pelletsDisplayList.begin()
+
+        self._pacman.graphics.drawMultiple(drawData, immediate = True)
+
+        if drawPellets:
+            self._pelletsDisplayList.end()
+            self._pacman.graphics.drawMultiple([self._pelletsDisplayList])
 
     def loadLevel(self, levelNum):
         try:
@@ -262,6 +276,7 @@ class Level():
 
         self._map = {}
         self._pellets = 0
+        self._pelletsDisplayList = None
 
         lineNum=-1
         rowNum = 0

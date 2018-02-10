@@ -110,12 +110,17 @@ class Graphics():
     def draw(self, surface, position, billboard = False):
         self.drawMultiple({surface: [(position, billboard)]})
 
-    def drawMultiple(self, data):
-        if self._collectingBatch:
+    def drawMultiple(self, data, immediate = False):
+        if self._collectingBatch and not immediate:
             self.addToRenderBatch(data)
             return
 
-        for surface in data:
+        for item in data:
+            if type(item) == DisplayList:
+                item.execute()
+                return
+
+            surface = item
             surface.bindTexture()
             for (position, billboard) in data[surface]:
                 glPushMatrix()
