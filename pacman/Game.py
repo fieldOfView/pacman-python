@@ -15,7 +15,7 @@ HS_ALPHA = 200
 
 # new constants for the score's position
 SCORE_XOFFSET = 50 # pixels from left edge
-SCORE_YOFFSET = 34 # pixels from bottom edge (to top of score)
+SCORE_YOFFSET = 0 # pixels from bottom edge (to top of score)
 SCORE_COLWIDTH = 13 # width of each character
 
 NO_WX = 0 # if set, the high-score code will not attempt to ask the user his name
@@ -58,91 +58,8 @@ class Game():
         self._imGameOver = self._pacman.graphics.loadImage("text","gameover.gif")
         self._imReady = self._pacman.graphics.loadImage("text","ready.gif")
 
-        self.imLogo = self._pacman.graphics.loadImage("text","logo.gif")
-        self.imHiscores = self.makeHiScoreList()
-
         self._pacman.sounds.register("extralife", "extralife.wav")
         self._pacman.sounds.register("start", "start.wav")
-
-    def defaultHiScoreList(self):
-            return [ (100000,"David") , (80000,"Andy") , (60000,"Count Pacula") , (40000,"Cleopacra") , (20000,"Brett Favre") , (10000,"Sergei Pachmaninoff") ]
-
-    def getHiScores(self):
-            """If res/hiscore.txt exists, read it. If not, return the default high scores.
-               Output is [ (score,name) , (score,name) , .. ]. Always 6 entries."""
-            try:
-              f=open(os.path.join(SCRIPT_PATH,"res","hiscore.txt"))
-              hs=[]
-              for line in f:
-                while len(line)>0 and (line[0]=="\n" or line[0]=="\r"): line=line[1:]
-                while len(line)>0 and (line[-1]=="\n" or line[-1]=="\r"): line=line[:-1]
-                score=int(line.split(" ")[0])
-                name=line.partition(" ")[2]
-                if score>99999999: score=99999999
-                if len(name)>22: name=name[:22]
-                hs.append((score,name))
-              f.close()
-              if len(hs)>6: hs=hs[:6]
-              while len(hs)<6: hs.append((0,""))
-              return hs
-            except IOError:
-              return self.defaultHiScorelist()
-
-    def writeHiScores(self,hs):
-            """Given a new list, write it to the default file."""
-            fname=os.path.join(SCRIPT_PATH,"res","hiscore.txt")
-            f=open(fname,"w")
-            for line in hs:
-              f.write(str(line[0])+" "+line[1]+"\n")
-            f.close()
-
-    def getPlayerName(self):
-            """Ask the player his name, to go on the high-score list."""
-            if NO_WX: return USER_NAME
-            try:
-              import wx
-            except:
-              print("Pacman Error: No module wx. Can not ask the user his name!")
-              print("     :(       Download wx from http://www.wxpython.org/")
-              print("     :(       To avoid seeing this error again, set NO_WX in file pacman.pyw.")
-              return USER_NAME
-            app=wx.App(None)
-            dlog=wx.TextEntryDialog(None,"You made the high-score list! Name:")
-            dlog.ShowModal()
-            name=dlog.getValue()
-            dlog.Destroy()
-            app.Destroy()
-            return name
-
-    def updateHiScores(self,newscore):
-            """Add newscore to the high score list, if appropriate."""
-            hs=self.getHiScores()
-            for line in hs:
-              if newscore>=line[0]:
-                hs.insert(hs.index(line),(newscore,self.getPlayerName()))
-                hs.pop(-1)
-                break
-            self.writeHiScores(hs)
-
-    def makeHiScoreList(self):
-            "Read the High-Score file and convert it to a useable Surface."
-            # My apologies for all the hard-coded constants.... -Andy
-            f=pygame.font.Font(os.path.join(SCRIPT_PATH,"res","VeraMoBd.ttf"),HS_FONT_SIZE)
-            scoresurf=pygame.Surface((HS_WIDTH,HS_HEIGHT),pygame.SRCALPHA)
-            scoresurf.set_alpha(HS_ALPHA)
-            linesurf=f.render(" "*18+"HIGH SCORES",1,(255,255,0))
-            scoresurf.blit(linesurf,(0,0))
-            hs=self.getHiScores()
-            vpos=0
-            for line in hs:
-              vpos+=HS_LINE_HEIGHT
-              linesurf=f.render(line[1].rjust(22)+str(line[0]).rjust(9),1,(255,255,255))
-              scoresurf.blit(linesurf,(0,vpos))
-            return self._pacman.graphics.createImage(scoresurf)
-
-    def drawMidGameHiScores(self):
-            """Redraw the high-score list image after pacman dies."""
-            self.imHiscores = self.makeHiScoreList()
 
     def startNewGame(self):
         self._levelNum = 1
@@ -165,12 +82,11 @@ class Game():
 
 
     def drawScore(self):
-        self.drawNumber (self.score, (SCORE_XOFFSET, self._pacman.graphics.screenSize[1] - SCORE_YOFFSET) )
+        y = self._pacman.level.lvlHeight * self._pacman.TILE_HEIGHT + SCORE_YOFFSET
+        self.drawNumber (self.score, (SCORE_XOFFSET, y) )
 
         for i in range(0, self.lives, 1):
-            self._pacman.graphics.draw (self._imLife, (34 + i * 10 + 16, self._pacman.graphics.screenSize[1] - 18) )
-
-        self._pacman.graphics.draw (self._pacman.fruit.imFruit[ self._pacman.fruit.fruitType ], (4 + 16, self._pacman.graphics.screenSize[1] - 28) )
+            self._pacman.graphics.draw (self._imLife, (SCORE_XOFFSET + 80 + i * 10 + 16, y) )
 
         if self.state == self.STATE_GAME_OVER:
             self._pacman.graphics.draw (self._imGameOver, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2), billboard = True )

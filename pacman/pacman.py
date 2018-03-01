@@ -126,9 +126,7 @@ class Pacman():
 
                     self.game.lives -= 1
                     if self.game.lives == -1:
-                        self.game.updateHiScores(self.game.score)
                         self.game.setState( Game.STATE_GAME_OVER )
-                        self.game.drawMidGameHiScores()
                     else:
                         self.game.setState( Game.STATE_WAIT_START )
 
@@ -194,11 +192,8 @@ class Pacman():
                 self.player.draw()
 
                 if self.game.state == Game.STATE_GAME_OVER:
-                    position = list(self.graphics._fbo_position)
-                    position[1] -=  5 * self.TILE_HEIGHT
-                    self.graphics.draw(self.game.imLogo, tuple(position), billboard = True)
-                    position[1] +=  15 * self.TILE_HEIGHT
-                    self.graphics.draw(self.game.imHiscores, tuple(position), billboard = True)
+                    #TODO: gameover/hiscore drawing
+                    pass
 
             if self.game.state == Game.STATE_WAIT_ATE_GHOST:
                 self.game.drawNumber (self.game.ghostValue / 2, (self.player.x - 4, self.player.y + 6))
