@@ -184,7 +184,7 @@ class Pacman():
 
                 if self.game.fruitScoreTimer > 0:
                     if self.game.stateTimer % 2 == 0:
-                        self.game.drawNumber (2500, (self.fruit.x - 16, self.fruit.y + 4))
+                        self.game.drawNumber (10, (self.fruit.x - 16, self.fruit.y + 4))
 
                 for i in range(0, 4, 1):
                     self.ghosts[i].draw()

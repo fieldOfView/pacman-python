@@ -71,7 +71,7 @@ class Game():
         self._pacman.sounds.play("start")
 
     def addToScore(self, amount):
-        extraLifeSet = [25000, 50000, 100000, 150000]
+        extraLifeSet = [500, 1000, 2000, 4000]
 
         for specialScore in extraLifeSet:
             if self.score < specialScore and self.score + amount >= specialScore:

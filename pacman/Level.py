@@ -100,7 +100,7 @@ class Level():
 
                         self._pellets -= 1
 
-                        self._pacman.game.addToScore(10)
+                        self._pacman.game.addToScore(1)
 
                         self._pelletsDisplayList = None
 
@@ -116,8 +116,8 @@ class Level():
                         self._pacman.sounds.stop()
                         self._pacman.sounds.play("powerpellet")
 
-                        self._pacman.game.addToScore(100)
-                        self._pacman.game.ghostValue = 200
+                        self._pacman.game.addToScore(2)
+                        self._pacman.game.ghostValue = 5
 
                         self._pelletsDisplayList = None
 

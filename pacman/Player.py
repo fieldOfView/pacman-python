@@ -88,7 +88,7 @@ class Player():
             # check for collisions with the fruit
             if self._pacman.fruit.active == True:
                 if self._pacman.level.checkIfHit( (self.x, self.y), (self._pacman.fruit.x, self._pacman.fruit.y), self._pacman.TILE_WIDTH/2):
-                    self._pacman.game.addToScore(2500)
+                    self._pacman.game.addToScore(10)
                     self._pacman.fruit.active = False
                     self._pacman.game.fruitTimer = 0
                     self._pacman.game.fruitScoreTimer = 120
