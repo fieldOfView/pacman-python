@@ -9,7 +9,7 @@ GHOST_COLORS = [
     (255, 128, 255, 255),
     (128, 255, 255, 255),
     (255, 128, 0, 255),
-    (50, 50, 255, 255), # blue, vulnerable ghost
+    (140, 140, 255, 255), # blue, vulnerable ghost
     (255, 255, 255, 255) # white, flashing ghost
 ]
 
@@ -24,7 +24,7 @@ class Ghost():
         self.y = 0
         self._velX = 0
         self._velY = 0
-        self._speed = 1
+        self._speed = 2
 
         self.nearestRow = 0
         self.nearestCol = 0
