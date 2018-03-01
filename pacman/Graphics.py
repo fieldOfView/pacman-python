@@ -28,7 +28,7 @@ class Graphics():
 
     def initDisplay(self):
         (width, height) = self.screenSize
-        pygame.display.set_mode( (width, height), pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.RESIZABLE | pygame.OPENGL )
+        pygame.display.set_mode( (width, height), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.RESIZABLE | pygame.OPENGL )
 
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
@@ -48,7 +48,7 @@ class Graphics():
 
         self._billboardDisplayList = DisplayList()
         self._billboardDisplayList.begin()
-        glRotatef(45, 1, 0, 0)
+        glRotatef(60, 1, 0, 0)
         glTranslatef(0, 0.5, 0)
         self._billboardDisplayList.end()
 
@@ -56,8 +56,8 @@ class Graphics():
         x = ((self._pacman.player.x / self._pacman.TILE_WIDTH) - (self._pacman.level.lvlWidth / 2)) / 2
         glLoadIdentity()
         gluLookAt(
-            x, -35, 25,
-            0, 0, -10,
+            x, -45, 15,
+            0, 0, -5,
             0, 1, 0
         )
 
@@ -75,14 +75,14 @@ class Graphics():
             # cyan
             #glTranslate(-2.0, 0., 0.)
             proj[2][0] = -.05
-            proj[3][0] = -2.0
-            glColorMask(GL_FALSE,GL_TRUE,GL_TRUE,GL_TRUE)
+            proj[3][0] = -3
+            glColorMask(GL_TRUE,GL_FALSE,GL_FALSE,GL_TRUE)
         else:
             # red
             #glTranslate(2.0, 0., 0.)
             proj[2][0] = .05
-            proj[3][0] = 2.0
-            glColorMask(GL_TRUE,GL_FALSE,GL_FALSE,GL_TRUE)
+            proj[3][0] = 3
+            glColorMask(GL_FALSE,GL_TRUE,GL_TRUE,GL_TRUE)
 
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
