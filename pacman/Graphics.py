@@ -28,7 +28,13 @@ class Graphics():
 
     def initDisplay(self):
         (width, height) = self.screenSize
-        pygame.display.set_mode( (width, height), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.RESIZABLE | pygame.OPENGL )
+        flags = pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.RESIZABLE | pygame.OPENGL
+        try:
+            if os.uname().machine == "armv7l":
+                flags |= pygame.FULLSCREEN
+        except:
+            pass
+        pygame.display.set_mode( (width, height), flags )
 
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
