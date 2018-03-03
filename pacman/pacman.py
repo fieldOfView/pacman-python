@@ -244,12 +244,21 @@ class Pacman():
             self._clock.tick (60)
 
 
+    def self.exit():
+        if self.piface:
+            self.piface.relays[0].turn_off()
+            self.piface.relays[1].turn_off()
+
+        if self.multiplayer:
+            self.multiplayer.stop()
+
+        sys.exit(0)
+
+
     def checkIfCloseButton(self, events):
         for event in events:
             if event.type == QUIT:
-                if self.multiplayer:
-                    self.multiplayer.stop()
-                sys.exit(0)
+                self.exit()
 
     def checkResizeEvent(self, events):
         for event in events:
@@ -258,9 +267,7 @@ class Pacman():
 
     def checkInputs(self):
         if pygame.key.get_pressed()[ pygame.K_ESCAPE ]:
-            if self.multiplayer:
-                self.multiplayer.stop()
-            sys.exit(0)
+            self.exit()
 
         if self.game.state == Game.STATE_PLAYING:
             if pygame.key.get_pressed()[ pygame.K_RIGHT ] or (self._js != None and self._js.get_axis(JS_XAXIS) > 0) or (self.piface and self.piface.input_pins[0].value):
