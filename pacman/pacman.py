@@ -33,6 +33,7 @@ from Level import Level
 from Player import Player
 from Ghost import Ghost
 from Fruit import Fruit
+from Multiplayer import Multiplayer
 
 try:
     import pifacedigitalio
@@ -108,8 +109,15 @@ class Pacman():
         # initialise PiFace
         try:
             self._piface = pifacedigitalio.PiFaceDigital()
+            self.piID = self._piface.input_pins[5].value * 1 + self._piface.input_pins[6].value * 2 + self._piface.input_pins[7].value * 4
         except NameError:
             self._piface = None
+            self.piID = -1
+
+        # initialise Multiplayer/ZOCP
+        self.multiplayer = Multiplayer(self)
+        self.multiplayer.setup()
+
 
     def run(self):
         while True:
@@ -228,12 +236,15 @@ class Pacman():
 
             pygame.display.flip()
 
+            self.multiplayer.update()
             self._clock.tick (60)
 
 
     def checkIfCloseButton(self, events):
         for event in events:
             if event.type == QUIT:
+                if self.multiplayer:
+                    self.multiplayer.stop()
                 sys.exit(0)
 
     def checkResizeEvent(self, events):
@@ -243,6 +254,8 @@ class Pacman():
 
     def checkInputs(self):
         if pygame.key.get_pressed()[ pygame.K_ESCAPE ]:
+            if self.multiplayer:
+                self.multiplayer.stop()
             sys.exit(0)
 
         if self.game.state == Game.STATE_PLAYING:
