@@ -92,6 +92,7 @@ class Pacman():
         self.tileIDImage = {} # gives tile image (when the ID# is known)
 
         # create game and level objects and load first level
+        self.piface = None
         self.multiplayer = None
         self.game = Game(self)
         self.level = Level(self)
@@ -112,7 +113,6 @@ class Pacman():
             self.piface = pifacedigitalio.PiFaceDigital()
             self.piID = self.piface.input_pins[5].value * 1 + self.piface.input_pins[6].value * 2 + self.piface.input_pins[7].value * 4
         except NameError:
-            self.piface = None
             self.piID = -1
 
         # initialise Multiplayer/ZOCP
