@@ -8,6 +8,8 @@ from OpenGL.GLU import *
 from OpenGL.GL.ARB.framebuffer_object import *
 from OpenGL.GL.EXT.framebuffer_object import *
 
+NUMERIC_COLWIDTH = 13 # width of each character
+
 class Graphics():
 
     def __init__(self, pacman):
@@ -25,6 +27,10 @@ class Graphics():
         self._billboardDisplayList = None
 
         self.screenSize = (1280, 720)
+
+        # numerical display digits
+        self._digit = {}
+
 
     def initDisplay(self):
         (width, height) = self.screenSize
@@ -57,6 +63,11 @@ class Graphics():
         glRotatef(60, 1, 0, 0)
         glTranslatef(0, 0.5, 0)
         self._billboardDisplayList.end()
+
+        # numerical display digits
+        for i in range(0, 10, 1):
+            self._digit[i] = self.loadImage("text",str(i) + ".gif")
+
 
     def setView(self):
         x = ((self._pacman.player.x / self._pacman.TILE_WIDTH) - (self._pacman.level.lvlWidth / 2)) / 2
@@ -147,6 +158,14 @@ class Graphics():
                 self._quad.draw()
                 glPopMatrix()
             surface.unbindTexture()
+
+    def drawNumber(self, number, position):
+        (x, y) = position
+        strNumber = str(int(number))
+
+        for i in range(0, len(strNumber), 1):
+            iDigit = int(strNumber[i])
+            self.draw (self._digit[ iDigit ], (x + i * NUMERIC_COLWIDTH, y), billboard = True)
 
     def loadImage(self, dirname, filename):
         path = os.path.join(sys.path[0], "res", dirname, filename)

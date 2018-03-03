@@ -16,7 +16,6 @@ HS_ALPHA = 200
 # new constants for the score's position
 SCORE_XOFFSET = 50 # pixels from left edge
 SCORE_YOFFSET = 0 # pixels from bottom edge (to top of score)
-SCORE_COLWIDTH = 13 # width of each character
 
 NO_WX = 0 # if set, the high-score code will not attempt to ask the user his name
 USER_NAME = "User" # USER_NAME=os.getlogin() # the default user name if wx fails to load or NO_WX
@@ -53,10 +52,6 @@ class Game():
 
         self.setState( self.STATE_GAME_OVER )
 
-        # numerical display digits
-        self._digit = {}
-        for i in range(0, 10, 1):
-            self._digit[i] = self._pacman.graphics.loadImage("text",str(i) + ".gif")
         self._imLife = self._pacman.graphics.loadImage("text","life.gif")
         self._imGameOver = self._pacman.graphics.loadImage("text","gameover.gif")
         self._imReady = self._pacman.graphics.loadImage("text","ready.gif")
@@ -99,25 +94,18 @@ class Game():
 
     def drawScore(self):
         y = self._pacman.level.lvlHeight * self._pacman.TILE_HEIGHT + SCORE_YOFFSET
-        self.drawNumber (self.score, (SCORE_XOFFSET, y) )
+        self._pacman.graphics.drawNumber (self.score, (SCORE_XOFFSET, y) )
+        self._pacman.graphics.drawNumber (max(self.score, self.hiScore), (SCORE_XOFFSET + 360, y) )
 
         for i in range(0, self.lives, 1):
-            self._pacman.graphics.draw (self._imLife, (SCORE_XOFFSET + 80 + i * 10 + 16, y) )
+            self._pacman.graphics.draw (self._imLife, (SCORE_XOFFSET + 80 + i * 10 + 16, y), billboard = True)
 
         if self.state == self.STATE_GAME_OVER:
             self._pacman.graphics.draw (self._imGameOver, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2), billboard = True )
         elif self.state == self.STATE_WAIT_START:
             self._pacman.graphics.draw (self._imReady, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2), billboard = True )
 
-        self.drawNumber (self._levelNum, (0, self._pacman.graphics.screenSize[1] - 20) )
-
-    def drawNumber(self, number, position):
-        (x, y) = position
-        strNumber = str(int(number))
-
-        for i in range(0, len(strNumber), 1):
-            iDigit = int(strNumber[i])
-            self._pacman.graphics.draw (self._digit[ iDigit ], (x + i * SCORE_COLWIDTH, y) )
+        self._pacman.graphics.drawNumber (self._levelNum, (0, self._pacman.graphics.screenSize[1] - 20) )
 
 
     def getLevelNum(self):
