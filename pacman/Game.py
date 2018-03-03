@@ -1,7 +1,7 @@
 #      ______________________
 # ___/  score manager class  \_______________________________________________
 
-import pygame, sys, os
+import pygame, sys, os, math
 
 # WIN???
 SCRIPT_PATH = sys.path[0]
@@ -54,6 +54,7 @@ class Game():
 
         self._imLife = self._pacman.graphics.loadImage("text","life.gif")
         self._imGameOver = self._pacman.graphics.loadImage("text","gameover.gif")
+        self._imHiScore = self._pacman.graphics.loadImage("text","hiscore.gif")
         self._imReady = self._pacman.graphics.loadImage("text","ready.gif")
 
         self._pacman.sounds.register("extralife", "extralife.wav")
@@ -102,8 +103,10 @@ class Game():
 
         if self.state == self.STATE_GAME_OVER:
             self._pacman.graphics.draw (self._imGameOver, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2), billboard = True )
+        if self.state == self.STATE_WAIT_HI_SCORE:
+            self._pacman.graphics.draw (self._imHiScore, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2, 32 * math.sin(self.stateTimer / 10)), billboard = False )
         elif self.state == self.STATE_WAIT_START:
-            self._pacman.graphics.draw (self._imReady, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2), billboard = True )
+            self._pacman.graphics.draw (self._imReady, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2, 32 * math.sin(self.stateTimer / 5)), billboard = True )
 
         self._pacman.graphics.drawNumber (self._levelNum, (0, self._pacman.graphics.screenSize[1] - 20) )
 
