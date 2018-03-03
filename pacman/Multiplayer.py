@@ -2,24 +2,21 @@
 # ___/  Multiplayer manager class  \_______________________________________________
 
 from zocp import ZOCP
-import logging
 
 class Multiplayer(ZOCP):
 
     def __init__(self, pacman):
         self._pacman = pacman
-        super().__init__("pacman-%s" % id(self))
-
-        zl = logging.getLogger("zocp")
-        zl.setLevel(logging.DEBUG)
+        super().__init__("pacman#%s" % id(self))
 
         self._started = False
 
     def setup(self):
         self.register_int("pi id", self._pacman.piID, 're')
         self.register_int("state", 0, 're')
-        self.register_int("current score", 0, 're')
-        self.register_int("hi-score", 0, 'rwes')
+        self.register_int("score", 0, 're')
+        self.register_int("level", 0, 're')
+        self.register_int("hi-score", self._pacman.game.hiScore, 're')
 
         self.start()
 
@@ -33,8 +30,21 @@ class Multiplayer(ZOCP):
         self.emit_signal(key, value)
 
     def on_peer_enter(self, peer, name, *args, **kwargs):
-        pass
+        split_name = name.split("#",1)
+        if(split_name[0] == 'pacman'):
+            # Subscribe to all hi-score updates
+            self.signal_subscribe(self.uuid(), None, peer, "hi-score")
 
-    def on_modified(self, peer, name, data, *args, **kwargs):
-        pass
+    def on_peer_signaled(self, peer, name, data, *args, **kwargs):
+        if data[0] == "hi-score":
+            self._updateHiScore(data[1])
 
+    def on_peer_modified(self, peer, name, data, *args, **kwargs):
+        split_name = name.split("#",1)
+        if(split_name[0] == 'pacman') and "hi-score" in data and "value"  in data["hi-score"]:
+            self._updateHiScore(data["hi-score"]["value"])
+
+    def _updateHiScore(self, score):
+        if score > self._pacman.game.hiScore:
+            self._pacman.game.hiScore = score
+            self.emitValue("hi-score", score)

@@ -31,6 +31,7 @@ class Game():
     STATE_WAIT_LEVEL_CLEAR = 6   # wait after eating all pellets
     STATE_FLASH_LEVEL = 7        # flash level when complete
     STATE_WAIT_LEVEL_SWITCH = 8  # wait after finishing level
+    STATE_WAIT_HI_SCORE = 9      # wait after game over with new hi score
 
     def __init__(self, pacman):
         self._pacman = pacman
@@ -38,6 +39,8 @@ class Game():
         self._levelNum = 0
         self.score = 0
         self.lives = 3
+
+        self.hiScore = 100
 
         # game "state" variable
         self.state = self.STATE_GAME_OVER
@@ -70,6 +73,17 @@ class Game():
         self._pacman.level.loadLevel( self._levelNum )
         self._pacman.sounds.play("start")
 
+        self._pacman.multiplayer.emitValue("score", self.score)
+        self._pacman.multiplayer.emitValue("level", self._levelNum)
+
+    def gameOver(self):
+        if self.score > self.hiScore:
+            self.hiScore = self.score
+            self._pacman.multiplayer.emitValue("hi-score", self.hiScore)
+            self.setState( Game.STATE_WAIT_HI_SCORE )
+        else:
+            self.setState( Game.STATE_GAME_OVER )
+
     def addToScore(self, amount):
         extraLifeSet = [500, 1000, 2000, 4000]
 
@@ -79,6 +93,8 @@ class Game():
                 self.lives += 1
 
         self.score += amount
+
+        self._pacman.multiplayer.emitValue("score", self.score)
 
 
     def drawScore(self):
@@ -109,6 +125,7 @@ class Game():
 
     def setNextLevel(self):
         self._levelNum += 1
+        self._pacman.multiplayer.emitValue("level", self._levelNum)
 
         self.setState( self.STATE_WAIT_START )
         self._pacman.level.loadLevel( self._levelNum )
@@ -118,4 +135,6 @@ class Game():
     def setState(self, newState):
         self.state = newState
         self.stateTimer = 0
+        if self._pacman.multiplayer:
+            self._pacman.multiplayer.emitValue("state", self.state)
         # print " ***** GAME STATE IS NOW ***** " + str(newState)

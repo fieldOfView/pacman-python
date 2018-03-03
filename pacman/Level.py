@@ -269,7 +269,7 @@ class Level():
             f = open(os.path.join(sys.path[0], "res", "levels", str(levelNum) + ".txt"), 'r')
         except FileNotFoundError:
             # no more levels!
-            self._pacman.game.setState( Game.STATE_GAME_OVER )
+            self._pacman.game.gameOver()
             return
 
         self._map = {}

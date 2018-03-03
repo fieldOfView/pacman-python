@@ -92,6 +92,7 @@ class Pacman():
         self.tileIDImage = {} # gives tile image (when the ID# is known)
 
         # create game and level objects and load first level
+        self.multiplayer = None
         self.game = Game(self)
         self.level = Level(self)
 
@@ -145,13 +146,20 @@ class Pacman():
 
                     self.game.lives -= 1
                     if self.game.lives == -1:
-                        self.game.setState( Game.STATE_GAME_OVER )
+                        self.game.gameOver()
                     else:
                         self.game.setState( Game.STATE_WAIT_START )
 
             elif self.game.state == Game.STATE_GAME_OVER:
                 # game over
                 self.checkInputs()
+
+            elif self.game.state == Game.STATE_WAIT_HI_SCORE:
+                # game over with hi score
+                self.game.stateTimer += 1
+
+                if self.game.stateTimer == 360:
+                    self.game.setState( Game.STATE_GAME_OVER )
 
             elif self.game.state == Game.STATE_WAIT_START:
                 # waiting to start
@@ -209,10 +217,6 @@ class Pacman():
                     self.ghosts[i].draw()
                 self.fruit.draw()
                 self.player.draw()
-
-                if self.game.state == Game.STATE_GAME_OVER:
-                    #TODO: gameover/hiscore drawing
-                    pass
 
             if self.game.state == Game.STATE_WAIT_ATE_GHOST:
                 self.game.drawNumber (self.game.ghostValue / 2, (self.player.x - 4, self.player.y + 6))
