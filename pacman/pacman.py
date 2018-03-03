@@ -244,7 +244,7 @@ class Pacman():
             self._clock.tick (60)
 
 
-    def self.exit():
+    def exit(self):
         if self.piface:
             self.piface.relays[0].turn_off()
             self.piface.relays[1].turn_off()
