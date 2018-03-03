@@ -128,4 +128,15 @@ class Game():
         self.stateTimer = 0
         if self._pacman.multiplayer:
             self._pacman.multiplayer.emitValue("state", self.state)
+
+        if self._pacman.piface:
+            if self.state == STATE_PLAYING:
+                self._pacman.piface.relays[0].turn_on()
+            elif self.state == STATE_WAIT_HI_SCORE:
+                self._pacman.piface.relays[0].turn_off()
+                self._pacman.piface.relays[1].turn_on()
+            elif self.state == STATE_GAME_OVER:
+                self._pacman.piface.relays[0].turn_off()
+                self._pacman.piface.relays[1].turn_off()
+
         # print " ***** GAME STATE IS NOW ***** " + str(newState)

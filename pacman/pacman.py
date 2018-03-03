@@ -109,10 +109,10 @@ class Pacman():
 
         # initialise PiFace
         try:
-            self._piface = pifacedigitalio.PiFaceDigital()
-            self.piID = self._piface.input_pins[5].value * 1 + self._piface.input_pins[6].value * 2 + self._piface.input_pins[7].value * 4
+            self.piface = pifacedigitalio.PiFaceDigital()
+            self.piID = self.piface.input_pins[5].value * 1 + self.piface.input_pins[6].value * 2 + self.piface.input_pins[7].value * 4
         except NameError:
-            self._piface = None
+            self.piface = None
             self.piID = -1
 
         # initialise Multiplayer/ZOCP
@@ -263,28 +263,28 @@ class Pacman():
             sys.exit(0)
 
         if self.game.state == Game.STATE_PLAYING:
-            if pygame.key.get_pressed()[ pygame.K_RIGHT ] or (self._js != None and self._js.get_axis(JS_XAXIS) > 0) or (self._piface and self._piface.input_pins[0].value):
+            if pygame.key.get_pressed()[ pygame.K_RIGHT ] or (self._js != None and self._js.get_axis(JS_XAXIS) > 0) or (self.piface and self.piface.input_pins[0].value):
                 if not self.level.checkIfHitWall((self.player.x + self.player.speed, self.player.y), (self.player.nearestRow, self.player.nearestCol)):
                     self.player.velX = self.player.speed
                     self.player.velY = 0
 
-            elif pygame.key.get_pressed()[ pygame.K_LEFT ] or (self._js != None and self._js.get_axis(JS_XAXIS) < 0) or (self._piface and self._piface.input_pins[1].value):
+            elif pygame.key.get_pressed()[ pygame.K_LEFT ] or (self._js != None and self._js.get_axis(JS_XAXIS) < 0) or (self.piface and self.piface.input_pins[1].value):
                 if not self.level.checkIfHitWall((self.player.x - self.player.speed, self.player.y), (self.player.nearestRow, self.player.nearestCol)):
                     self.player.velX = -self.player.speed
                     self.player.velY = 0
 
-            elif pygame.key.get_pressed()[ pygame.K_DOWN ] or (self._js != None and self._js.get_axis(JS_YAXIS) > 0) or (self._piface and self._piface.input_pins[2].value):
+            elif pygame.key.get_pressed()[ pygame.K_DOWN ] or (self._js != None and self._js.get_axis(JS_YAXIS) > 0) or (self.piface and self.piface.input_pins[2].value):
                 if not self.level.checkIfHitWall((self.player.x, self.player.y + self.player.speed), (self.player.nearestRow, self.player.nearestCol)):
                     self.player.velX = 0
                     self.player.velY = self.player.speed
 
-            elif pygame.key.get_pressed()[ pygame.K_UP ] or (self._js != None and self._js.get_axis(JS_YAXIS) < 0) or (self._piface and self._piface.input_pins[3].value):
+            elif pygame.key.get_pressed()[ pygame.K_UP ] or (self._js != None and self._js.get_axis(JS_YAXIS) < 0) or (self.piface and self.piface.input_pins[3].value):
                 if not self.level.checkIfHitWall((self.player.x, self.player.y - self.player.speed), (self.player.nearestRow, self.player.nearestCol)):
                     self.player.velX = 0
                     self.player.velY = -self.player.speed
 
         elif self.game.state == Game.STATE_GAME_OVER:
-            if pygame.key.get_pressed()[ pygame.K_RETURN ] or (self._js != None and self._js.get_button(JS_STARTBUTTON)) or (self._piface and self._piface.input_pins[4].value):
+            if pygame.key.get_pressed()[ pygame.K_RETURN ] or (self._js != None and self._js.get_button(JS_STARTBUTTON)) or (self.piface and self.piface.input_pins[4].value):
                 self.game.startNewGame()
 
 
