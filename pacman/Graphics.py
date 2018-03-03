@@ -38,6 +38,7 @@ class Graphics():
         try:
             if os.uname().machine == "armv7l":
                 flags |= pygame.FULLSCREEN
+                pygame.mouse.set_visible(False)
         except:
             pass
         pygame.display.set_mode( (width, height), flags )
