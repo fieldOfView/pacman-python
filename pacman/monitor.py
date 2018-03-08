@@ -1,7 +1,14 @@
 #!/usr/bin/python3
 
+import pygame
+from pygame.locals import *
+
+import os
+import sys
+
 from zocp import ZOCP
 import socket
+
 import logging
 
 class PacmanMonitorNode(ZOCP):
@@ -10,11 +17,50 @@ class PacmanMonitorNode(ZOCP):
         super(PacmanMonitorNode, self).__init__(nodename)
         self.clients = {}
         self.hiScore = 15
+        self.closing = False
+
+        self.screenSize = (800,480)
+        self.initDisplay()
+
 
     def run(self):
         self.register_int("hi-score", self.hiScore, 're')
         self.start()
-        super(PacmanMonitorNode, self).run()
+        while True:
+            events = pygame.event.get()
+            self.checkIfCloseButton( events )
+            self.checkInputs()
+
+            self.run_once(0)
+
+            if self.closing:
+                break
+
+    def exit(self):
+        self.stop()
+        self.closing = True
+
+    def initDisplay(self):
+        (width, height) = self.screenSize
+        flags = pygame.DOUBLEBUF | pygame.HWSURFACE | pygame.RESIZABLE
+        try:
+            if os.uname().machine == "armv7l":
+                flags |= pygame.FULLSCREEN
+                pygame.mouse.set_visible(False)
+        except:
+            pass
+        pygame.display.set_mode( (width, height), flags )
+
+    def checkIfCloseButton(self, events):
+        for event in events:
+            if event.type == QUIT:
+                self.exit()
+
+    def checkInputs(self):
+        if pygame.key.get_pressed()[ pygame.K_ESCAPE ]:
+            self.exit()
+
+
 
     def on_peer_enter(self, peer, name, *args, **kwargs):
         split_name = name.split("#",1)
@@ -48,6 +94,7 @@ class PacmanMonitorNode(ZOCP):
             self.emit_signal("hi-score", self.hiScore)
 
         print(self.clients)
+
 
 if __name__ == '__main__':
     zl = logging.getLogger("zocp")
