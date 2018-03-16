@@ -17,13 +17,13 @@ class PacmanMonitorNode(ZOCP):
         (64, 64, 64),
         (0, 255, 0),      # STATE_PLAYING             # normal
         (255, 128, 0),    # STATE_HIT_GHOST           # hit ghost
-        (0, 0, 255),      # STATE_GAME_OVER           # game over
+        (0, 128, 255),      # STATE_GAME_OVER         # game over
         (0, 128, 0),      # STATE_WAIT_START          # wait to start
         (0, 128, 128),    # STATE_WAIT_ATE_GHOST      # wait after eating ghost
         (0, 255, 128),    # STATE_WAIT_LEVEL_CLEAR    # wait after eating all pellets
         (0, 255, 128),    # STATE_FLASH_LEVEL         # flash level when complete
         (0, 255, 128),    # STATE_WAIT_LEVEL_SWITCH   # wait after finishing level
-        (0, 255, 255),    # STATE_WAIT_HI_SCORE       # wait after game over with new hi score
+        (255, 255, 0),    # STATE_WAIT_HI_SCORE       # wait after game over with new hi score
     ]
 
 
@@ -40,6 +40,11 @@ class PacmanMonitorNode(ZOCP):
         self.initDisplay()
         pygame.display.set_caption("Pacman monitor")
 
+        pygame.font.init()
+        self.default_font = pygame.font.Font(os.path.join(sys.path[0],"res", "fonts", "VeraMoBd.ttf"), 18)
+        self.huge_font = pygame.font.Font(os.path.join(sys.path[0],"res", "fonts", "VeraMoBd.ttf"), 96)
+        self.small_font = pygame.font.Font(os.path.join(sys.path[0],"res", "fonts", "VeraMoBd.ttf"), 12)
+
     def run(self):
         self.register_int("hi-score", self.hiScore, 're')
         self.start()
@@ -49,13 +54,14 @@ class PacmanMonitorNode(ZOCP):
             self.checkInputs()
 
             self.run_once(0)
-            self.draw()
 
             if self.closing:
                 break
+            self.draw()
+        pygame.quit()
+        self.stop()
 
     def exit(self):
-        self.stop()
         self.closing = True
 
     def initDisplay(self):
@@ -82,11 +88,29 @@ class PacmanMonitorNode(ZOCP):
                 client = self.clients[list(self.clients)[i]]
                 if "state" in client:
                     color = self.STATE_COLORS[client["state"]]
-            pygame.draw.rect(self.screen, color, (x,0, cellSize, cellSize))
+                pygame.draw.rect(self.screen, color, (x,0, cellSize, cellSize))
+                self.drawText((x + cellSize * 0.65, cellSize * 0.5), self.huge_font, (0,0,0), str(client.get("pi id", -1) + 1) )
+                self.drawText((x + 10, 10), self.default_font, (0,0,0),  "Score: " + str(client.get("score", 0)) )
+                self.drawText((x + 10, 36), self.default_font, (0,0,0),  "Level: " + str(client.get("level", 0)) )
+                self.drawText((x + 10, 62), self.default_font, (0,0,0),  "Lives: " + str(client.get("lives", 0)) )
+                self.drawText((x + 10, cellSize * 0.9), self.small_font, (0,0,0),  client.get("version", "?"))
+            else:
+                pygame.draw.rect(self.screen, color, (x,0, cellSize, cellSize))
 
         # draw highscore
+        color = self.STATE_COLORS[0]
+        y = cellSize * 1.2
+        if self.hiScoreClientId != -1:
+            color = self.STATE_WAIT_HI_SCORE
+        pygame.draw.rect(self.screen, color, (0, y, self.screenSize[0], cellSize))
+        self.drawText((30, y + cellSize * 0.25), self.huge_font, (0,0,0), str(self.hiScore) )
+        self.drawText((self.screenSize[0] * 0.85, y + cellSize * 0.25), self.huge_font, (0,0,0), str(self.hiScoreClientId + 1) if self.hiScoreClientId != -1 else "?" )
 
         pygame.display.update()
+
+    def drawText(self, position, font, color, text):
+        text_surface = font.render(text, True, color)
+        self.screen.blit(text_surface, position)
 
     def checkIfCloseButton(self, events):
         for event in events:
@@ -97,7 +121,8 @@ class PacmanMonitorNode(ZOCP):
         if pygame.key.get_pressed()[ pygame.K_ESCAPE ]:
             self.exit()
 
-
+    def sortClients(self):
+        self.clients = OrderedDict(sorted(self.clients.items(), key = lambda c: (c[1].get("id", sys.maxsize), c[0]) ))
 
     def on_peer_enter(self, peer, name, *args, **kwargs):
         split_name = name.split("#",1)
@@ -114,7 +139,10 @@ class PacmanMonitorNode(ZOCP):
     def on_peer_modified(self, peer, name, data, *args, **kwargs):
         split_name = name.split("#",1)
         if(split_name[0] == 'pacman'):
-            client = {}
+            if peer.hex in self.clients:
+                client = self.clients[peer.hex]
+            else:
+                client = {}
             for key in data:
                 if "value" in data[key]:
                     client[key] = data[key]["value"]
@@ -124,19 +152,11 @@ class PacmanMonitorNode(ZOCP):
             self.clients[peer.hex] = client
             self.sortClients()
 
-            print(self.clients)
-
     def on_peer_signaled(self, peer, name, data, *args, **kwargs):
         self.clients[peer.hex][data[0]] = data[1]
         if data[0] == "hi-score" and data[1] > self.hiScore:
             self.hiScore = data[1]
             self.emit_signal("hi-score", self.hiScore)
-
-        print(self.clients)
-
-    def sortClients(self):
-        self.clients = OrderedDict(sorted(self.clients.items(), key = lambda c: (c[1].get("id", sys.maxsize), c[0]) ))
-
 
 if __name__ == '__main__':
     zl = logging.getLogger("zocp")
