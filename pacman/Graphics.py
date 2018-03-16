@@ -28,6 +28,8 @@ class Graphics():
 
         self.screenSize = (1280, 720)
 
+        self._view_x = 0
+
         # numerical display digits
         self._digit = {}
 
@@ -72,9 +74,10 @@ class Graphics():
 
     def setView(self):
         x = ((self._pacman.player.x / self._pacman.TILE_WIDTH) - (self._pacman.level.lvlWidth / 2)) / 2
+        self._view_x = self._view_x + 0.1 * (x - self._view_x)
         glLoadIdentity()
         gluLookAt(
-            x, -45, 15,
+            self._view_x, -45, 15,
             0, 0, -5,
             0, 1, 0
         )
