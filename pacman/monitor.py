@@ -50,6 +50,8 @@ class PacmanMonitorNode(ZOCP):
         self.huge_font = pygame.font.Font(os.path.join(sys.path[0],"res", "fonts", "VeraMoBd.ttf"), 96)
         self.small_font = pygame.font.Font(os.path.join(sys.path[0],"res", "fonts", "VeraMoBd.ttf"), 12)
 
+        pygame.mouse.set_visible(False)
+
     def run(self):
         self.register_int("hi-score", self.hiScore, 're')
         self.start()
@@ -75,7 +77,6 @@ class PacmanMonitorNode(ZOCP):
         try:
             if os.uname().machine == "armv7l":
                 flags |= pygame.FULLSCREEN
-                pygame.mouse.set_visible(False)
         except:
             pass
         self.screen = pygame.display.set_mode( (width, height), flags )
