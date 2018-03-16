@@ -12,10 +12,12 @@ class Multiplayer(ZOCP):
         self._started = False
 
     def setup(self):
-        self.register_int("pi id", self._pacman.piID, 're')
+        self.register_int("version", self._pacman.version, 'r')
+        self.register_int("pi id", self._pacman.piID, 'r')
         self.register_int("state", 0, 're')
         self.register_int("score", 0, 're')
         self.register_int("level", 0, 're')
+        self.register_int("lives", 0, 're')
         self.register_int("hi-score", self._pacman.game.hiScore, 're')
 
         self.start()

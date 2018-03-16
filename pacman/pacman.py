@@ -62,6 +62,10 @@ class Pacman():
     TILE_WIDTH = TILE_HEIGHT = 24
 
     def __init__(self):
+        self.version = "0.0.0"
+        with open(os.path.join(sys.path[0], "res","version.txt")) as f:
+            self.version = f.read()
+
         # Must come before pygame.init()
         self.sounds = Sounds()
 
