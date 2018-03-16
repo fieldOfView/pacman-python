@@ -37,7 +37,7 @@ class Game():
 
         self._levelNum = 0
         self.score = 0
-        self.lives = 3
+        self.setLives(3)
 
         self.hiScore = 100
 
@@ -63,7 +63,7 @@ class Game():
     def startNewGame(self):
         self._levelNum = 1
         self.score = 0
-        self.lives = 3
+        self.setLives(3)
 
         self.setState( self.STATE_WAIT_START )
         self._pacman.level.loadLevel( self._levelNum )
@@ -80,18 +80,29 @@ class Game():
         else:
             self.setState( Game.STATE_GAME_OVER )
 
+    def setLives(self, lives):
+        self.lives = lives
+
+        if self.lives == -1:
+            self.gameOver()
+        else:
+            self.setState( Game.STATE_WAIT_START )
+
+        if self._pacman.multiplayer:
+            self._pacman.multiplayer.emitValue("lives", self.lives)
+
+
     def addToScore(self, amount):
         extraLifeSet = [500, 1000, 2000, 4000]
 
         for specialScore in extraLifeSet:
             if self.score < specialScore and self.score + amount >= specialScore:
                 self._pacman.sounds.play("extralife")
-                self.lives += 1
+                self.setLives(self.lives + 1)
 
         self.score += amount
 
         self._pacman.multiplayer.emitValue("score", self.score)
-
 
     def drawScore(self):
         y = self._pacman.level.lvlHeight * self._pacman.TILE_HEIGHT + SCORE_YOFFSET

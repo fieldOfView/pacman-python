@@ -147,12 +147,7 @@ class Pacman():
 
                 if self.game.stateTimer == 90:
                     self.level.restart()
-
-                    self.game.lives -= 1
-                    if self.game.lives == -1:
-                        self.game.gameOver()
-                    else:
-                        self.game.setState( Game.STATE_WAIT_START )
+                    self.game.setLives(self.game.lives - 1)
 
             elif self.game.state == Game.STATE_GAME_OVER:
                 # game over
