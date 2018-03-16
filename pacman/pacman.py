@@ -63,7 +63,7 @@ class Pacman():
 
     def __init__(self):
         self.version = "0.0.0"
-        with open(os.path.join(sys.path[0], "res","version.txt")) as f:
+        with open(os.path.join(sys.path[0], "res", "version.txt")) as f:
             self.version = f.read()
 
         # Must come before pygame.init()

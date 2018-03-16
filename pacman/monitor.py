@@ -30,6 +30,11 @@ class PacmanMonitorNode(ZOCP):
     # Constructor
     def __init__(self, nodename):
         super(PacmanMonitorNode, self).__init__(nodename)
+
+        self.version = "0.0.0"
+        with open(os.path.join(sys.path[0], "res", "version.txt")) as f:
+            self.version = f.read()
+
         self.clients = OrderedDict()
         self.hiScore = 15
         self.hiScoreClientId = -1
@@ -105,6 +110,8 @@ class PacmanMonitorNode(ZOCP):
         pygame.draw.rect(self.screen, color, (0, y, self.screenSize[0], cellSize))
         self.drawText((30, y + cellSize * 0.25), self.huge_font, (0,0,0), str(self.hiScore) )
         self.drawText((self.screenSize[0] * 0.85, y + cellSize * 0.25), self.huge_font, (0,0,0), str(self.hiScoreClientId + 1) if self.hiScoreClientId != -1 else "?" )
+
+        self.drawText((10, cellSize * 2.1), self.small_font, (0,0,0),  self.version)
 
         pygame.display.update()
 
