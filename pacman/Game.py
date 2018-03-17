@@ -59,6 +59,7 @@ class Game():
 
         self._pacman.sounds.register("extralife", "extralife.wav")
         self._pacman.sounds.register("start", "start.wav")
+        self._pacman.sounds.register("hiscore", "hiscore.wav")
 
     def startNewGame(self):
         self._levelNum = 1
@@ -77,6 +78,7 @@ class Game():
             self.hiScore = self.score
             self._pacman.multiplayer.emitValue("hi-score", self.hiScore)
             self.setState( Game.STATE_WAIT_HI_SCORE )
+            self._pacman.sounds.play("hiscore")
         else:
             self.setState( Game.STATE_GAME_OVER )
 
@@ -90,7 +92,6 @@ class Game():
 
         if self._pacman.multiplayer:
             self._pacman.multiplayer.emitValue("lives", self.lives)
-
 
     def addToScore(self, amount):
         extraLifeSet = [500, 1000, 2000, 4000]

@@ -46,7 +46,7 @@ class PacmanMonitorNode(ZOCP):
             self.version = f.read()
 
         self.clients = OrderedDict()
-        self.hiScore = 15
+        self.hiScore = 0
         self.hiScorePeer = None
         self.closing = False
 
@@ -61,6 +61,10 @@ class PacmanMonitorNode(ZOCP):
         self.small_font = pygame.font.Font(os.path.join(sys.path[0],"res", "fonts", "VeraMoBd.ttf"), 12)
 
         pygame.mouse.set_visible(False)
+
+        pygame.mixer.pre_init(22050, 16, 2, 512)
+        pygame.mixer.init()
+        self.hiScoreSound = pygame.mixer.Sound(os.path.join(sys.path[0], "res", "sounds", "hiscore.wav"))
 
     def run(self):
         self.register_int("hi-score", self.hiScore, 're')
@@ -181,6 +185,7 @@ class PacmanMonitorNode(ZOCP):
         if data[0] == "state" and data[1] == self.STATE_WAIT_HI_SCORE and self.clients[peer.hex].get("state", 0) != self.STATE_WAIT_HI_SCORE:
             # peer went into STATE_WAIT_HI_SCORE state
             self.hiScorePeer = peer.hex
+            self.hiScoreSound.play()
 
         self.clients[peer.hex][data[0]] = data[1]
         if data[0] == "hi-score" and data[1] > self.hiScore:
