@@ -13,7 +13,7 @@ class Multiplayer(ZOCP):
 
     def setup(self):
         self.register_int("version", self._pacman.version, 'r')
-        self.register_int("pi id", self._pacman.piID, 'r')
+        self.register_int("pi id", self._pacman.piID + 1, 'r')
         self.register_int("state", 0, 're')
         self.register_int("score", 0, 're')
         self.register_int("level", 0, 're')
