@@ -13,11 +13,21 @@ import socket
 import logging
 
 class PacmanMonitorNode(ZOCP):
+    STATE_PLAYING = 1            # normal
+    STATE_HIT_GHOST = 2          # hit ghost
+    STATE_GAME_OVER = 3          # game over
+    STATE_WAIT_START = 4         # wait to start
+    STATE_WAIT_ATE_GHOST = 5     # wait after eating ghost
+    STATE_WAIT_LEVEL_CLEAR = 6   # wait after eating all pellets
+    STATE_FLASH_LEVEL = 7        # flash level when complete
+    STATE_WAIT_LEVEL_SWITCH = 8  # wait after finishing level
+    STATE_WAIT_HI_SCORE = 9      # wait after game over with new hi score
+
     STATE_COLORS = [
         (64, 64, 64),
         (0, 255, 0),      # STATE_PLAYING             # normal
         (255, 128, 0),    # STATE_HIT_GHOST           # hit ghost
-        (0, 128, 255),      # STATE_GAME_OVER         # game over
+        (0, 128, 255),    # STATE_GAME_OVER           # game over
         (0, 128, 0),      # STATE_WAIT_START          # wait to start
         (0, 128, 128),    # STATE_WAIT_ATE_GHOST      # wait after eating ghost
         (0, 255, 128),    # STATE_WAIT_LEVEL_CLEAR    # wait after eating all pellets
@@ -37,7 +47,7 @@ class PacmanMonitorNode(ZOCP):
 
         self.clients = OrderedDict()
         self.hiScore = 15
-        self.hiScoreClientId = -1
+        self.hiScorePeer = None
         self.closing = False
 
         self.screenSize = (800,480)
@@ -95,7 +105,7 @@ class PacmanMonitorNode(ZOCP):
                 if "state" in client:
                     color = self.STATE_COLORS[client["state"]]
                 pygame.draw.rect(self.screen, color, (x,0, cellSize, cellSize))
-                self.drawText((x + cellSize * 0.65, cellSize * 0.5), self.huge_font, (0,0,0), str(client.get("pi id", -1) + 1) )
+                self.drawText((x + cellSize * 0.65, cellSize * 0.5), self.huge_font, (0,0,0), str(client.get("pi id", -1)) )
                 self.drawText((x + 10, 10), self.default_font, (0,0,0),  "Score: " + str(client.get("score", 0)) )
                 self.drawText((x + 10, 36), self.default_font, (0,0,0),  "Level: " + str(client.get("level", 0)) )
                 self.drawText((x + 10, 62), self.default_font, (0,0,0),  "Lives: " + str(client.get("lives", 0)) )
@@ -105,12 +115,18 @@ class PacmanMonitorNode(ZOCP):
 
         # draw highscore
         color = self.STATE_COLORS[0]
+        hiScoreClientId = -1
+        if self.hiScorePeer != None:
+            if self.hiScorePeer in self.clients:
+                hiScoreClientId = self.clients[self.hiScorePeer].get("pi id", -1)
+                if self.clients[self.hiScorePeer]["state"] == self.STATE_WAIT_HI_SCORE:
+                    color = self.STATE_COLORS[self.STATE_WAIT_HI_SCORE]
+                else:
+                    color = self.STATE_COLORS[self.STATE_GAME_OVER]
         y = cellSize * 1.2
-        if self.hiScoreClientId != -1:
-            color = self.STATE_WAIT_HI_SCORE
         pygame.draw.rect(self.screen, color, (0, y, self.screenSize[0], cellSize))
         self.drawText((30, y + cellSize * 0.25), self.huge_font, (0,0,0), str(self.hiScore) )
-        self.drawText((self.screenSize[0] * 0.85, y + cellSize * 0.25), self.huge_font, (0,0,0), str(self.hiScoreClientId + 1) if self.hiScoreClientId != -1 else "?" )
+        self.drawText((self.screenSize[0] * 0.85, y + cellSize * 0.25), self.huge_font, (0,0,0), str(hiScoreClientId) if hiScoreClientId != -1 else "?" )
 
         self.drawText((10, cellSize * 2.1), self.small_font, (0,0,0),  self.version)
 
@@ -155,14 +171,20 @@ class PacmanMonitorNode(ZOCP):
                 if "value" in data[key]:
                     client[key] = data[key]["value"]
             if "hi-score" in client and client["hi-score"] > self.hiScore:
+                # peer knows of a higher hiscore, but it may not be its own
                 self.hiScore = client["hi-score"]
                 self.emit_signal("hi-score", self.hiScore)
             self.clients[peer.hex] = client
             self.sortClients()
 
     def on_peer_signaled(self, peer, name, data, *args, **kwargs):
+        if data[0] == "state" and data[1] == self.STATE_WAIT_HI_SCORE and self.clients[peer.hex].get("state", 0) != self.STATE_WAIT_HI_SCORE:
+            # peer went into STATE_WAIT_HI_SCORE state
+            self.hiScorePeer = peer.hex
+
         self.clients[peer.hex][data[0]] = data[1]
         if data[0] == "hi-score" and data[1] > self.hiScore:
+            # peer knows of a higher hiscore, but it may not be its own
             self.hiScore = data[1]
             self.emit_signal("hi-score", self.hiScore)
 
