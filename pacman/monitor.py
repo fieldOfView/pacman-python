@@ -22,6 +22,7 @@ class PacmanMonitorNode(ZOCP):
     STATE_FLASH_LEVEL = 7        # flash level when complete
     STATE_WAIT_LEVEL_SWITCH = 8  # wait after finishing level
     STATE_WAIT_HI_SCORE = 9      # wait after game over with new hi score
+    STATE_WAIT_GAME_OVER = 10    # wait after game over without hi score
 
     STATE_COLORS = [
         (64, 64, 64),
@@ -34,6 +35,7 @@ class PacmanMonitorNode(ZOCP):
         (0, 255, 128),    # STATE_FLASH_LEVEL         # flash level when complete
         (0, 255, 128),    # STATE_WAIT_LEVEL_SWITCH   # wait after finishing level
         (255, 255, 0),    # STATE_WAIT_HI_SCORE       # wait after game over with new hi score
+        (255, 64, 64)     # STATE_WAIT_GAME_OVER      # wait after game over without hi score
     ]
 
 

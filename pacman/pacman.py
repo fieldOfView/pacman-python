@@ -153,6 +153,13 @@ class Pacman():
                 # game over
                 self.checkInputs()
 
+            elif self.game.state == Game.STATE_WAIT_GAME_OVER:
+                # game over without hi score
+                self.game.stateTimer += 1
+
+                if self.game.stateTimer == 720:
+                    self.game.setState( Game.STATE_GAME_OVER )
+
             elif self.game.state == Game.STATE_WAIT_HI_SCORE:
                 # game over with hi score
                 self.game.stateTimer += 1

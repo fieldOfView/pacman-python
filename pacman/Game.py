@@ -19,6 +19,7 @@ class Game():
     STATE_FLASH_LEVEL = 7        # flash level when complete
     STATE_WAIT_LEVEL_SWITCH = 8  # wait after finishing level
     STATE_WAIT_HI_SCORE = 9      # wait after game over with new hi score
+    STATE_WAIT_GAME_OVER = 10    # wait after game over without new hi score
 
     def __init__(self, pacman):
         self._pacman = pacman
@@ -43,6 +44,7 @@ class Game():
         self._dashboardList = None
 
         self._imLife = self._pacman.graphics.loadImage("text","life.gif")
+        self._imWaitStart = self._pacman.graphics.loadImage("text","presstostart.gif")
         self._imGameOver = self._pacman.graphics.loadImage("text","gameover.gif")
         self._imHiScore = self._pacman.graphics.loadImage("text","hiscore.gif")
         self._imReady = self._pacman.graphics.loadImage("text","ready.gif")
@@ -70,7 +72,7 @@ class Game():
             self.setState( Game.STATE_WAIT_HI_SCORE )
             self._pacman.sounds.play("hiscore")
         else:
-            self.setState( Game.STATE_GAME_OVER )
+            self.setState( Game.STATE_WAIT_GAME_OVER )
 
     def setLives(self, lives):
         self.lives = lives
@@ -118,9 +120,11 @@ class Game():
         self._pacman.graphics.drawMultiple([self._dashboardList])
 
         if self.state == self.STATE_GAME_OVER:
-            self._pacman.graphics.draw (self._imGameOver, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2), billboard = True )
+            self._pacman.graphics.draw (self._imWaitStart, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2), billboard = True )
         if self.state == self.STATE_WAIT_HI_SCORE:
             self._pacman.graphics.draw (self._imHiScore, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2, 32 * math.sin(self.stateTimer / 10)), billboard = False )
+        if self.state == self.STATE_WAIT_GAME_OVER:
+            self._pacman.graphics.draw (self._imGameOver, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2, 8 * math.sin(self.stateTimer / 20)), billboard = False )
         elif self.state == self.STATE_WAIT_START:
             self._pacman.graphics.draw (self._imReady, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2, 32 * math.sin(self.stateTimer / 5)), billboard = True )
 
