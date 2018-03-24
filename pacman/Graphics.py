@@ -128,8 +128,8 @@ class Graphics():
         for data in self._batch:
             self.drawMultiple(data)
 
-    def draw(self, surface, position, billboard = False):
-        self.drawMultiple({surface: [(position, billboard)]})
+    def draw(self, surface, position, billboard = False, immediate = False):
+        self.drawMultiple({surface: [(position, billboard)]}, immediate)
 
     def drawMultiple(self, data, immediate = False):
         if self._collectingBatch and not immediate:
@@ -163,13 +163,13 @@ class Graphics():
                 glPopMatrix()
             surface.unbindTexture()
 
-    def drawNumber(self, number, position):
+    def drawNumber(self, number, position, immediate = False):
         (x, y) = position
         strNumber = str(int(number))
 
         for i in range(0, len(strNumber), 1):
             iDigit = int(strNumber[i])
-            self.draw (self._digit[ iDigit ], (x + i * NUMERIC_COLWIDTH, y), billboard = True)
+            self.draw (self._digit[ iDigit ], (x + i * NUMERIC_COLWIDTH, y), billboard = True, immediate = immediate)
 
     def loadImage(self, dirname, filename):
         path = os.path.join(sys.path[0], "res", dirname, filename)

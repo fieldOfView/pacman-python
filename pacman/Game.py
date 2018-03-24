@@ -52,6 +52,8 @@ class Game():
 
         self.setState( self.STATE_GAME_OVER )
 
+        self._dashboardList = None
+
         self._imLife = self._pacman.graphics.loadImage("text","life.gif")
         self._imGameOver = self._pacman.graphics.loadImage("text","gameover.gif")
         self._imHiScore = self._pacman.graphics.loadImage("text","hiscore.gif")
@@ -93,6 +95,8 @@ class Game():
         if self._pacman.multiplayer:
             self._pacman.multiplayer.emitValue("lives", self.lives)
 
+        self._dashboardList = None
+
     def addToScore(self, amount):
         extraLifeSet = [500, 1000, 2000, 4000]
 
@@ -105,13 +109,25 @@ class Game():
 
         self._pacman.multiplayer.emitValue("score", self.score)
 
-    def drawScore(self):
-        y = self._pacman.level.lvlHeight * self._pacman.TILE_HEIGHT + SCORE_YOFFSET
-        self._pacman.graphics.drawNumber (self.score, (SCORE_XOFFSET, y) )
-        self._pacman.graphics.drawNumber (max(self.score, self.hiScore), (SCORE_XOFFSET + 360, y) )
+        self._dashboardList = None
 
-        for i in range(0, self.lives, 1):
-            self._pacman.graphics.draw (self._imLife, (SCORE_XOFFSET + 80 + i * 10 + 16, y), billboard = True)
+    def drawScore(self):
+        if not self._dashboardList:
+            self._dashboardList = self._pacman.graphics.createList()
+            self._dashboardList.begin()
+
+            y = self._pacman.level.lvlHeight * self._pacman.TILE_HEIGHT + SCORE_YOFFSET
+            self._pacman.graphics.drawNumber (self.score, (SCORE_XOFFSET, y), immediate = True )
+            self._pacman.graphics.drawNumber (max(self.score, self.hiScore), (SCORE_XOFFSET + 360, y), immediate = True )
+
+            for i in range(0, self.lives, 1):
+                self._pacman.graphics.draw (self._imLife, (SCORE_XOFFSET + 80 + i * 10 + 16, y), billboard = True, immediate = True)
+
+            self._pacman.graphics.drawNumber (self._levelNum, (0, self._pacman.graphics.screenSize[1] - 20), immediate = True )
+
+            self._dashboardList.end()
+
+        self._pacman.graphics.drawMultiple([self._dashboardList])
 
         if self.state == self.STATE_GAME_OVER:
             self._pacman.graphics.draw (self._imGameOver, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2), billboard = True )
@@ -119,8 +135,6 @@ class Game():
             self._pacman.graphics.draw (self._imHiScore, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2, 32 * math.sin(self.stateTimer / 10)), billboard = False )
         elif self.state == self.STATE_WAIT_START:
             self._pacman.graphics.draw (self._imReady, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2, 32 * math.sin(self.stateTimer / 5)), billboard = True )
-
-        self._pacman.graphics.drawNumber (self._levelNum, (0, self._pacman.graphics.screenSize[1] - 20) )
 
 
     def getLevelNum(self):
@@ -134,6 +148,8 @@ class Game():
         self._pacman.level.loadLevel( self._levelNum )
 
         self._pacman.player.stop()
+
+        self._dashboardList = None
 
     def setState(self, newState):
         self.state = newState
