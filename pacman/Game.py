@@ -3,23 +3,11 @@
 
 import pygame, sys, os, math
 
-# WIN???
-SCRIPT_PATH = sys.path[0]
-
-# constants for the high-score display
-HS_FONT_SIZE = 14
-HS_LINE_HEIGHT = 16
-HS_WIDTH = 408
-HS_HEIGHT = 120
-HS_ALPHA = 200
-
 # new constants for the score's position
 SCORE_XOFFSET = 50 # pixels from left edge
 SCORE_YOFFSET = 0 # pixels from bottom edge (to top of score)
 
-NO_WX = 0 # if set, the high-score code will not attempt to ask the user his name
-USER_NAME = "User" # USER_NAME=os.getlogin() # the default user name if wx fails to load or NO_WX
-                 # Oops! os.getlogin() only works if you launch from a terminal
+START_LIVES = 3
 
 class Game():
     STATE_PLAYING = 1            # normal
@@ -37,7 +25,7 @@ class Game():
 
         self._levelNum = 0
         self.score = 0
-        self.setLives(3)
+        self.setLives(START_LIVES)
 
         self.hiScore = 100
 
@@ -66,7 +54,7 @@ class Game():
     def startNewGame(self):
         self._levelNum = 1
         self.score = 0
-        self.setLives(3)
+        self.setLives(START_LIVES)
 
         self.setState( self.STATE_WAIT_START )
         self._pacman.level.loadLevel( self._levelNum )
@@ -87,7 +75,7 @@ class Game():
     def setLives(self, lives):
         self.lives = lives
 
-        if self.lives == -1:
+        if self.lives == 0:
             self.gameOver()
         else:
             self.setState( Game.STATE_WAIT_START )
@@ -120,7 +108,7 @@ class Game():
             self._pacman.graphics.drawNumber (self.score, (SCORE_XOFFSET, y), immediate = True )
             self._pacman.graphics.drawNumber (max(self.score, self.hiScore), (SCORE_XOFFSET + 360, y), immediate = True )
 
-            for i in range(0, self.lives, 1):
+            for i in range(0, self.lives):
                 self._pacman.graphics.draw (self._imLife, (SCORE_XOFFSET + 80 + i * 10 + 16, y), billboard = True, immediate = True)
 
             self._pacman.graphics.drawNumber (self._levelNum, (0, self._pacman.graphics.screenSize[1] - 20), immediate = True )
