@@ -10,6 +10,9 @@ from OpenGL.GL.EXT.framebuffer_object import *
 
 NUMERIC_COLWIDTH = 13 # width of each character
 
+ANAGLYPH_FOCUS = 2
+ANAGLYPH_IOD = 0.05
+
 class Graphics():
 
     def __init__(self, pacman):
@@ -94,15 +97,13 @@ class Graphics():
         proj = glGetFloatv( GL_PROJECTION_MATRIX)
         if left:
             # cyan
-            #glTranslate(-2.0, 0., 0.)
-            proj[2][0] = -.05
-            proj[3][0] = -3
+            proj[2][0] = -ANAGLYPH_IOD
+            proj[3][0] = -ANAGLYPH_FOCUS
             glColorMask(GL_TRUE,GL_FALSE,GL_FALSE,GL_TRUE)
         else:
             # red
-            #glTranslate(2.0, 0., 0.)
-            proj[2][0] = .05
-            proj[3][0] = 3
+            proj[2][0] = ANAGLYPH_IOD
+            proj[3][0] = ANAGLYPH_FOCUS
             glColorMask(GL_FALSE,GL_TRUE,GL_TRUE,GL_TRUE)
 
         glMatrixMode(GL_PROJECTION)
@@ -115,6 +116,9 @@ class Graphics():
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
         glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE)
+        proj = glGetFloatv( GL_PROJECTION_MATRIX)
+        proj[2][0] = 0
+        proj[3][0] = 0
 
     def beginRenderBatch(self):
         self._batch = []
