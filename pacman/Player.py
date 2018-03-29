@@ -38,9 +38,10 @@ class Player():
 
         self.pelletSndNum = 0
 
-        self._pacman.sounds.register("eatghost", "eatgh2.wav")
+        self._pacman.sounds.register("eatghost", "eatghost.wav")
         self._pacman.sounds.register("eatfruit", "eatfruit.wav")
         self._pacman.sounds.register("death", "death.wav")
+        self._pacman.sounds.register("ghostalarm", "ghostalarm.wav")
 
     def stop(self):
         self.velX = 0
@@ -108,6 +109,8 @@ class Player():
                     if self._pacman.ghosts[i].state == Ghost.STATE_VULNERABLE:
                         self._pacman.ghosts[i].state = Ghost.STATE_NORMAL
                 self.ghostValue = 0
+            elif self._pacman.game.ghostTimer % 20 == 0:
+                self._pacman.sounds.play("ghostalarm")
 
         # deal with fruit timer
         self._pacman.game.fruitTimer += 1

@@ -59,34 +59,6 @@ class Ghost():
         if self._pacman.game.state == Game.STATE_GAME_OVER:
             return
 
-        # ghost eyes --
-        if False:
-            for y in range(6,12,1):
-                for x in [5,6,8,9]:
-                    self.anim[ self._animFrame ].set_at( (x, y), (0xf8,0xf8,0xf8,255) )
-                    self.anim[ self._animFrame ].set_at( (x+9, y), (0xf8,0xf8,0xf8,255) )
-
-            if self._pacman.player.x > self.x and self._pacman.player.y > self.y:
-                #player is to lower-right
-                pupilSet = (8,9)
-            elif self._pacman.player.x < self.x and self._pacman.player.y > self.y:
-                #player is to lower-left
-                pupilSet = (5,9)
-            elif self._pacman.player.x > self.x and self._pacman.player.y < self.y:
-                #player is to upper-right
-                pupilSet = (8,6)
-            elif self._pacman.player.x < self.x and self._pacman.player.y < self.y:
-                #player is to upper-left
-                pupilSet = (5,6)
-            else:
-                pupilSet = (5,9)
-
-            for y in range(pupilSet[1], pupilSet[1] + 3, 1):
-                for x in range(pupilSet[0], pupilSet[0] + 2, 1):
-                    self.anim[ self._animFrame ].set_at( (x, y), (0, 0, 255, 255) )
-                    self.anim[ self._animFrame ].set_at( (x+9, y), (0, 0, 255, 255) )
-        # -- end ghost eyes
-
         if self.state == self.STATE_NORMAL:
             # draw regular ghost (this one)
             self._pacman.graphics.draw (self.anim[ self._animFrame ], (self.x, self.y), billboard = True)
