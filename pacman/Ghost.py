@@ -9,9 +9,11 @@ GHOST_COLORS = [
     (255, 128, 255, 255),
     (128, 255, 255, 255),
     (255, 128, 0, 255),
-    (140, 140, 255, 255), # blue, vulnerable ghost
-    (255, 255, 255, 255) # white, flashing ghost
+    (200, 200, 200, 255), # blue, vulnerable ghost
+    (140, 140, 140, 255)  # white, flashing ghost
 ]
+
+MAX_FRAME = 7
 
 class Ghost():
     STATE_NORMAL = 1
@@ -40,7 +42,7 @@ class Ghost():
         self.currentPath = ""
 
         self.anim = {}
-        for i in range(1, 7, 1):
+        for i in range(1, MAX_FRAME, 1):
             self.anim[i] = self._pacman.graphics.loadImage("sprite", "ghost %d.gif" % i)
 
             # change the ghost color in this frame
@@ -71,7 +73,7 @@ class Ghost():
             else:
                 # blue/white flashing
                 tempTimerI = int(self._pacman.game.ghostTimer / 10)
-                if tempTimerI == 1 or tempTimerI == 3 or tempTimerI == 5 or tempTimerI == 7 or tempTimerI == 9:
+                if tempTimerI % 2:
                     self._pacman.graphics.draw (self._pacman.ghosts[5].anim[ self._animFrame ], (self.x, self.y), billboard = True)
                 else:
                     self._pacman.graphics.draw (self._pacman.ghosts[4].anim[ self._animFrame ], (self.x, self.y), billboard = True)
@@ -89,7 +91,7 @@ class Ghost():
         if self._animDelay == 2:
             self._animFrame += 1
 
-            if self._animFrame == 7:
+            if self._animFrame == MAX_FRAME:
                 # wrap to beginning
                 self._animFrame = 1
 

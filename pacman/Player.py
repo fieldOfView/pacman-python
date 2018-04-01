@@ -5,6 +5,8 @@ import random
 from Game import Game
 from Ghost import Ghost
 
+MAX_FRAME = 9
+
 class Player():
 
     def __init__(self, pacman):
@@ -29,7 +31,7 @@ class Player():
         self._anim_pacmanS = {}
         self._anim_pacmanCurrent = {}
 
-        for i in range(1, 9, 1):
+        for i in range(1, MAX_FRAME, 1):
             self._anim_pacmanL[i] = self._pacman.graphics.loadImage("sprite", "pacman-l %d.gif" % i)
             self._anim_pacmanR[i] = self._pacman.graphics.loadImage("sprite", "pacman-r %d.gif" % i)
             self._anim_pacmanU[i] = self._pacman.graphics.loadImage("sprite", "pacman-u %d.gif" % i)
@@ -141,7 +143,7 @@ class Player():
                 # only Move mouth when pacman is moving
                 self._animFrame += 1
 
-            if self._animFrame == 9:
+            if self._animFrame == MAX_FRAME:
                 # wrap to beginning
                 self._animFrame = 1
 
