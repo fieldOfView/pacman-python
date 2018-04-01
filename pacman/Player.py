@@ -23,7 +23,8 @@ class Player():
         self.homeX = 0
         self.homeY = 0
 
-        self._animFrame = 0
+        self._animFrame = 1
+        self._animDelay = 0
         self._anim_pacmanL = {}
         self._anim_pacmanR = {}
         self._anim_pacmanU = {}
@@ -139,9 +140,14 @@ class Player():
             self._pacman.game.fruitScoreTimer -= 1
 
         if self._pacman.game.state == Game.STATE_PLAYING:
-            if not self.velX == 0 or not self.velY == 0:
-                # only Move mouth when pacman is moving
-                self._animFrame += 1
+            self._animDelay += 1
+
+            if self._animDelay == 1:
+                self._animDelay = 0
+
+                if not self.velX == 0 or not self.velY == 0:
+                    # only Move mouth when pacman is moving
+                    self._animFrame += 1
 
             if self._animFrame == MAX_FRAME:
                 # wrap to beginning
