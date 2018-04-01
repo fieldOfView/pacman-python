@@ -61,9 +61,13 @@ class Ghost():
         if self._pacman.game.state == Game.STATE_GAME_OVER:
             return
 
+        animDelay = 3
+        self._speed = 1
         if self.state == self.STATE_NORMAL:
             # draw regular ghost (this one)
             self._pacman.graphics.draw (self.anim[ self._animFrame ], (self.x, self.y), billboard = True)
+            animDelay = 1
+            self._speed = 2
         elif self.state == self.STATE_VULNERABLE:
             # draw vulnerable ghost
 
@@ -88,7 +92,7 @@ class Ghost():
 
         self._animDelay += 1
 
-        if self._animDelay == 2:
+        if self._animDelay >= animDelay:
             self._animFrame += 1
 
             if self._animFrame == MAX_FRAME:
