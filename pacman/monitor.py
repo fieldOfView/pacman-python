@@ -47,6 +47,7 @@ class PacmanMonitorNode(ZOCP):
 
     # Constructor
     def __init__(self, nodename):
+        self.nodeName = nodename
         self.ip = None
         self.networkCheckTimer = None
         try:
@@ -172,14 +173,15 @@ class PacmanMonitorNode(ZOCP):
         self.clients = OrderedDict(sorted(self.clients.items(), key = lambda c: (c[1].get("id", sys.maxsize), c[0]) ))
 
     def checkNetwork(self):
-        self.ip = self.getIpAddress("eth0")
+        self.ip = self.getIpAddress(b"eth0")
         if not self.ip:
             print("Could not find an ip address, trying again in 5 seconds")
             self.networkCheckTimer = Timer(5, self.checkNetwork)
             self.networkCheckTimer.start()
         else:
             print("Got ip address: %s" % self.ip)
-            super(PacmanMonitorNode, self).__init__(nodename)
+            self.stop()
+            self.start()
 
     def getIpAddress(self, ifname):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
