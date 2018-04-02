@@ -1,7 +1,7 @@
 #      ___________________
 # ___/  graphics manager  \_______________________________________________
 
-import pygame, sys, os
+import pygame, sys, os, math
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
@@ -33,6 +33,7 @@ class Graphics():
 
         self._view_x = 0
         self._view_y = 0
+        self._focus_factor = 1
 
         # numerical display digits
         self._digit = {}
@@ -92,16 +93,19 @@ class Graphics():
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
     def beginAnaglyph(self, left = True):
+        focus_factor = 1 + ((self._pacman.level.lvlHeight / 2) - (self._pacman.player.y / self._pacman.TILE_HEIGHT)) / self._pacman.level.lvlHeight
+        self._focus_factor = self._focus_factor + 0.1 * (focus_factor - self._focus_factor)
+
         proj = glGetFloatv( GL_PROJECTION_MATRIX)
         if left:
             # cyan
             proj[2][0] = -ANAGLYPH_IOD
-            proj[3][0] = -ANAGLYPH_FOCUS
+            proj[3][0] = -ANAGLYPH_FOCUS * self._focus_factor
             glColorMask(GL_TRUE,GL_FALSE,GL_FALSE,GL_TRUE)
         else:
             # red
             proj[2][0] = ANAGLYPH_IOD
-            proj[3][0] = ANAGLYPH_FOCUS
+            proj[3][0] = ANAGLYPH_FOCUS * self._focus_factor
             glColorMask(GL_FALSE,GL_TRUE,GL_TRUE,GL_TRUE)
 
         glMatrixMode(GL_PROJECTION)
