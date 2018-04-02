@@ -5,6 +5,7 @@ from pygame.locals import *
 
 import os
 import sys
+import re
 from collections import OrderedDict
 
 from zocp import ZOCP
@@ -69,9 +70,13 @@ class PacmanMonitorNode(ZOCP):
         self.hiScoreSound = pygame.mixer.Sound(os.path.join(sys.path[0], "res", "sounds", "hiscore.wav"))
         self.gameOverSound = pygame.mixer.Sound(os.path.join(sys.path[0], "res", "sounds", "gameover.wav"))
 
+        self.address = ""
+
     def run(self):
         self.register_int("hi-score", self.hiScore, 're')
         self.start()
+        self.address = self.endPointToAddress(self.endpoint())
+
         while True:
             events = pygame.event.get()
             self.checkIfCloseButton( events )
@@ -112,11 +117,12 @@ class PacmanMonitorNode(ZOCP):
                 if "state" in client:
                     color = self.STATE_COLORS[client["state"]]
                 pygame.draw.rect(self.screen, color, (x,0, cellSize, cellSize))
-                self.drawText((x + cellSize * 0.65, cellSize * 0.5), self.huge_font, (0,0,0), str(client.get("pi id", -1)) )
+                self.drawText((x + cellSize * 0.65, cellSize * 0.4), self.huge_font, (0,0,0), str(client.get("pi id", -1)) )
                 self.drawText((x + 10, 10), self.default_font, (0,0,0),  "Score: " + str(client.get("score", 0)) )
                 self.drawText((x + 10, 36), self.default_font, (0,0,0),  "Level: " + str(client.get("level", 0)) )
                 self.drawText((x + 10, 62), self.default_font, (0,0,0),  "Lives: " + str(client.get("lives", 0)) )
                 self.drawText((x + 10, cellSize * 0.9), self.small_font, (0,0,0),  client.get("version", "?"))
+                self.drawText((x + cellSize * 0.4, cellSize * 0.9), self.small_font, (0,0,0),  client.get("address", "?"))
             else:
                 pygame.draw.rect(self.screen, color, (x,0, cellSize, cellSize))
 
@@ -136,6 +142,7 @@ class PacmanMonitorNode(ZOCP):
         self.drawText((self.screenSize[0] * 0.85, y + cellSize * 0.25), self.huge_font, (0,0,0), str(hiScoreClientId) if hiScoreClientId != -1 else "?" )
 
         self.drawText((10, cellSize * 2.1), self.small_font, (0,0,0),  self.version)
+        self.drawText((cellSize * 0.4, cellSize * 2.1), self.small_font, (0,0,0),  self.address)
 
         pygame.display.update()
 
@@ -155,11 +162,19 @@ class PacmanMonitorNode(ZOCP):
     def sortClients(self):
         self.clients = OrderedDict(sorted(self.clients.items(), key = lambda c: (c[1].get("id", sys.maxsize), c[0]) ))
 
+    def endPointToAddress(self, endpoint):
+        pattern = re.compile(".*\/\/(\d+\.\d+\.\d+\.\d+):(\d+)")
+        result = pattern.match(endpoint)
+        if result:
+            return result.group(1)
+        else:
+            return "0.0.0.0"
+
     def on_peer_enter(self, peer, name, *args, **kwargs):
         split_name = name.split("#",1)
         if(split_name[0] == 'pacman'):
             # Subscribe to any and all value changes
-            self.clients[peer.hex] = {}
+            self.clients[peer.hex] = {"address": self.endPointToAddress(self.peer_address(peer))}
             self.signal_subscribe(self.uuid(), None, peer, None)
 
     def on_peer_exit(self, peer, name, *args, **kwargs):
