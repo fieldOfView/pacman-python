@@ -180,7 +180,7 @@ class PacmanMonitorNode(ZOCP):
             self.networkCheckTimer.start()
         else:
             print("Got ip address: %s" % self.ip)
-            self.stop()
+            super(PacmanMonitorNode, self).__init__(self.nodename)
             self.start()
 
     def getIpAddress(self, ifname):
