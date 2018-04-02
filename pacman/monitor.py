@@ -67,6 +67,7 @@ class PacmanMonitorNode(ZOCP):
         pygame.mixer.pre_init(22050, 16, 2, 512)
         pygame.mixer.init()
         self.hiScoreSound = pygame.mixer.Sound(os.path.join(sys.path[0], "res", "sounds", "hiscore.wav"))
+        self.gameOverSound = pygame.mixer.Sound(os.path.join(sys.path[0], "res", "sounds", "gameover.wav"))
 
     def run(self):
         self.register_int("hi-score", self.hiScore, 're')
@@ -184,10 +185,13 @@ class PacmanMonitorNode(ZOCP):
             self.sortClients()
 
     def on_peer_signaled(self, peer, name, data, *args, **kwargs):
-        if data[0] == "state" and data[1] == self.STATE_WAIT_HI_SCORE and self.clients[peer.hex].get("state", 0) != self.STATE_WAIT_HI_SCORE:
-            # peer went into STATE_WAIT_HI_SCORE state
-            self.hiScorePeer = peer.hex
-            self.hiScoreSound.play()
+        if data[0] == "state":
+            if data[1] == self.STATE_WAIT_HI_SCORE and self.clients[peer.hex].get("state", 0) != self.STATE_WAIT_HI_SCORE:
+                # peer went into STATE_WAIT_HI_SCORE state
+                self.hiScorePeer = peer.hex
+                self.hiScoreSound.play()
+            if data[1] == self.STATE_WAIT_GAME_OVER and self.clients[peer.hex].get("state", 0) != self.STATE_WAIT_GAME_OVER:
+                self.gameOverSound.play()
 
         self.clients[peer.hex][data[0]] = data[1]
         if data[0] == "hi-score" and data[1] > self.hiScore:
