@@ -6,9 +6,15 @@ from pygame.locals import *
 import os
 import sys
 from collections import OrderedDict
+from threading import Timer
 
 from zocp import ZOCP
 import socket
+try:
+    import fcntl
+except ImportError:
+    pass
+import struct
 
 import logging
 
@@ -41,7 +47,15 @@ class PacmanMonitorNode(ZOCP):
 
     # Constructor
     def __init__(self, nodename):
-        super(PacmanMonitorNode, self).__init__(nodename)
+        self.ip = None
+        self.networkCheckTimer = None
+        try:
+            self.checkNetwork()
+        except NameError:
+            print("Skipping ip address detection")
+
+        if not self.ip:
+            super(PacmanMonitorNode, self).__init__(nodename)
 
         self.version = "0.0.0"
         with open(os.path.join(sys.path[0], "res", "version.txt")) as f:
@@ -51,6 +65,7 @@ class PacmanMonitorNode(ZOCP):
         self.hiScore = 0
         self.hiScorePeer = None
         self.closing = False
+
 
         self.screenSize = (800,480)
         self.screen = None
@@ -135,6 +150,8 @@ class PacmanMonitorNode(ZOCP):
         self.drawText((self.screenSize[0] * 0.85, y + cellSize * 0.25), self.huge_font, (0,0,0), str(hiScoreClientId) if hiScoreClientId != -1 else "?" )
 
         self.drawText((10, cellSize * 2.1), self.small_font, (0,0,0),  self.version)
+        if self.ip:
+            self.drawText((self.screenSize[0] * .7, cellSize * 2.1), self.small_font, (0,0,0),  self.ip)
 
         pygame.display.update()
 
@@ -153,6 +170,27 @@ class PacmanMonitorNode(ZOCP):
 
     def sortClients(self):
         self.clients = OrderedDict(sorted(self.clients.items(), key = lambda c: (c[1].get("id", sys.maxsize), c[0]) ))
+
+    def checkNetwork(self):
+        self.ip = self.getIpAddress("eth0")
+        if not self.ip:
+            print("Could not find an ip address, trying again in 5 seconds")
+            self.networkCheckTimer = Timer(5, self.checkNetwork)
+            self.networkCheckTimer.start()
+        else:
+            print("Got ip address: %s" % self.ip)
+            super(PacmanMonitorNode, self).__init__(nodename)
+
+    def getIpAddress(self, ifname):
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            return socket.inet_ntoa(fcntl.ioctl(
+                    s.fileno(),
+                    0x8915,  # SIOCGIFADDR
+                    struct.pack('256s', ifname[:15])
+                )[20:24])
+        except OSError:
+            return None
 
     def on_peer_enter(self, peer, name, *args, **kwargs):
         split_name = name.split("#",1)
