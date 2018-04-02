@@ -86,7 +86,7 @@ class Ghost():
             # draw glasses
             self._pacman.graphics.draw (self._pacman.tileIDImage[ self._pacman.tileID[ 'glasses' ] ], (self.x, self.y), billboard = True)
 
-            self._speed = 2
+            self._speed = 4
         if self._pacman.game.state >= Game.STATE_WAIT_LEVEL_CLEAR:
             # don't animate ghost if the level is complete
             return
