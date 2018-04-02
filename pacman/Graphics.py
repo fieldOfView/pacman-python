@@ -32,6 +32,7 @@ class Graphics():
         self.screenSize = (1280, 720)
 
         self._view_x = 0
+        self._view_y = 0
 
         # numerical display digits
         self._digit = {}
@@ -53,11 +54,6 @@ class Graphics():
         gluPerspective(60, (width/height), 0.1, 100.0)
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-        gluLookAt(
-            2, -35, 25,
-            0, 0, -10,
-            0, 1, 0
-        )
 
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -78,9 +74,11 @@ class Graphics():
     def setView(self):
         x = ((self._pacman.player.x / self._pacman.TILE_WIDTH) - (self._pacman.level.lvlWidth / 2)) / 2
         self._view_x = self._view_x + 0.1 * (x - self._view_x)
+        y = ((self._pacman.player.y / self._pacman.TILE_HEIGHT) - (self._pacman.level.lvlHeight / 2)) / 3
+        self._view_y = self._view_y + 0.1 * (y - self._view_y)
         glLoadIdentity()
         gluLookAt(
-            self._view_x, -45, 15,
+            self._view_x, -45, 12 - self._view_y,
             0, 0, -5,
             0, 1, 0
         )
