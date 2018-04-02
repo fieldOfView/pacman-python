@@ -87,6 +87,11 @@ class Game():
 
         self._dashboardList = None
 
+    def setHiScore(self, score):
+        self.hiScore = score
+
+        self._dashboardList = None
+
     def addToScore(self, amount):
         extraLifeSet = [500, 1000, 2000, 4000]
 

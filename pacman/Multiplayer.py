@@ -48,5 +48,5 @@ class Multiplayer(ZOCP):
 
     def _updateHiScore(self, score):
         if score > self._pacman.game.hiScore:
-            self._pacman.game.hiScore = score
+            self._pacman.game.setHiScore(score)
             self.emitValue("hi-score", score)
