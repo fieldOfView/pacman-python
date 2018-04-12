@@ -10,7 +10,7 @@ from OpenGL.GL.EXT.framebuffer_object import *
 
 NUMERIC_COLWIDTH = 13 # width of each character
 
-ANAGLYPH_FOCUS = 2
+ANAGLYPH_FOCUS = 1.5
 ANAGLYPH_IOD = 0.05
 
 class Graphics():
@@ -52,7 +52,7 @@ class Graphics():
 
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        gluPerspective(60, (width/height), 0.1, 100.0)
+        gluPerspective(70, (width/height), 0.1, 100.0)
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
 
@@ -79,7 +79,7 @@ class Graphics():
         self._view_y = self._view_y + 0.1 * (y - self._view_y)
         glLoadIdentity()
         gluLookAt(
-            self._view_x, -45, 12 - self._view_y,
+            self._view_x, -38, 12 - self._view_y,
             0, 0, -5,
             0, 1, 0
         )
