@@ -144,6 +144,11 @@ class Ghost():
 
                 if not self.state == self.STATE_SPECTACLES:
                     # chase pac-man
+
+                    if (self.nearestRow, self.nearestCol) == (self._pacman.player.nearestRow, self._pacman.player.nearestCol):
+                        # don't chase if we are already on top
+                        return
+
                     self.currentPath = self._pacman.path.findPath( (self.nearestRow, self.nearestCol), (self._pacman.player.nearestRow, self._pacman.player.nearestCol) )
                     self.followNextPathWay()
 
