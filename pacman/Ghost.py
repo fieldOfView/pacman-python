@@ -5,10 +5,10 @@ import random
 from Game import Game
 
 GHOST_COLORS = [
-    (255, 50, 50, 255),
+    (128,  80, 240, 255),
     (255, 128, 255, 255),
     (128, 255, 255, 255),
-    (255, 128, 0, 255),
+    (128,  80, 240, 255),
     (200, 200, 200, 255), # blue, vulnerable ghost
     (140, 140, 140, 255)  # white, flashing ghost
 ]
