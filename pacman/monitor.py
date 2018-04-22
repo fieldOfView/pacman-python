@@ -67,7 +67,7 @@ class PacmanMonitorNode(ZOCP):
 
         pygame.mixer.pre_init(22050, 16, 2, 512)
         pygame.mixer.init()
-        self.hiScoreSound = pygame.mixer.Sound(os.path.join(sys.path[0], "res", "sounds", "hiscore.wav"))
+        self.hiScoreSound = pygame.mixer.Sound(os.path.join(sys.path[0], "res", "sounds", "monitor_hiscore.wav"))
         self.gameOverSound = pygame.mixer.Sound(os.path.join(sys.path[0], "res", "sounds", "gameover.wav"))
 
         self.address = ""
