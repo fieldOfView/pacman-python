@@ -124,11 +124,9 @@ class Game():
 
         self._pacman.graphics.drawMultiple([self._dashboardList])
 
-        if self.state == self.STATE_GAME_OVER:
-            self._pacman.graphics.draw (self._imWaitStart, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2), billboard = True )
         if self.state == self.STATE_WAIT_HI_SCORE:
             self._pacman.graphics.draw (self._imHiScore, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2, 32 * math.sin(self.stateTimer / 10)), billboard = False )
-        if self.state == self.STATE_WAIT_GAME_OVER:
+        elif self.state == self.STATE_WAIT_GAME_OVER:
             self._pacman.graphics.draw (self._imGameOver, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2, 8 * math.sin(self.stateTimer / 20)), billboard = False )
         elif self.state == self.STATE_WAIT_START:
             self._pacman.graphics.draw (self._imReady, (self._pacman.TILE_WIDTH * (self._pacman.level.lvlWidth - 1) / 2, self._pacman.TILE_HEIGHT * self._pacman.level.lvlHeight / 2, 32 * math.sin(self.stateTimer / 5)), billboard = True )

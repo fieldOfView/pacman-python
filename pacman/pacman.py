@@ -131,10 +131,11 @@ class Pacman():
             self.checkIfCloseButton( events )
             self.checkResizeEvent( events )
 
-            if self.game.state == Game.STATE_PLAYING:
-                # normal gameplay state
+            if self.game.state != Game.STATE_WAIT_START:
                 self.checkInputs()
 
+            if self.game.state == Game.STATE_PLAYING:
+                # normal gameplay state
                 self.game.stateTimer += 1
                 self.player.move()
                 for i in range(0, 4, 1):
@@ -151,7 +152,7 @@ class Pacman():
 
             elif self.game.state == Game.STATE_GAME_OVER:
                 # game over
-                self.checkInputs()
+                pass
 
             elif self.game.state == Game.STATE_WAIT_GAME_OVER:
                 # game over without hi score
@@ -275,6 +276,10 @@ class Pacman():
         if pygame.key.get_pressed()[ pygame.K_ESCAPE ]:
             self.exit()
 
+        if pygame.key.get_pressed()[ pygame.K_RETURN ] or (self._js != None and self._js.get_button(JS_STARTBUTTON)) or (self.piface and self.piface.input_pins[4].value):
+            self.game.startNewGame()
+            return
+
         if self.game.state == Game.STATE_PLAYING:
             if pygame.key.get_pressed()[ pygame.K_RIGHT ] or (self._js != None and self._js.get_axis(JS_XAXIS) > 0) or (self.piface and self.piface.input_pins[0].value):
                 if not self.level.checkIfHitWall((self.player.x + self.player.speed, self.player.y), (self.player.nearestRow, self.player.nearestCol)):
@@ -296,9 +301,6 @@ class Pacman():
                     self.player.velX = 0
                     self.player.velY = -self.player.speed
 
-        elif self.game.state == Game.STATE_GAME_OVER:
-            if pygame.key.get_pressed()[ pygame.K_RETURN ] or (self._js != None and self._js.get_button(JS_STARTBUTTON)) or (self.piface and self.piface.input_pins[4].value):
-                self.game.startNewGame()
 
 
 
