@@ -61,7 +61,7 @@ class PacmanMonitorNode(ZOCP):
         pygame.font.init()
         self.default_font = pygame.font.Font(os.path.join(sys.path[0],"res", "fonts", "VeraMoBd.ttf"), 18)
         self.huge_font = pygame.font.Font(os.path.join(sys.path[0],"res", "fonts", "VeraMoBd.ttf"), 96)
-        self.small_font = pygame.font.Font(os.path.join(sys.path[0],"res", "fonts", "VeraMoBd.ttf"), 12)
+        self.small_font = pygame.font.Font(os.path.join(sys.path[0],"res", "fonts", "VeraMoBd.ttf"), 16)
 
         pygame.mouse.set_visible(False)
 
@@ -124,8 +124,8 @@ class PacmanMonitorNode(ZOCP):
                 pygame.draw.rect(self.screen, color, (x,0, cellSize, cellSize))
                 self.drawText((x + cellSize * 0.65, cellSize * 0.4), self.huge_font, (0,0,0), str(client.get("pi id", -1)) )
                 self.drawText((x + 10, 10), self.default_font, (0,0,0),  "Score: " + str(client.get("score", 0)) )
-                self.drawText((x + 10, 36), self.default_font, (0,0,0),  "Level: " + str(client.get("level", 0)) )
-                self.drawText((x + 10, 62), self.default_font, (0,0,0),  "Lives: " + str(client.get("lives", 0)) )
+                self.drawText((x + 10, 40), self.default_font, (0,0,0),  "Level: " + str(client.get("level", 0)) )
+                self.drawText((x + 10, 70), self.default_font, (0,0,0),  "Lives: " + str(client.get("lives", 0)) )
                 self.drawText((x + 10, cellSize * 0.9), self.small_font, (0,0,0),  client.get("version", "?"))
                 self.drawText((x + cellSize * 0.4, cellSize * 0.9), self.small_font, (0,0,0),  client.get("address", "?"))
             else:
