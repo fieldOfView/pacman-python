@@ -72,10 +72,14 @@ class PacmanMonitorNode(ZOCP):
 
         self.address = ""
 
+        self._dblclick = None
+
     def run(self):
         self.register_int("hi-score", self.hiScore, 're')
         self.start()
         self.address = self.endPointToAddress(self.endpoint())
+
+        clock = pygame.time.Clock()
 
         while True:
             events = pygame.event.get()
@@ -87,6 +91,7 @@ class PacmanMonitorNode(ZOCP):
             if self.closing:
                 break
             self.draw()
+            clock.tick (60)
         pygame.quit()
         self.stop()
 
@@ -154,6 +159,13 @@ class PacmanMonitorNode(ZOCP):
         for event in events:
             if event.type == QUIT:
                 self.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if not self._dblclick:
+                    self._dblclick = pygame.time.get_ticks()
+                elif pygame.time.get_ticks() - self._dblclick < 1000:
+                    self.exit()
+                else:
+                    self._dblclick = None
 
     def checkInputs(self):
         if pygame.key.get_pressed()[ pygame.K_ESCAPE ]:
