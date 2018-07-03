@@ -3,7 +3,7 @@
 # bgcolor 0 0 0
 # edgelightcolor 251 233 130
 # edgeshadowcolor 124 70 16
-# fillcolor 225 151 51
+# fillcolor 64 0 128
 # pelletcolor 255 255 255
 # fruittype 3
 
