@@ -112,8 +112,8 @@ class Game():
             self._dashboardList.begin()
 
             y = self._pacman.level.lvlHeight * self._pacman.TILE_HEIGHT + SCORE_YOFFSET
-            self._pacman.graphics.drawNumber (self.score, (SCORE_XOFFSET, y), immediate = True )
-            self._pacman.graphics.drawNumber (max(self.score, self.hiScore), (SCORE_XOFFSET + 360, y), immediate = True )
+            self._pacman.graphics.drawNumber (self.score, (SCORE_XOFFSET + 10, y), immediate = True )
+            self._pacman.graphics.drawNumber (max(self.score, self.hiScore), (SCORE_XOFFSET + 320, y), immediate = True )
 
             for i in range(0, self.lives):
                 self._pacman.graphics.draw (self._imLife, (SCORE_XOFFSET + 80 + i * 10 + 16, y), billboard = True, immediate = True)
